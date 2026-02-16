@@ -13,9 +13,11 @@
   const knowledgeGrid = document.getElementById("knowledge-grid");
   const podcastsGrid = document.getElementById("podcasts-grid");
   const trainingGrid = document.getElementById("training-grid");
+  const youtubeGrid = document.getElementById("youtube-grid");
   const toolsCount = document.getElementById("tools-count");
   const knowledgeCount = document.getElementById("knowledge-count");
   const podcastsCount = document.getElementById("podcasts-count");
+  const youtubeCount = document.getElementById("youtube-count");
   const trainingCount = document.getElementById("training-count");
   const navTabs = document.querySelectorAll(".nav-tab");
 
@@ -256,11 +258,12 @@
 
   /* ========== Render ========== */
   function render() {
-    const { tools, knowledge, podcasts, training } = siteData;
+    const { tools, knowledge, podcasts, youtube, training } = siteData;
 
     toolsCount.textContent = tools.length;
     knowledgeCount.textContent = knowledge.length;
     podcastsCount.textContent = podcasts.length;
+    youtubeCount.textContent = (youtube || []).length;
     trainingCount.textContent = (training || []).length;
 
     toolsGrid.innerHTML = tools.length
@@ -275,6 +278,10 @@
       ? podcasts.map((p) => buildCard(p)).join("")
       : '<p class="section-empty">No podcasts yet.</p>';
 
+    youtubeGrid.innerHTML = (youtube || []).length
+      ? youtube.map((y) => buildCard(y)).join("")
+      : '<p class="section-empty">No YouTube channels yet. Edit data.js to add channels.</p>';
+
     trainingGrid.innerHTML = (training || []).length
       ? training.map((t) => buildCard(t)).join("")
       : '<p class="section-empty">No training links yet. Edit data.js to add courses and guides.</p>';
@@ -282,8 +289,8 @@
     /* Featured row: pick highlights across categories */
     const featured = [
       tools[0],
+      youtube ? youtube[0] : null,
       training ? training[0] : null,
-      knowledge[0],
       podcasts[0],
     ].filter(Boolean);
 
