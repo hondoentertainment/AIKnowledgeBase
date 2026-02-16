@@ -47,7 +47,17 @@ The repo includes a GitHub Actions workflow that deploys on every push to `main`
 4. Under "Build and deployment", set **Source** to **GitHub Actions**.
 5. After the workflow runs, your site will be at `https://YOUR_USERNAME.github.io/YOUR_REPO/`.
 
+## Vercel deployment
+
+1. Go to [vercel.com](https://vercel.com) and sign in with GitHub.
+2. Click **Add New** → **Project**.
+3. Import the `hondoentertainment/AIKnowledgeBase` repo.
+4. Leave the default settings (no build command, output directory = root).
+5. Click **Deploy**.
+
+Pushes to `main` will auto-deploy to production. PRs get preview URLs.
+
 ## Other hosting
 
-- **Vercel / Netlify** — Drag-and-drop the folder or connect a repo
+- **Netlify** — Drag-and-drop the folder or connect a repo
 - **Any static host** — Upload the files
