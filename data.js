@@ -9,6 +9,7 @@
  *   tags        — Array of tags for search / filtering
  *   icon        — Emoji displayed on the poster cover
  *   color       — [from, to] hex pair for the poster gradient
+ *   level       — Difficulty 1-10 (1 = beginner, 10 = world-class expert)
  */
 
 const siteData = {
@@ -20,6 +21,7 @@ const siteData = {
       tags: ["LLM", "Writing", "Coding"],
       icon: "\u{1F4AC}",
       color: ["#10a37f", "#1a7f5a"],
+      level: 1,
     },
     {
       title: "Claude",
@@ -28,6 +30,7 @@ const siteData = {
       tags: ["LLM", "Analysis", "Writing"],
       icon: "\u{1F9E0}",
       color: ["#cc785c", "#a0522d"],
+      level: 1,
     },
     {
       title: "Cursor",
@@ -36,6 +39,7 @@ const siteData = {
       tags: ["Coding", "IDE", "Productivity"],
       icon: "\u{1F4BB}",
       color: ["#7c3aed", "#4f46e5"],
+      level: 3,
     },
     {
       title: "Midjourney",
@@ -44,6 +48,7 @@ const siteData = {
       tags: ["Image", "Art", "Creative"],
       icon: "\u{1F3A8}",
       color: ["#e44d8a", "#b83280"],
+      level: 2,
     },
     {
       title: "Perplexity",
@@ -52,6 +57,7 @@ const siteData = {
       tags: ["Search", "Research", "Citations"],
       icon: "\u{1F50D}",
       color: ["#20b2aa", "#2980b9"],
+      level: 1,
     },
   ],
   knowledge: [
@@ -62,6 +68,7 @@ const siteData = {
       tags: ["Prompts", "Best Practices", "Getting Started"],
       icon: "\u{270F}\u{FE0F}",
       color: ["#f59e0b", "#d97706"],
+      level: 2,
     },
     {
       title: "AI Ethics & Safety",
@@ -70,6 +77,7 @@ const siteData = {
       tags: ["Ethics", "Safety", "Responsible AI"],
       icon: "\u{1F6E1}\u{FE0F}",
       color: ["#ef4444", "#b91c1c"],
+      level: 3,
     },
     {
       title: "RAG Architecture Explained",
@@ -78,6 +86,7 @@ const siteData = {
       tags: ["RAG", "Architecture", "LLMs"],
       icon: "\u{1F9F1}",
       color: ["#6366f1", "#4338ca"],
+      level: 6,
     },
   ],
   podcasts: [
@@ -88,6 +97,7 @@ const siteData = {
       tags: ["Interviews", "Research", "Industry"],
       icon: "\u{1F3D9}\u{FE0F}",
       color: ["#76b900", "#5a8f00"],
+      level: 4,
     },
     {
       title: "Lex Fridman Podcast",
@@ -96,6 +106,7 @@ const siteData = {
       tags: ["Interviews", "Philosophy", "AI"],
       icon: "\u{1F30C}",
       color: ["#8b5cf6", "#6d28d9"],
+      level: 5,
     },
     {
       title: "Practical AI",
@@ -104,6 +115,7 @@ const siteData = {
       tags: ["Practical", "Productivity", "Tutorials"],
       icon: "\u{1F527}",
       color: ["#22c55e", "#16a34a"],
+      level: 3,
     },
     {
       title: "Latent Space",
@@ -112,6 +124,7 @@ const siteData = {
       tags: ["Engineering", "Technical", "Startups"],
       icon: "\u{1F680}",
       color: ["#3b82f6", "#1d4ed8"],
+      level: 7,
     },
     {
       title: "The TWIML AI Podcast",
@@ -120,6 +133,7 @@ const siteData = {
       tags: ["ML", "Research", "Applications"],
       icon: "\u{1F4E1}",
       color: ["#0ea5e9", "#0369a1"],
+      level: 6,
     },
     {
       title: "Eye on AI",
@@ -128,6 +142,7 @@ const siteData = {
       tags: ["Interviews", "Future", "Leaders"],
       icon: "\u{1F441}\u{FE0F}",
       color: ["#f43f5e", "#be123c"],
+      level: 4,
     },
     {
       title: "Machine Learning Street Talk",
@@ -136,6 +151,7 @@ const siteData = {
       tags: ["Research", "Papers", "Technical"],
       icon: "\u{1F9EA}",
       color: ["#a855f7", "#7e22ce"],
+      level: 8,
     },
     {
       title: "Gradient Dissent",
@@ -144,6 +160,7 @@ const siteData = {
       tags: ["MLOps", "Research", "Practitioners"],
       icon: "\u{1F4CA}",
       color: ["#f59e0b", "#b45309"],
+      level: 7,
     },
   ],
   youtube: [
@@ -154,6 +171,7 @@ const siteData = {
       tags: ["Research", "Visual", "Short"],
       icon: "\u{1F3AC}",
       color: ["#ef4444", "#b91c1c"],
+      level: 3,
     },
     {
       title: "3Blue1Brown",
@@ -162,6 +180,7 @@ const siteData = {
       tags: ["Math", "Visualizations", "Neural Networks"],
       icon: "\u{1F4D0}",
       color: ["#3b82f6", "#1e3a5f"],
+      level: 4,
     },
     {
       title: "Andrej Karpathy",
@@ -170,6 +189,7 @@ const siteData = {
       tags: ["Technical", "GPT", "From Scratch"],
       icon: "\u{1F9D1}\u{200D}\u{1F4BB}",
       color: ["#6366f1", "#4338ca"],
+      level: 7,
     },
     {
       title: "Yannic Kilcher",
@@ -178,6 +198,7 @@ const siteData = {
       tags: ["Papers", "Research", "Reviews"],
       icon: "\u{1F4DD}",
       color: ["#14b8a6", "#0d9488"],
+      level: 8,
     },
     {
       title: "Fireship",
@@ -186,6 +207,7 @@ const siteData = {
       tags: ["Dev", "Fast-Paced", "Tools"],
       icon: "\u{1F525}",
       color: ["#f97316", "#c2410c"],
+      level: 2,
     },
     {
       title: "Matt Wolfe",
@@ -194,6 +216,7 @@ const siteData = {
       tags: ["News", "Tools", "Tutorials"],
       icon: "\u{1F4F0}",
       color: ["#8b5cf6", "#5b21b6"],
+      level: 2,
     },
     {
       title: "AI Explained",
@@ -202,6 +225,7 @@ const siteData = {
       tags: ["Explainers", "Models", "Benchmarks"],
       icon: "\u{1F4A1}",
       color: ["#06b6d4", "#0e7490"],
+      level: 4,
     },
     {
       title: "Sentdex",
@@ -210,6 +234,7 @@ const siteData = {
       tags: ["Python", "Coding", "Projects"],
       icon: "\u{1F40D}",
       color: ["#22c55e", "#15803d"],
+      level: 5,
     },
   ],
   training: [
@@ -220,6 +245,7 @@ const siteData = {
       tags: ["Courses", "Deep Learning", "Andrew Ng"],
       icon: "\u{1F393}",
       color: ["#0056d2", "#003d99"],
+      level: 4,
     },
     {
       title: "fast.ai",
@@ -228,6 +254,7 @@ const siteData = {
       tags: ["Courses", "Deep Learning", "Free"],
       icon: "\u{26A1}",
       color: ["#6c3483", "#4a235a"],
+      level: 5,
     },
     {
       title: "Coursera ML Specialization",
@@ -236,6 +263,7 @@ const siteData = {
       tags: ["Courses", "ML", "Stanford"],
       icon: "\u{1F4D0}",
       color: ["#0056d2", "#2471a3"],
+      level: 4,
     },
     {
       title: "HuggingFace Learn",
@@ -244,6 +272,7 @@ const siteData = {
       tags: ["NLP", "Transformers", "Open Source"],
       icon: "\u{1F917}",
       color: ["#ffbd00", "#e6a800"],
+      level: 6,
     },
     {
       title: "OpenAI Cookbook",
@@ -252,6 +281,7 @@ const siteData = {
       tags: ["API", "Examples", "GPT"],
       icon: "\u{1F4D6}",
       color: ["#10a37f", "#0d8c6b"],
+      level: 5,
     },
     {
       title: "Google AI Essentials",
@@ -260,6 +290,7 @@ const siteData = {
       tags: ["Fundamentals", "Google", "Certification"],
       icon: "\u{1F310}",
       color: ["#4285f4", "#34a853"],
+      level: 1,
     },
     {
       title: "Prompt Engineering Guide",
@@ -268,6 +299,7 @@ const siteData = {
       tags: ["Prompts", "Guide", "Techniques"],
       icon: "\u{1F9ED}",
       color: ["#f97316", "#ea580c"],
+      level: 3,
     },
     {
       title: "LangChain Academy",
@@ -276,6 +308,7 @@ const siteData = {
       tags: ["LangChain", "Agents", "RAG"],
       icon: "\u{1F517}",
       color: ["#1c3d5a", "#2d6a4f"],
+      level: 7,
     },
   ],
 };

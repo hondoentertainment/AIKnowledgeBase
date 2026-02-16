@@ -211,6 +211,23 @@
     });
   }
 
+  /* ========== Level helpers ========== */
+  function levelLabel(lvl) {
+    if (lvl <= 2) return "Beginner";
+    if (lvl <= 4) return "Intermediate";
+    if (lvl <= 6) return "Advanced";
+    if (lvl <= 8) return "Expert";
+    return "World-Class";
+  }
+
+  function levelClass(lvl) {
+    if (lvl <= 2) return "level-beginner";
+    if (lvl <= 4) return "level-intermediate";
+    if (lvl <= 6) return "level-advanced";
+    if (lvl <= 8) return "level-expert";
+    return "level-worldclass";
+  }
+
   /* ========== Build poster card ========== */
   function buildCard(item) {
     const url = item.url || "#";
@@ -220,6 +237,11 @@
       .map((t) => `<span class="card-tag">${escapeHtml(t)}</span>`)
       .join("");
 
+    const lvl = item.level || 0;
+    const badge = lvl
+      ? `<span class="level-badge ${levelClass(lvl)}" title="${levelLabel(lvl)} (${lvl}/10)">${lvl}</span>`
+      : "";
+
     return `
       <a href="${escapeHtml(url)}"
          class="card"
@@ -228,6 +250,7 @@
          data-tags="${escapeAttr((item.tags || []).join(" "))}"
          target="_blank" rel="noopener">
         <div class="card-cover" style="background:${grad}">
+          ${badge}
           <span class="card-cover-icon">${icon}</span>
         </div>
         <div class="card-body">
