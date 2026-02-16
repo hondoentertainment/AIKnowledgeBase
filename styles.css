@@ -1,0 +1,285 @@
+/* ============================================
+   AI Knowledge Hub — Styles
+   Warm cream/terracotta palette, Crimson Pro + DM Sans
+   ============================================ */
+
+:root {
+  --bg: #faf8f5;
+  --bg-elevated: #ffffff;
+  --text: #1a1816;
+  --text-muted: #6b6560;
+  --accent: #c45c3e;
+  --accent-hover: #a84a2f;
+  --accent-light: #f5e8e4;
+  --border: #e8e4e0;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --shadow: 0 4px 20px rgba(26, 24, 22, 0.06);
+  --shadow-hover: 0 8px 32px rgba(26, 24, 22, 0.1);
+}
+
+[data-theme="dark"] {
+  --bg: #1a1816;
+  --bg-elevated: #242220;
+  --text: #f5f3f0;
+  --text-muted: #a8a29e;
+  --accent: #e07a5f;
+  --accent-hover: #f09a82;
+  --accent-light: #2d2522;
+  --border: #3d3834;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Theme toggle */
+.theme-toggle {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.5rem;
+  z-index: 100;
+}
+
+.theme-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.theme-btn:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow);
+}
+
+/* Header */
+.header {
+  padding: 2rem 1.5rem 4rem;
+  text-align: center;
+  background: linear-gradient(180deg, var(--accent-light) 0%, transparent 100%);
+}
+
+.nav {
+  max-width: 960px;
+  margin: 0 auto 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: var(--accent);
+}
+
+.hero h1 {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.hero p {
+  color: var(--text-muted);
+  margin: 0 0 2rem;
+  font-size: 1.1rem;
+}
+
+.search-wrap {
+  position: relative;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.search-wrap input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 2.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-wrap input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+/* Main content */
+.main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.section {
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section:last-of-type {
+  border-bottom: none;
+}
+
+.section-title {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.section-desc {
+  color: var(--text-muted);
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-hover);
+}
+
+.card.hidden {
+  display: none;
+}
+
+.card-title {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+}
+
+.card-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.card-tag {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.2rem 0.5rem;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 6px;
+}
+
+[data-theme="dark"] .card-tag {
+  background: var(--accent-light);
+  color: var(--accent-hover);
+}
+
+/* Empty state */
+.section-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .nav {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .theme-toggle {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}

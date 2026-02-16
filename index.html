@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Knowledge Hub | Tools · Knowledge · Podcasts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="theme-toggle" aria-label="Toggle dark mode">
+    <button id="theme-btn" class="theme-btn" aria-pressed="false">⊙</button>
+  </div>
+
+  <header class="header">
+    <nav class="nav">
+      <a href="#" class="logo">AI Knowledge Hub</a>
+      <ul class="nav-links">
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#knowledge">Knowledge</a></li>
+        <li><a href="#podcasts">Podcasts</a></li>
+      </ul>
+    </nav>
+    <div class="hero">
+      <h1>Your AI Resource Center</h1>
+      <p>Curated AI tools, knowledge articles, and podcasts in one place.</p>
+      <div class="search-wrap">
+        <input type="search" id="search" placeholder="Search tools, articles, podcasts…" aria-label="Search">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section id="tools" class="section">
+      <h2 class="section-title">AI Tools</h2>
+      <p class="section-desc">Hand-picked AI tools for productivity and creativity.</p>
+      <div class="card-grid" id="tools-grid">
+        <!-- Populated by JS from data -->
+      </div>
+    </section>
+
+    <section id="knowledge" class="section">
+      <h2 class="section-title">Knowledge</h2>
+      <p class="section-desc">Articles, guides, and reference materials.</p>
+      <div class="card-grid" id="knowledge-grid">
+        <!-- Populated by JS from data -->
+      </div>
+    </section>
+
+    <section id="podcasts" class="section">
+      <h2 class="section-title">Podcasts</h2>
+      <p class="section-desc">Listen and learn from AI-focused shows.</p>
+      <div class="card-grid" id="podcasts-grid">
+        <!-- Populated by JS from data -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>AI Knowledge Hub — Tools, Knowledge, Podcasts</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
