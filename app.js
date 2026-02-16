@@ -238,8 +238,13 @@
       .join("");
 
     const lvl = item.level || 0;
-    const badge = lvl
+    const levelBadge = lvl
       ? `<span class="level-badge ${levelClass(lvl)}" title="${levelLabel(lvl)} (${lvl}/10)">${lvl}</span>`
+      : "";
+
+    const freq = item.freq || "";
+    const freqBadge = freq
+      ? `<span class="freq-badge" title="Output: ${escapeAttr(freq)}">${escapeHtml(freq)}</span>`
       : "";
 
     return `
@@ -250,7 +255,8 @@
          data-tags="${escapeAttr((item.tags || []).join(" "))}"
          target="_blank" rel="noopener">
         <div class="card-cover" style="background:${grad}">
-          ${badge}
+          ${freqBadge}
+          ${levelBadge}
           <span class="card-cover-icon">${icon}</span>
         </div>
         <div class="card-body">

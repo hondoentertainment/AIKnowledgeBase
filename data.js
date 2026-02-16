@@ -10,6 +10,7 @@
  *   icon        — Emoji displayed on the poster cover
  *   color       — [from, to] hex pair for the poster gradient
  *   level       — Difficulty 1-10 (1 = beginner, 10 = world-class expert)
+ *   freq        — Content output frequency (e.g. "Daily", "Weekly", "Monthly")
  */
 
 const siteData = {
@@ -22,6 +23,7 @@ const siteData = {
       icon: "\u{1F4AC}",
       color: ["#10a37f", "#1a7f5a"],
       level: 1,
+      freq: "Continuous",
     },
     {
       title: "Claude",
@@ -31,6 +33,7 @@ const siteData = {
       icon: "\u{1F9E0}",
       color: ["#cc785c", "#a0522d"],
       level: 1,
+      freq: "Continuous",
     },
     {
       title: "Cursor",
@@ -40,6 +43,7 @@ const siteData = {
       icon: "\u{1F4BB}",
       color: ["#7c3aed", "#4f46e5"],
       level: 3,
+      freq: "Continuous",
     },
     {
       title: "Midjourney",
@@ -49,6 +53,7 @@ const siteData = {
       icon: "\u{1F3A8}",
       color: ["#e44d8a", "#b83280"],
       level: 2,
+      freq: "Continuous",
     },
     {
       title: "Perplexity",
@@ -58,6 +63,7 @@ const siteData = {
       icon: "\u{1F50D}",
       color: ["#20b2aa", "#2980b9"],
       level: 1,
+      freq: "Continuous",
     },
   ],
   knowledge: [
@@ -69,6 +75,7 @@ const siteData = {
       icon: "\u{270F}\u{FE0F}",
       color: ["#f59e0b", "#d97706"],
       level: 2,
+      freq: "Reference",
     },
     {
       title: "AI Ethics & Safety",
@@ -78,6 +85,7 @@ const siteData = {
       icon: "\u{1F6E1}\u{FE0F}",
       color: ["#ef4444", "#b91c1c"],
       level: 3,
+      freq: "Reference",
     },
     {
       title: "RAG Architecture Explained",
@@ -87,6 +95,7 @@ const siteData = {
       icon: "\u{1F9F1}",
       color: ["#6366f1", "#4338ca"],
       level: 6,
+      freq: "Reference",
     },
   ],
   podcasts: [
@@ -98,6 +107,7 @@ const siteData = {
       icon: "\u{1F3D9}\u{FE0F}",
       color: ["#76b900", "#5a8f00"],
       level: 4,
+      freq: "Weekly",
     },
     {
       title: "Lex Fridman Podcast",
@@ -107,6 +117,7 @@ const siteData = {
       icon: "\u{1F30C}",
       color: ["#8b5cf6", "#6d28d9"],
       level: 5,
+      freq: "Weekly",
     },
     {
       title: "Practical AI",
@@ -116,6 +127,7 @@ const siteData = {
       icon: "\u{1F527}",
       color: ["#22c55e", "#16a34a"],
       level: 3,
+      freq: "Weekly",
     },
     {
       title: "Latent Space",
@@ -125,6 +137,7 @@ const siteData = {
       icon: "\u{1F680}",
       color: ["#3b82f6", "#1d4ed8"],
       level: 7,
+      freq: "Weekly",
     },
     {
       title: "The TWIML AI Podcast",
@@ -134,6 +147,7 @@ const siteData = {
       icon: "\u{1F4E1}",
       color: ["#0ea5e9", "#0369a1"],
       level: 6,
+      freq: "Weekly",
     },
     {
       title: "Eye on AI",
@@ -143,6 +157,7 @@ const siteData = {
       icon: "\u{1F441}\u{FE0F}",
       color: ["#f43f5e", "#be123c"],
       level: 4,
+      freq: "Biweekly",
     },
     {
       title: "Machine Learning Street Talk",
@@ -152,6 +167,7 @@ const siteData = {
       icon: "\u{1F9EA}",
       color: ["#a855f7", "#7e22ce"],
       level: 8,
+      freq: "Weekly",
     },
     {
       title: "Gradient Dissent",
@@ -161,6 +177,7 @@ const siteData = {
       icon: "\u{1F4CA}",
       color: ["#f59e0b", "#b45309"],
       level: 7,
+      freq: "Biweekly",
     },
   ],
   youtube: [
@@ -172,6 +189,7 @@ const siteData = {
       icon: "\u{1F3AC}",
       color: ["#ef4444", "#b91c1c"],
       level: 3,
+      freq: "2x Weekly",
     },
     {
       title: "3Blue1Brown",
@@ -181,6 +199,7 @@ const siteData = {
       icon: "\u{1F4D0}",
       color: ["#3b82f6", "#1e3a5f"],
       level: 4,
+      freq: "Monthly",
     },
     {
       title: "Andrej Karpathy",
@@ -190,6 +209,7 @@ const siteData = {
       icon: "\u{1F9D1}\u{200D}\u{1F4BB}",
       color: ["#6366f1", "#4338ca"],
       level: 7,
+      freq: "Monthly",
     },
     {
       title: "Yannic Kilcher",
@@ -199,6 +219,7 @@ const siteData = {
       icon: "\u{1F4DD}",
       color: ["#14b8a6", "#0d9488"],
       level: 8,
+      freq: "2-3x Weekly",
     },
     {
       title: "Fireship",
@@ -208,6 +229,7 @@ const siteData = {
       icon: "\u{1F525}",
       color: ["#f97316", "#c2410c"],
       level: 2,
+      freq: "2-3x Weekly",
     },
     {
       title: "Matt Wolfe",
@@ -217,6 +239,7 @@ const siteData = {
       icon: "\u{1F4F0}",
       color: ["#8b5cf6", "#5b21b6"],
       level: 2,
+      freq: "Weekly",
     },
     {
       title: "AI Explained",
@@ -226,6 +249,7 @@ const siteData = {
       icon: "\u{1F4A1}",
       color: ["#06b6d4", "#0e7490"],
       level: 4,
+      freq: "Weekly",
     },
     {
       title: "Sentdex",
@@ -235,6 +259,7 @@ const siteData = {
       icon: "\u{1F40D}",
       color: ["#22c55e", "#15803d"],
       level: 5,
+      freq: "Weekly",
     },
   ],
   training: [
@@ -246,6 +271,7 @@ const siteData = {
       icon: "\u{1F393}",
       color: ["#0056d2", "#003d99"],
       level: 4,
+      freq: "Monthly",
     },
     {
       title: "fast.ai",
@@ -255,6 +281,7 @@ const siteData = {
       icon: "\u{26A1}",
       color: ["#6c3483", "#4a235a"],
       level: 5,
+      freq: "Yearly",
     },
     {
       title: "Coursera ML Specialization",
@@ -264,6 +291,7 @@ const siteData = {
       icon: "\u{1F4D0}",
       color: ["#0056d2", "#2471a3"],
       level: 4,
+      freq: "Self-Paced",
     },
     {
       title: "HuggingFace Learn",
@@ -273,6 +301,7 @@ const siteData = {
       icon: "\u{1F917}",
       color: ["#ffbd00", "#e6a800"],
       level: 6,
+      freq: "Monthly",
     },
     {
       title: "OpenAI Cookbook",
@@ -282,6 +311,7 @@ const siteData = {
       icon: "\u{1F4D6}",
       color: ["#10a37f", "#0d8c6b"],
       level: 5,
+      freq: "Weekly",
     },
     {
       title: "Google AI Essentials",
@@ -291,6 +321,7 @@ const siteData = {
       icon: "\u{1F310}",
       color: ["#4285f4", "#34a853"],
       level: 1,
+      freq: "Self-Paced",
     },
     {
       title: "Prompt Engineering Guide",
@@ -300,6 +331,7 @@ const siteData = {
       icon: "\u{1F9ED}",
       color: ["#f97316", "#ea580c"],
       level: 3,
+      freq: "Monthly",
     },
     {
       title: "LangChain Academy",
@@ -309,6 +341,7 @@ const siteData = {
       icon: "\u{1F517}",
       color: ["#1c3d5a", "#2d6a4f"],
       level: 7,
+      freq: "Monthly",
     },
   ],
 };
