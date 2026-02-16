@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Knowledge Hub | Tools · Knowledge · Podcasts</title>
+  <title>AI Knowledge Hub | Tools · Knowledge · Podcasts · Training</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,6 +22,7 @@
         <a href="#tools" class="nav-tab active" data-section="tools">Tools</a>
         <a href="#knowledge" class="nav-tab" data-section="knowledge">Knowledge</a>
         <a href="#podcasts" class="nav-tab" data-section="podcasts">Podcasts</a>
+        <a href="#training" class="nav-tab" data-section="training">Training</a>
       </nav>
       <div class="topbar-actions">
         <button id="search-toggle" class="icon-btn" aria-label="Toggle search">
@@ -37,7 +38,7 @@
     <div class="search-bar" id="search-bar">
       <div class="search-bar-inner">
         <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="search" id="search" placeholder="Search tools, articles, podcasts..." aria-label="Search">
+        <input type="search" id="search" placeholder="Search tools, articles, podcasts, training..." aria-label="Search">
       </div>
     </div>
   </header>
@@ -72,6 +73,14 @@
         <h2 class="section-title">Podcasts <span class="section-count" id="podcasts-count"></span></h2>
       </div>
       <div class="card-grid" id="podcasts-grid"></div>
+    </section>
+
+    <!-- Training -->
+    <section id="training" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Training <span class="section-count" id="training-count"></span></h2>
+      </div>
+      <div class="card-grid" id="training-grid"></div>
     </section>
   </main>
 

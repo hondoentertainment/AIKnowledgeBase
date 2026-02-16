@@ -1,6 +1,6 @@
 /**
  * AI Knowledge Hub — App logic
- * Letterboxd-inspired poster cards, expandable search, dark-first theme
+ * Letterboxd-inspired poster cards, star ratings, expandable search, dark-first theme
  */
 
 (function () {
@@ -12,12 +12,14 @@
   const toolsGrid = document.getElementById("tools-grid");
   const knowledgeGrid = document.getElementById("knowledge-grid");
   const podcastsGrid = document.getElementById("podcasts-grid");
+  const trainingGrid = document.getElementById("training-grid");
   const toolsCount = document.getElementById("tools-count");
   const knowledgeCount = document.getElementById("knowledge-count");
   const podcastsCount = document.getElementById("podcasts-count");
+  const trainingCount = document.getElementById("training-count");
   const navTabs = document.querySelectorAll(".nav-tab");
 
-  /* ---------- Theme ---------- */
+  /* ========== Theme ========== */
   const savedTheme = localStorage.getItem("theme") || "dark";
   document.documentElement.setAttribute("data-theme", savedTheme);
   themeBtn.setAttribute("aria-pressed", savedTheme === "dark");
@@ -30,7 +32,7 @@
     localStorage.setItem("theme", next);
   });
 
-  /* ---------- Search toggle ---------- */
+  /* ========== Search toggle ========== */
   searchToggle.addEventListener("click", () => {
     searchBar.classList.toggle("open");
     if (searchBar.classList.contains("open")) {
@@ -54,7 +56,7 @@
     }
   });
 
-  /* ---------- Active nav tab on scroll ---------- */
+  /* ========== Active nav tab on scroll ========== */
   const sections = document.querySelectorAll(".section");
   const observerOpts = { rootMargin: "-40% 0px -55% 0px" };
 
@@ -71,7 +73,7 @@
 
   sections.forEach((s) => sectionObserver.observe(s));
 
-  /* ---------- Helpers ---------- */
+  /* ========== Helpers ========== */
   function escapeHtml(s) {
     const d = document.createElement("div");
     d.textContent = s;
@@ -89,7 +91,125 @@
     return "linear-gradient(135deg, #30363d 0%, #21262d 100%)";
   }
 
-  /* ---------- Build poster card ---------- */
+  /* ========== Star rating helpers ========== */
+  const STAR_SVG = '<svg class="star-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>';
+  const STAR_HALF_SVG = '<svg class="star-icon" viewBox="0 0 24 24"><defs><linearGradient id="halfGrad"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="url(#halfGrad)" stroke="currentColor" stroke-width="0.5"/></svg>';
+
+  function getRating(title) {
+    const v = localStorage.getItem("rating:" + title);
+    return v ? parseFloat(v) : 0;
+  }
+
+  function setRating(title, value) {
+    if (value === 0) {
+      localStorage.removeItem("rating:" + title);
+    } else {
+      localStorage.setItem("rating:" + title, String(value));
+    }
+  }
+
+  function buildStarsHTML(title) {
+    const saved = getRating(title);
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      const isFull = saved >= i;
+      const isHalf = !isFull && saved >= i - 0.5;
+      let cls = "star";
+      if (isFull) cls += " filled";
+      else if (isHalf) cls += " half-filled";
+
+      stars.push(
+        `<span class="${cls}" data-star="${i}">` +
+          `<span class="star-half star-left" data-val="${i - 0.5}"></span>` +
+          `<span class="star-half star-right" data-val="${i}"></span>` +
+          (isHalf ? STAR_HALF_SVG : STAR_SVG) +
+        `</span>`
+      );
+    }
+    const label = saved ? saved.toFixed(1).replace(/\.0$/, "") : "";
+    return (
+      `<div class="card-rating" data-title="${escapeAttr(title)}" data-rating="${saved}">` +
+        stars.join("") +
+        `<span class="rating-value">${label}</span>` +
+      `</div>`
+    );
+  }
+
+  function initStarInteractions() {
+    document.querySelectorAll(".card-rating").forEach((container) => {
+      const title = container.dataset.title;
+      const starEls = container.querySelectorAll(".star");
+      const label = container.querySelector(".rating-value");
+
+      function updateDisplay(rating) {
+        starEls.forEach((el) => {
+          const idx = parseInt(el.dataset.star, 10);
+          el.classList.remove("filled", "half-filled", "preview", "preview-half");
+          if (rating >= idx) {
+            el.classList.add("filled");
+            el.innerHTML =
+              `<span class="star-half star-left" data-val="${idx - 0.5}"></span>` +
+              `<span class="star-half star-right" data-val="${idx}"></span>` +
+              STAR_SVG;
+          } else if (rating >= idx - 0.5) {
+            el.classList.add("half-filled");
+            el.innerHTML =
+              `<span class="star-half star-left" data-val="${idx - 0.5}"></span>` +
+              `<span class="star-half star-right" data-val="${idx}"></span>` +
+              STAR_HALF_SVG;
+          } else {
+            el.innerHTML =
+              `<span class="star-half star-left" data-val="${idx - 0.5}"></span>` +
+              `<span class="star-half star-right" data-val="${idx}"></span>` +
+              STAR_SVG;
+          }
+        });
+        label.textContent = rating ? String(rating).replace(/\.0$/, "") : "";
+        container.dataset.rating = rating;
+      }
+
+      function previewStars(hoverVal) {
+        container.classList.add("hovering");
+        starEls.forEach((el) => {
+          const idx = parseInt(el.dataset.star, 10);
+          el.classList.remove("preview", "preview-half");
+          if (hoverVal >= idx) {
+            el.classList.add("preview");
+          } else if (hoverVal >= idx - 0.5) {
+            el.classList.add("preview-half");
+          }
+        });
+      }
+
+      function clearPreview() {
+        container.classList.remove("hovering");
+        starEls.forEach((el) => el.classList.remove("preview", "preview-half"));
+      }
+
+      starEls.forEach((starEl) => {
+        starEl.querySelectorAll(".star-half").forEach((half) => {
+          half.addEventListener("mouseenter", (e) => {
+            previewStars(parseFloat(half.dataset.val));
+          });
+
+          half.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const val = parseFloat(half.dataset.val);
+            const current = getRating(title);
+            const newVal = current === val ? 0 : val;
+            setRating(title, newVal);
+            clearPreview();
+            updateDisplay(newVal);
+          });
+        });
+      });
+
+      container.addEventListener("mouseleave", clearPreview);
+    });
+  }
+
+  /* ========== Build poster card ========== */
   function buildCard(item) {
     const url = item.url || "#";
     const icon = item.icon || "";
@@ -111,12 +231,13 @@
         <div class="card-body">
           <h3 class="card-title">${escapeHtml(item.title)}</h3>
           <p class="card-desc">${escapeHtml(item.description)}</p>
+          ${buildStarsHTML(item.title)}
           ${tags ? `<div class="card-tags">${tags}</div>` : ""}
         </div>
       </a>`;
   }
 
-  /* ---------- Build featured card ---------- */
+  /* ========== Build featured card ========== */
   function buildFeaturedCard(item) {
     const url = item.url || "#";
     const icon = item.icon || "";
@@ -133,13 +254,14 @@
       </a>`;
   }
 
-  /* ---------- Render ---------- */
+  /* ========== Render ========== */
   function render() {
-    const { tools, knowledge, podcasts } = siteData;
+    const { tools, knowledge, podcasts, training } = siteData;
 
     toolsCount.textContent = tools.length;
     knowledgeCount.textContent = knowledge.length;
     podcastsCount.textContent = podcasts.length;
+    trainingCount.textContent = (training || []).length;
 
     toolsGrid.innerHTML = tools.length
       ? tools.map((t) => buildCard(t)).join("")
@@ -153,22 +275,26 @@
       ? podcasts.map((p) => buildCard(p)).join("")
       : '<p class="section-empty">No podcasts yet.</p>';
 
-    /* Featured row: pick first item from each category */
+    trainingGrid.innerHTML = (training || []).length
+      ? training.map((t) => buildCard(t)).join("")
+      : '<p class="section-empty">No training links yet. Edit data.js to add courses and guides.</p>';
+
+    /* Featured row: pick highlights across categories */
     const featured = [
       tools[0],
+      training ? training[0] : null,
       knowledge[0],
       podcasts[0],
-      tools[1],
     ].filter(Boolean);
 
-    featuredRow.innerHTML = featured
-      .map((item) => buildFeaturedCard(item))
-      .join("");
+    featuredRow.innerHTML = featured.map((item) => buildFeaturedCard(item)).join("");
+
+    initStarInteractions();
   }
 
   render();
 
-  /* ---------- Search / filter ---------- */
+  /* ========== Search / filter ========== */
   function filterCards(query) {
     const q = (query || "").toLowerCase().trim();
     document.querySelectorAll(".card").forEach((card) => {
