@@ -19,6 +19,13 @@ function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function level() { return Math.floor(Math.random() * 4) + 1; }
 
 const CATEGORY_TEMPLATES = {
+  taxes: { icon: '\u{1F4B8}', names: ['TaxAI', 'DeductionBot', 'FilingAssist'], types: ['tax advisor', 'deduction finder', 'filing helper'], tags: ['Tax', 'Filing', 'Deductions'] },
+  home: { icon: '\u{1F3E0}', names: ['HomeAI', 'DesignBot', 'SmartHome'], types: ['interior design', 'smart home', 'renovation planner'], tags: ['Home', 'Design', 'Smart Home'] },
+  travel: { icon: '\u{1F30D}', names: ['TravelAI', 'TripBot', 'WanderAssist'], types: ['itinerary planner', 'travel advisor', 'booking helper'], tags: ['Travel', 'Trips', 'Hotels'] },
+  books: { icon: '\u{1F4DA}', names: ['BookAI', 'ReadBot', 'SummarizePro'], types: ['book recommender', 'summary generator', 'reading assistant'], tags: ['Books', 'Reading', 'Summaries'] },
+  media: { icon: '\u{1F4FA}', names: ['MediaAI', 'EditBot', 'ContentGen'], types: ['video editor', 'content creator', 'media analyzer'], tags: ['Media', 'Video', 'Content'] },
+  entertainment: { icon: '\u{1F3AD}', names: ['EntertainAI', 'MusicBot', 'GameAssist'], types: ['music generator', 'game assistant', 'recommendation engine'], tags: ['Entertainment', 'Music', 'Gaming'] },
+  sports: { icon: '\u{26BD}', names: ['SportsAI', 'StatsBot', 'TrainingAssist'], types: ['stats analyzer', 'training planner', 'fantasy helper'], tags: ['Sports', 'Fitness', 'Stats'] },
   health: {
     icon: '\u{1F9FA}',
     names: ['MediScan', 'HealthAI', 'SymptomBot', 'WellnessAI', 'CareAssist', 'VitalTrack', 'HealthCoach'],
@@ -107,11 +114,10 @@ function main() {
 
   const needTotal = TARGET_TOTAL - totalCount;
   const allCats = [...existingCats, ...newCats];
-  const perCat = Math.ceil(needTotal / allCats.length);
+  const addPerCat = Math.ceil(needTotal / allCats.length);
 
   for (const cat of existingCats) {
-    const current = counts[cat] || 0;
-    const toAdd = Math.min(perCat, Math.max(0, TARGET_TOTAL - totalCount));
+    const toAdd = Math.min(addPerCat, Math.max(0, TARGET_TOTAL - totalCount));
     if (toAdd <= 0) continue;
 
     const re = new RegExp(`(${cat}:\\s*\\[)([\\s\\S]*?)(\\n\\s+\\],)`, 'm');
@@ -119,7 +125,7 @@ function main() {
     if (!m) continue;
 
     const newItems = genNicheItems(cat, toAdd);
-    const insert = ',\n' + newItems.join(',\n');
+    const insert = '\n' + newItems.join(',\n');
     const newBody = m[2].trimEnd() + insert;
     const newSection = m[1] + newBody + '\n' + m[3];
     content = content.replace(m[0], newSection);
@@ -128,21 +134,20 @@ function main() {
 
   const newSections = [];
   for (const cat of newCats) {
-    const toAdd = Math.min(perCat, Math.max(0, TARGET_TOTAL - totalCount));
+    const toAdd = Math.min(addPerCat, Math.max(0, TARGET_TOTAL - totalCount));
     if (toAdd <= 0) continue;
 
     const items = genNicheItems(cat, toAdd);
-    const tmpl = CATEGORY_TEMPLATES[cat];
     newSections.push(`  ${cat}: [\n${items.join(',\n')}\n  ],`);
     totalCount += toAdd;
   }
 
   if (newSections.length > 0) {
-    content = content.replace(/\n  \},\n\};/, `,\n${newSections.join('\n')}\n};`);
+    content = content.replace(/\],\s*\n\};\s*$/, '],\n' + newSections.join('\n') + '\n};');
   }
 
   fs.writeFileSync(NICHE_DATA, content, 'utf8');
-  console.log('Niche AI extended. Total categories:', existingCats.length + newCats.length);
+  console.log('Niche AI extended. Total categories:', existingCats.length + newCats.length, '| Target total:', TARGET_TOTAL);
 }
 
 main();

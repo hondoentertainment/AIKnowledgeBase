@@ -133,7 +133,7 @@
   function getAllItems() {
     const { tools, knowledge, podcasts, youtube, training, bleedingEdge } = siteData;
     const stackSet = new Set(getStack());
-    const nicheCategories = ["taxes", "home", "travel", "books", "media", "entertainment", "sports"];
+    const nicheCategories = ["taxes", "home", "travel", "books", "media", "entertainment", "sports", "health", "education", "finance", "legal", "pets", "food", "gardening"];
     const nicheItems = (typeof nicheData !== "undefined" ? nicheCategories.flatMap((cat) => nicheData[cat] || []) : []);
     const byCategory = {
       tools: tools.filter((t) => stackSet.has(t.title)),

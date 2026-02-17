@@ -13,7 +13,8 @@
   const navTabs = document.querySelectorAll(".nav-tab");
 
   const categoryIds = [
-    "taxes", "home", "travel", "books", "media", "entertainment", "sports"
+    "taxes", "home", "travel", "books", "media", "entertainment", "sports",
+    "health", "education", "finance", "legal", "pets", "food", "gardening"
   ];
 
   /* ========== Theme ========== */
