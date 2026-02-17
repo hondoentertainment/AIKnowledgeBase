@@ -16,15 +16,12 @@
 }
 
 .about-hero-title {
+  font-family: "Crimson Pro", Georgia, serif;
   font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   margin: 0 0 0.5rem;
   color: var(--text);
-  background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .about-hero-tagline {

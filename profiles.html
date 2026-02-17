@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Profiles | AI Knowledge Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -128,19 +128,39 @@
         const list = document.getElementById("profiles-list");
         const profiles = window.ProfileStore?.getProfiles() || [];
         const activeId = window.ProfileStore?.getActiveProfileId();
+        const editingId = list.dataset.editingId || "";
 
-        list.innerHTML = profiles.map((p) => `
-          <div class="profile-item ${p.id === activeId ? "active" : ""}">
+        list.innerHTML = profiles.map((p) => {
+          const isEditing = p.id === editingId;
+          return `
+          <div class="profile-item ${p.id === activeId ? "active" : ""}" data-profile-id="${escapeAttr(p.id)}">
             <div class="profile-item-info">
-              <strong>${escapeHtml(p.name)}</strong>
-              ${p.id === activeId ? '<span class="profile-item-badge">Active</span>' : ""}
+              ${isEditing
+                ? `<form class="profile-rename-form" data-id="${escapeAttr(p.id)}">
+                    <input type="text" value="${escapeAttr(p.name)}" maxlength="50" aria-label="Profile name" required>
+                    <button type="submit" class="profile-rename-save">Save</button>
+                    <button type="button" class="profile-rename-cancel" data-id="${escapeAttr(p.id)}">Cancel</button>
+                  </form>`
+                : `<strong class="profile-item-name">${escapeHtml(p.name)}</strong>
+                   ${p.id === activeId ? '<span class="profile-item-badge">Active</span>' : ""}`}
             </div>
             <div class="profile-item-actions">
-              ${p.id !== activeId ? `<button type="button" class="profile-item-switch" data-id="${escapeAttr(p.id)}">Switch</button>` : ""}
-              ${profiles.length > 1 ? `<button type="button" class="profile-item-delete" data-id="${escapeAttr(p.id)}" aria-label="Delete profile">Delete</button>` : ""}
+              ${!isEditing ? (
+                `<button type="button" class="profile-item-rename" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" aria-label="Rename ${escapeAttr(p.name)}">Rename</button>` +
+                (p.id !== activeId ? `<button type="button" class="profile-item-switch" data-id="${escapeAttr(p.id)}">Switch</button>` : "") +
+                (profiles.length > 1 ? `
+                  <span class="profile-delete-wrap">
+                    <button type="button" class="profile-item-delete" data-id="${escapeAttr(p.id)}" aria-label="Delete profile">Delete</button>
+                    <span class="profile-delete-confirm hidden">
+                      <span class="profile-delete-msg">Delete?</span>
+                      <button type="button" class="profile-delete-yes" data-id="${escapeAttr(p.id)}">Yes</button>
+                      <button type="button" class="profile-delete-no">No</button>
+                    </span>
+                  </span>` : "")
+              ) : ""}
             </div>
-          </div>
-        `).join("") || '<p class="section-empty">No profiles yet. Create one below.</p>';
+          </div>`;
+        }).join("") || '<p class="section-empty">No profiles yet. Create one below.</p>';
 
         list.querySelectorAll(".profile-item-switch").forEach((btn) => {
           btn.addEventListener("click", () => {
@@ -148,12 +168,52 @@
             render();
           });
         });
-        list.querySelectorAll(".profile-item-delete").forEach((btn) => {
+        list.querySelectorAll(".profile-item-rename").forEach((btn) => {
           btn.addEventListener("click", () => {
-            if (confirm("Delete this profile? Ratings and stack will be lost.")) {
-              window.ProfileStore.deleteProfile(btn.dataset.id);
+            list.dataset.editingId = btn.dataset.id;
+            render();
+            const form = list.querySelector(`.profile-rename-form[data-id="${btn.dataset.id}"]`);
+            if (form) {
+              const input = form.querySelector("input");
+              input.focus();
+              input.select();
+            }
+          });
+        });
+        list.querySelectorAll(".profile-rename-form").forEach((form) => {
+          form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const name = (form.querySelector("input").value || "").trim();
+            if (name) {
+              window.ProfileStore.renameProfile(form.dataset.id, name);
+              delete list.dataset.editingId;
               render();
             }
+          });
+        });
+        list.querySelectorAll(".profile-rename-cancel").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            delete list.dataset.editingId;
+            render();
+          });
+        });
+        list.querySelectorAll(".profile-item-delete").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            btn.classList.add("hidden");
+            btn.nextElementSibling?.classList.remove("hidden");
+          });
+        });
+        list.querySelectorAll(".profile-delete-no").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const wrap = btn.closest(".profile-delete-wrap");
+            wrap?.querySelector(".profile-item-delete")?.classList.remove("hidden");
+            wrap?.querySelector(".profile-delete-confirm")?.classList.add("hidden");
+          });
+        });
+        list.querySelectorAll(".profile-delete-yes").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            window.ProfileStore.deleteProfile(btn.dataset.id);
+            render();
           });
         });
       }

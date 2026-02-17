@@ -90,6 +90,12 @@
         if (isNicheSection && nicheTab) {
           nicheTab.classList.add("active");
         }
+        /* Update TOC active link */
+        const tocLinks = document.querySelectorAll(".niche-toc-links a");
+        tocLinks.forEach((a) => {
+          const href = a.getAttribute("href");
+          a.classList.toggle("active", href === "#" + id);
+        });
       }
     });
   }, observerOpts);

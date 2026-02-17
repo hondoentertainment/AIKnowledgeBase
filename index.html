@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>AI Knowledge Hub — Curated AI Tools, Knowledge & Training | Rate, Stack & Search</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <meta name="description" content="Track AI tools, knowledge, podcasts & training. Rate with stars, save to your stack, search instantly. Your personal AI command center.">
 </head>
@@ -129,13 +129,15 @@
     </div>
   </section>
 
-  <main class="main" id="main-content">
+  <main class="main main-loading" id="main-content" aria-busy="true">
     <!-- Tools -->
     <section id="tools" class="section">
       <div class="section-header">
         <h2 class="section-title">AI Tools <span class="section-count" id="tools-count"></span></h2>
       </div>
-      <div class="card-grid" id="tools-grid"></div>
+      <div class="card-grid" id="tools-grid">
+        <div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div>
+      </div>
     </section>
 
     <!-- Knowledge -->

@@ -222,6 +222,7 @@
     renameProfile(id, name) {
       const profiles = getProfiles().map((p) => (p.id === id ? { ...p, name } : p));
       localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+      window.dispatchEvent(new CustomEvent("profile-changed"));
     },
   };
 })();

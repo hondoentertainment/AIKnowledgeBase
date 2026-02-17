@@ -593,6 +593,12 @@
 
     featuredRow.innerHTML = featured.map((item) => buildFeaturedCard(item)).join("");
 
+    const main = document.getElementById("main-content");
+    if (main) {
+      main.classList.remove("main-loading");
+      main.removeAttribute("aria-busy");
+    }
+
     initStarInteractions();
     initStackButtons();
     initDirectUseButtons();

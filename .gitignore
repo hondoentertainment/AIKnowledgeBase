@@ -1,5 +1,6 @@
 .DS_Store
 Thumbs.db
+.cursor
 *.log
 .env
 .env.local
