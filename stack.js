@@ -1,0 +1,250 @@
+/**
+ * My Stack — Renders only items the user has added to their stack
+ */
+
+(function () {
+  const themeBtn = document.getElementById("theme-btn");
+  const totalCountEl = document.getElementById("total-count");
+  const searchToggle = document.getElementById("search-toggle");
+  const searchBar = document.getElementById("search-bar");
+  const searchEl = document.getElementById("search");
+  const searchResultsEl = document.getElementById("search-results");
+  const grids = {
+    tools: document.getElementById("stack-tools-grid"),
+    knowledge: document.getElementById("stack-knowledge-grid"),
+    podcasts: document.getElementById("stack-podcasts-grid"),
+    youtube: document.getElementById("stack-youtube-grid"),
+    training: document.getElementById("stack-training-grid"),
+    bleedingEdge: document.getElementById("stack-bleeding-edge-grid"),
+    niche: document.getElementById("stack-niche-grid"),
+  };
+
+  /* ========== Stack helpers ========== */
+  function getStack() {
+    try {
+      const j = localStorage.getItem("myStack");
+      return j ? JSON.parse(j) : [];
+    } catch (_) { return []; }
+  }
+  function removeFromStack(title) {
+    const s = getStack().filter((t) => t !== title);
+    localStorage.setItem("myStack", JSON.stringify(s));
+  }
+
+  /* ========== Theme ========== */
+  function getInitialTheme() {
+    const saved = localStorage.getItem("theme");
+    if (saved) return saved;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  const savedTheme = getInitialTheme();
+  document.documentElement.setAttribute("data-theme", savedTheme);
+  themeBtn.setAttribute("aria-pressed", savedTheme === "dark");
+
+  themeBtn.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    themeBtn.setAttribute("aria-pressed", next === "dark");
+    localStorage.setItem("theme", next);
+  });
+
+  /* ========== Search (if present) ========== */
+  if (searchToggle && searchBar && searchEl) {
+    searchToggle.addEventListener("click", () => {
+      searchBar.classList.toggle("open");
+      if (searchBar.classList.contains("open")) {
+        searchEl.focus();
+      } else {
+        searchEl.value = "";
+        filterCards("");
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "/" && document.activeElement !== searchEl) {
+        e.preventDefault();
+        searchBar.classList.add("open");
+        searchEl.focus();
+      }
+      if (e.key === "Escape" && searchBar.classList.contains("open")) {
+        searchBar.classList.remove("open");
+        searchEl.value = "";
+        filterCards("");
+      }
+    });
+  }
+
+  /* ========== Helpers ========== */
+  function escapeHtml(s) {
+    const d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, "&quot;");
+  }
+
+  function gradientCSS(colorPair) {
+    if (colorPair && colorPair.length === 2) {
+      return `linear-gradient(135deg, ${colorPair[0]} 0%, ${colorPair[1]} 100%)`;
+    }
+    return "linear-gradient(135deg, #30363d 0%, #21262d 100%)";
+  }
+
+  /* ========== Build stack card ========== */
+  function buildStackCard(item) {
+    const url = item.url || "#";
+    const icon = item.icon || "&#x1F4A1;";
+    const grad = gradientCSS(item.color);
+    const tags = (item.tags || [])
+      .slice(0, 3)
+      .map((t) => `<span class="stack-card-tag">${escapeHtml(t)}</span>`)
+      .join("");
+    const badges = [];
+    if (item.freq) {
+      badges.push(`<span class="stack-card-badge">${escapeHtml(item.freq)}</span>`);
+    }
+    if (item.level) {
+      badges.push(`<span class="stack-card-badge">Lv ${item.level}</span>`);
+    }
+    const metaContent = tags + badges.join("");
+    const badgesHtml = metaContent ? `<div class="stack-card-meta">${metaContent}</div>` : "";
+    const removeBtn = `<button type="button" class="stack-remove-btn" data-remove-title="${escapeAttr(item.title)}" aria-label="Remove from My Stack">✕</button>`;
+
+    return `
+      <div class="stack-card"
+         data-title="${escapeAttr(item.title)}"
+         data-desc="${escapeAttr(item.description)}"
+         data-tags="${escapeAttr((item.tags || []).join(" "))}">
+        ${removeBtn}
+        <a href="${escapeHtml(url)}" class="stack-card-link" target="_blank" rel="noopener">
+          <div class="stack-card-icon" style="background:${grad}">${icon}</div>
+          <div class="stack-card-body">
+            <h3 class="stack-card-title">${escapeHtml(item.title)}</h3>
+            <p class="stack-card-desc">${escapeHtml(item.description)}</p>
+            ${badgesHtml}
+          </div>
+        </a>
+      </div>`;
+  }
+
+  /* ========== Render ========== */
+  function getAllItems() {
+    const { tools, knowledge, podcasts, youtube, training, bleedingEdge } = siteData;
+    const stackSet = new Set(getStack());
+    const nicheCategories = ["taxes", "home", "travel", "books", "media", "entertainment", "sports"];
+    const nicheItems = (typeof nicheData !== "undefined" ? nicheCategories.flatMap((cat) => nicheData[cat] || []) : []);
+    const byCategory = {
+      tools: tools.filter((t) => stackSet.has(t.title)),
+      knowledge: knowledge.filter((k) => stackSet.has(k.title)),
+      podcasts: (podcasts || []).filter((p) => stackSet.has(p.title)),
+      youtube: (youtube || []).filter((y) => stackSet.has(y.title)),
+      training: (training || []).filter((t) => stackSet.has(t.title)),
+      bleedingEdge: (bleedingEdge || []).filter((b) => stackSet.has(b.title)),
+      niche: nicheItems.filter((n) => stackSet.has(n.title)),
+    };
+    return byCategory;
+  }
+
+  function render(highlightFilter) {
+    const byCat = getAllItems();
+    const total = byCat.tools.length + byCat.knowledge.length + byCat.podcasts.length + byCat.youtube.length + byCat.training.length + (byCat.bleedingEdge?.length || 0) + (byCat.niche?.length || 0);
+
+    totalCountEl.textContent = total;
+
+    grids.tools.innerHTML = byCat.tools.map((t) => buildStackCard(t)).join("");
+    grids.knowledge.innerHTML = byCat.knowledge.map((k) => buildStackCard(k)).join("");
+    grids.podcasts.innerHTML = byCat.podcasts.map((p) => buildStackCard(p)).join("");
+    grids.youtube.innerHTML = byCat.youtube.map((y) => buildStackCard(y)).join("");
+    grids.training.innerHTML = byCat.training.map((t) => buildStackCard(t)).join("");
+    if (grids.bleedingEdge) grids.bleedingEdge.innerHTML = (byCat.bleedingEdge || []).map((b) => buildStackCard(b)).join("");
+    if (grids.niche) grids.niche.innerHTML = (byCat.niche || []).map((n) => buildStackCard(n)).join("");
+
+    const emptyMsg = document.getElementById("stack-empty-msg");
+    if (emptyMsg) {
+      emptyMsg.style.display = total === 0 ? "block" : "none";
+    }
+
+    initRemoveButtons();
+    if (searchEl) filterCards(searchEl.value);
+  }
+
+  function initRemoveButtons() {
+    document.querySelectorAll(".stack-remove-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const title = btn.dataset.removeTitle;
+        removeFromStack(title);
+        render();
+      });
+    });
+  }
+
+  function debounce(fn, ms) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  }
+
+  function filterCards(query) {
+    const q = (query || "").toLowerCase().trim();
+    const cards = document.querySelectorAll(".stack-card");
+    let visible = 0;
+    cards.forEach((card) => {
+      const title = (card.dataset.title || "").toLowerCase();
+      const desc = (card.dataset.desc || "").toLowerCase();
+      const tags = (card.dataset.tags || "").toLowerCase();
+      const match = !q || title.includes(q) || desc.includes(q) || tags.includes(q);
+      card.classList.toggle("hidden", !match);
+      if (match) visible++;
+    });
+    if (searchResultsEl) {
+      searchResultsEl.textContent = q ? visible + " of " + cards.length : "";
+    }
+    let noResultsEl = document.getElementById("search-no-results");
+    if (q && visible === 0 && cards.length > 0) {
+      if (!noResultsEl) {
+        noResultsEl = document.createElement("p");
+        noResultsEl.id = "search-no-results";
+        noResultsEl.className = "search-no-results";
+        noResultsEl.textContent = 'No results for "' + query + '". Try different keywords.';
+        const firstGrid = document.querySelector(".stack-grid");
+        if (firstGrid) firstGrid.parentElement.appendChild(noResultsEl);
+      }
+    } else if (noResultsEl) {
+      noResultsEl.remove();
+    }
+  }
+
+  const debouncedFilter = debounce((v) => filterCards(v), 80);
+  if (searchEl) searchEl.addEventListener("input", (e) => debouncedFilter(e.target.value));
+  if (searchEl) searchEl.addEventListener("search", (e) => filterCards(e.target.value));
+
+  /* Mobile nav toggle */
+  const navToggle = document.getElementById("nav-toggle");
+  const navTabsEl = document.querySelector(".nav-tabs");
+  if (navToggle && navTabsEl) {
+    navToggle.addEventListener("click", () => {
+      navTabsEl.classList.toggle("open");
+      navToggle.setAttribute("aria-expanded", navTabsEl.classList.contains("open"));
+    });
+    document.querySelectorAll(".nav-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        navTabsEl.classList.remove("open");
+        navToggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
+  /* Back to top */
+  const backToTop = document.getElementById("back-to-top");
+  if (backToTop) {
+    const onScroll = () => backToTop.classList.toggle("hidden", window.scrollY < 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    onScroll();
+  }
+
+  render();
+})();

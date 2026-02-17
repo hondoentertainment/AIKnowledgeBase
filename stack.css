@@ -1,0 +1,241 @@
+/* ============================================
+   My Stack — Dedicated stack page styling
+   Uses existing palette from styles.css
+   ============================================ */
+
+.stack-main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+/* --- Hero -------------------------------- */
+.stack-hero {
+  text-align: center;
+  padding: 3rem 0 4rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.stack-hero-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem;
+  color: var(--text);
+  background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stack-hero-desc {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin: 0 0 1.25rem;
+}
+
+.stack-stats {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.stack-stat strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.stack-stat-sep {
+  margin: 0 0.5rem;
+  opacity: 0.6;
+}
+
+.stack-empty-msg {
+  margin: 1rem 0 0;
+  padding: 1rem 1.5rem;
+  background: var(--accent-muted);
+  color: var(--text);
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+}
+.stack-empty-msg a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* --- Section ----------------------------- */
+.stack-section {
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.stack-section:last-of-type {
+  border-bottom: none;
+}
+
+.stack-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
+}
+
+.stack-section-icon {
+  font-size: 1.35rem;
+  opacity: 0.95;
+}
+
+/* --- Stack grid -------------------------- */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.stack-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+}
+
+.stack-card.hidden {
+  display: none;
+}
+
+.stack-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow), var(--shadow-hover);
+}
+
+.stack-remove-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.stack-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.stack-card-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.stack-card-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.stack-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.stack-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  color: var(--text);
+}
+
+.stack-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stack-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.stack-card-tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  background: var(--accent-muted);
+  color: var(--accent);
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+.stack-card-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+/* --- Responsive -------------------------- */
+@media (max-width: 640px) {
+  .stack-main {
+    padding: 1.5rem calc(0.75rem + env(safe-area-inset-right, 0px)) calc(3rem + env(safe-area-inset-bottom, 0px)) calc(0.75rem + env(safe-area-inset-left, 0px));
+  }
+
+  .stack-hero {
+    padding: 2rem 0 3rem;
+  }
+
+  .stack-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .stack-card {
+    padding: 0.9rem 1rem;
+  }
+}

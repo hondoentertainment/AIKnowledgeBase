@@ -1,0 +1,60 @@
+/* ============================================
+   About — Bio page styling
+   Uses existing palette from styles.css
+   ============================================ */
+
+.about-main {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+}
+
+.about-hero {
+  text-align: center;
+  padding: 3rem 0 2rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.about-hero-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem;
+  color: var(--text);
+  background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.about-hero-tagline {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.about-bio {
+  padding: 2.5rem 0;
+}
+
+.about-bio-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text);
+  margin: 0 0 1.25rem;
+}
+
+.about-bio-text:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Responsive -------------------------- */
+@media (max-width: 640px) {
+  .about-main {
+    padding: 2rem calc(0.75rem + env(safe-area-inset-right, 0px)) calc(3rem + env(safe-area-inset-bottom, 0px)) calc(0.75rem + env(safe-area-inset-left, 0px));
+  }
+
+  .about-hero {
+    padding: 2rem 0 1.5rem;
+  }
+}

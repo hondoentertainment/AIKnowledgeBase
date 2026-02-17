@@ -14,15 +14,24 @@
   const podcastsGrid = document.getElementById("podcasts-grid");
   const trainingGrid = document.getElementById("training-grid");
   const youtubeGrid = document.getElementById("youtube-grid");
+  const dailyWatchGrid = document.getElementById("daily-watch-grid");
+  const bleedingEdgeGrid = document.getElementById("bleeding-edge-grid");
   const toolsCount = document.getElementById("tools-count");
   const knowledgeCount = document.getElementById("knowledge-count");
   const podcastsCount = document.getElementById("podcasts-count");
   const youtubeCount = document.getElementById("youtube-count");
   const trainingCount = document.getElementById("training-count");
+  const dailyWatchCount = document.getElementById("daily-watch-count");
+  const bleedingEdgeCount = document.getElementById("bleeding-edge-count");
   const navTabs = document.querySelectorAll(".nav-tab");
 
   /* ========== Theme ========== */
-  const savedTheme = localStorage.getItem("theme") || "dark";
+  function getInitialTheme() {
+    const saved = localStorage.getItem("theme");
+    if (saved) return saved;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  const savedTheme = getInitialTheme();
   document.documentElement.setAttribute("data-theme", savedTheme);
   themeBtn.setAttribute("aria-pressed", savedTheme === "dark");
 
@@ -33,6 +42,22 @@
     themeBtn.setAttribute("aria-pressed", next === "dark");
     localStorage.setItem("theme", next);
   });
+
+  /* ========== Mobile nav toggle ========== */
+  const navToggle = document.getElementById("nav-toggle");
+  const navTabsEl = document.querySelector(".nav-tabs");
+  if (navToggle && navTabsEl) {
+    navToggle.addEventListener("click", () => {
+      const open = navTabsEl.classList.toggle("open");
+      navToggle.setAttribute("aria-expanded", open);
+    });
+    document.querySelectorAll(".nav-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        navTabsEl.classList.remove("open");
+        navToggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
 
   /* ========== Search toggle ========== */
   searchToggle.addEventListener("click", () => {
@@ -121,7 +146,7 @@
       else if (isHalf) cls += " half-filled";
 
       stars.push(
-        `<span class="${cls}" data-star="${i}">` +
+        `<span class="${cls}" data-star="${i}" tabindex="0" role="button" aria-label="Rate ${i} of 5">` +
           `<span class="star-half star-left" data-val="${i - 0.5}"></span>` +
           `<span class="star-half star-right" data-val="${i}"></span>` +
           (isHalf ? STAR_HALF_SVG : STAR_SVG) +
@@ -130,14 +155,18 @@
     }
     const label = saved ? saved.toFixed(1).replace(/\.0$/, "") : "";
     return (
-      `<div class="card-rating" data-title="${escapeAttr(title)}" data-rating="${saved}">` +
+      `<div class="card-rating" data-title="${escapeAttr(title)}" data-rating="${saved}" role="group" aria-label="Rate ${escapeAttr(title)}">` +
         stars.join("") +
-        `<span class="rating-value">${label}</span>` +
+        `<span class="rating-value" aria-hidden="true">${label}</span>` +
       `</div>`
     );
   }
 
   function initStarInteractions() {
+    const liveRegion = document.getElementById("rating-announcer");
+    function announce(msg) {
+      if (liveRegion) { liveRegion.textContent = msg; setTimeout(() => { liveRegion.textContent = ""; }, 500); }
+    }
     document.querySelectorAll(".card-rating").forEach((container) => {
       const title = container.dataset.title;
       const starEls = container.querySelectorAll(".star");
@@ -203,12 +232,99 @@
             setRating(title, newVal);
             clearPreview();
             updateDisplay(newVal);
+            announce(newVal ? "Rated " + newVal + " of 5" : "Rating cleared");
           });
+        });
+
+        starEl.addEventListener("keydown", (e) => {
+          if (!["ArrowLeft", "ArrowRight", "Enter", " "].includes(e.key)) return;
+          e.preventDefault();
+          const current = getRating(title);
+          if (e.key === "ArrowRight") {
+            const next = Math.min(5, current + 0.5);
+            setRating(title, next);
+            updateDisplay(next);
+            announce("Rated " + next + " of 5");
+          } else if (e.key === "ArrowLeft") {
+            const next = Math.max(0, current - 0.5);
+            setRating(title, next);
+            updateDisplay(next);
+            announce(next ? "Rated " + next + " of 5" : "Rating cleared");
+          } else if (e.key === "Enter" || e.key === " ") {
+            const idx = parseInt(starEl.dataset.star, 10);
+            const val = current === idx ? 0 : idx;
+            setRating(title, val);
+            updateDisplay(val);
+            announce(val ? "Rated " + val + " of 5" : "Rating cleared");
+          }
         });
       });
 
       container.addEventListener("mouseleave", clearPreview);
     });
+  }
+
+  /* ========== Stack helpers ========== */
+  function getStack() {
+    try {
+      const j = localStorage.getItem("myStack");
+      return j ? JSON.parse(j) : [];
+    } catch (_) { return []; }
+  }
+  function isInStack(title) { return getStack().includes(title); }
+  function addToStack(title) {
+    const s = getStack();
+    if (!s.includes(title)) { s.push(title); localStorage.setItem("myStack", JSON.stringify(s)); }
+  }
+  function removeFromStack(title) {
+    const s = getStack().filter((t) => t !== title);
+    localStorage.setItem("myStack", JSON.stringify(s));
+  }
+  function toggleStack(title) {
+    if (isInStack(title)) removeFromStack(title);
+    else addToStack(title);
+  }
+
+  /* ========== Direct-use (I use this) helpers ========== */
+  function getDirectUse() {
+    try {
+      const j = localStorage.getItem("directUse");
+      return j ? JSON.parse(j) : [];
+    } catch (_) { return []; }
+  }
+  function isDirectUse(title) { return getDirectUse().includes(title); }
+  function addDirectUse(title) {
+    const d = getDirectUse();
+    if (!d.includes(title)) { d.push(title); localStorage.setItem("directUse", JSON.stringify(d)); }
+  }
+  function removeDirectUse(title) {
+    const d = getDirectUse().filter((t) => t !== title);
+    localStorage.setItem("directUse", JSON.stringify(d));
+  }
+  function toggleDirectUse(title) {
+    if (isDirectUse(title)) removeDirectUse(title);
+    else addDirectUse(title);
+  }
+
+  /* ========== Want to Try (flag) helpers ========== */
+  function getWantToTry() {
+    try {
+      const j = localStorage.getItem("wantToTry");
+      return j ? JSON.parse(j) : [];
+    } catch (_) { return []; }
+  }
+  function isWantToTry(title) { return getWantToTry().includes(title); }
+  function addWantToTry(title) {
+    const w = getWantToTry();
+    if (!w.includes(title)) { w.push(title); localStorage.setItem("wantToTry", JSON.stringify(w)); }
+  }
+  function removeWantToTry(title) {
+    const w = getWantToTry().filter((t) => t !== title);
+    localStorage.setItem("wantToTry", JSON.stringify(w));
+  }
+  function toggleWantToTry(title) {
+    if (isWantToTry(title)) removeWantToTry(title);
+    else addWantToTry(title);
   }
 
   /* ========== Level helpers ========== */
@@ -246,26 +362,47 @@
     const freqBadge = freq
       ? `<span class="freq-badge" title="Output: ${escapeAttr(freq)}">${escapeHtml(freq)}</span>`
       : "";
+    const inStack = isInStack(item.title);
+    const stackBtn = `<button type="button" class="stack-btn ${inStack ? "in-stack" : ""}" data-stack-title="${escapeAttr(item.title)}" aria-label="${inStack ? "Remove from My Stack" : "Add to My Stack"}">${inStack ? "✓ In Stack" : "+ Add to Stack"}</button>`;
+
+    const using = isDirectUse(item.title);
+    const directUseBadge = using
+      ? `<span class="direct-use-badge" title="I use this tool directly">✓ Using</span>`
+      : "";
+    const directUseBtn = `<button type="button" class="direct-use-btn ${using ? "using" : ""}" data-direct-use-title="${escapeAttr(item.title)}" aria-label="${using ? "Unmark as using" : "Mark as using directly"}">${using ? "✓ Using" : "I Use This"}</button>`;
+
+    const flagged = isWantToTry(item.title);
+    const wantToTryBadge = flagged
+      ? `<span class="want-to-try-badge" title="Flagged to try">🔖</span>`
+      : "";
+    const wantToTryBtn = `<button type="button" class="want-to-try-btn ${flagged ? "flagged" : ""}" data-want-to-try-title="${escapeAttr(item.title)}" aria-label="${flagged ? "Remove from want to try" : "Flag to try"}">${flagged ? "🔖 Flagged" : "Want to Try"}</button>`;
 
     return `
-      <a href="${escapeHtml(url)}"
-         class="card"
+      <div class="card"
          data-title="${escapeAttr(item.title)}"
          data-desc="${escapeAttr(item.description)}"
-         data-tags="${escapeAttr((item.tags || []).join(" "))}"
-         target="_blank" rel="noopener">
-        <div class="card-cover" style="background:${grad}">
-          ${freqBadge}
-          ${levelBadge}
-          <span class="card-cover-icon">${icon}</span>
-        </div>
+         data-tags="${escapeAttr((item.tags || []).join(" "))}">
+        <a href="${escapeHtml(url)}" class="card-link" target="_blank" rel="noopener">
+          <div class="card-cover" style="background:${grad}">
+            ${freqBadge}
+            ${levelBadge}
+            ${directUseBadge}
+            ${wantToTryBadge}
+            <span class="card-cover-icon">${icon}</span>
+          </div>
+        </a>
         <div class="card-body">
-          <h3 class="card-title">${escapeHtml(item.title)}</h3>
+          <a href="${escapeHtml(url)}" class="card-title" target="_blank" rel="noopener">${escapeHtml(item.title)}</a>
           <p class="card-desc">${escapeHtml(item.description)}</p>
           ${buildStarsHTML(item.title)}
+          <div class="card-actions">
+            ${wantToTryBtn}
+            ${directUseBtn}
+            ${stackBtn}
+          </div>
           ${tags ? `<div class="card-tags">${tags}</div>` : ""}
         </div>
-      </a>`;
+      </div>`;
   }
 
   /* ========== Build featured card ========== */
@@ -287,13 +424,22 @@
 
   /* ========== Render ========== */
   function render() {
-    const { tools, knowledge, podcasts, youtube, training } = siteData;
+    const { tools, knowledge, podcasts, youtube, training, dailyWatch, bleedingEdge } = siteData;
 
     toolsCount.textContent = tools.length;
     knowledgeCount.textContent = knowledge.length;
     podcastsCount.textContent = podcasts.length;
     youtubeCount.textContent = (youtube || []).length;
     trainingCount.textContent = (training || []).length;
+    dailyWatchCount.textContent = (dailyWatch || []).length;
+    bleedingEdgeCount.textContent = (bleedingEdge || []).length;
+
+    const heroTools = document.getElementById("hero-tools-count");
+    const heroKnowledge = document.getElementById("hero-knowledge-count");
+    const heroPodcasts = document.getElementById("hero-podcasts-count");
+    if (heroTools) heroTools.textContent = tools.length;
+    if (heroKnowledge) heroKnowledge.textContent = knowledge.length;
+    if (heroPodcasts) heroPodcasts.textContent = podcasts.length;
 
     toolsGrid.innerHTML = tools.length
       ? tools.map((t) => buildCard(t)).join("")
@@ -315,33 +461,184 @@
       ? training.map((t) => buildCard(t)).join("")
       : '<p class="section-empty">No training links yet. Edit data.js to add courses and guides.</p>';
 
-    /* Featured row: pick highlights across categories */
+    dailyWatchGrid.innerHTML = (dailyWatch || []).length
+      ? dailyWatch.map((d) => buildCard(d)).join("")
+      : '<p class="section-empty">No daily watch sites yet.</p>';
+
+    bleedingEdgeGrid.innerHTML = (bleedingEdge || []).length
+      ? bleedingEdge.map((b) => buildCard(b)).join("")
+      : '<p class="section-empty">No bleeding edge resources yet.</p>';
+
+    /* Featured row: prioritize "Using" and high-rated items, then top picks per category */
+    const directUse = getDirectUse();
+    const allItems = [
+      ...tools.map((t) => ({ ...t, cat: "tools" })),
+      ...(youtube || []).map((y) => ({ ...y, cat: "youtube" })),
+      ...(training || []).map((t) => ({ ...t, cat: "training" })),
+      ...podcasts.map((p) => ({ ...p, cat: "podcasts" })),
+      ...(bleedingEdge || []).map((b) => ({ ...b, cat: "bleedingEdge" })),
+    ];
+    const withScore = allItems.map((item) => {
+      const using = directUse.includes(item.title) ? 2 : 0;
+      const rating = getRating(item.title);
+      return { item, score: using + (rating || 0) };
+    });
+    const byScore = [...withScore].sort((a, b) => b.score - a.score);
+    const topByCat = {};
+    byScore.forEach(({ item }) => {
+      if (!topByCat[item.cat]) topByCat[item.cat] = item;
+    });
     const featured = [
-      tools[0],
-      youtube ? youtube[0] : null,
-      training ? training[0] : null,
-      podcasts[0],
+      topByCat.tools || tools[0],
+      topByCat.bleedingEdge || (bleedingEdge ? bleedingEdge[0] : null),
+      topByCat.youtube || (youtube ? youtube[0] : null),
+      topByCat.training || (training ? training[0] : null),
+      topByCat.podcasts || podcasts[0],
     ].filter(Boolean);
 
     featuredRow.innerHTML = featured.map((item) => buildFeaturedCard(item)).join("");
 
     initStarInteractions();
+    initStackButtons();
+    initDirectUseButtons();
+    initWantToTryButtons();
+  }
+
+  function initDirectUseButtons() {
+    document.querySelectorAll(".direct-use-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const title = btn.dataset.directUseTitle;
+        toggleDirectUse(title);
+        btn.classList.toggle("using", isDirectUse(title));
+        btn.textContent = isDirectUse(title) ? "✓ Using" : "I Use This";
+        btn.setAttribute("aria-label", isDirectUse(title) ? "Unmark as using" : "Mark as using directly");
+        const card = btn.closest(".card");
+        const cover = card?.querySelector(".card-cover");
+        if (cover) {
+          const badge = cover.querySelector(".direct-use-badge");
+          if (isDirectUse(title)) {
+            if (!badge) {
+              const newBadge = document.createElement("span");
+              newBadge.className = "direct-use-badge";
+              newBadge.title = "I use this tool directly";
+              newBadge.textContent = "✓ Using";
+              cover.appendChild(newBadge);
+            }
+          } else if (badge) {
+            badge.remove();
+          }
+        }
+      });
+    });
+  }
+
+  function initWantToTryButtons() {
+    document.querySelectorAll(".want-to-try-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const title = btn.dataset.wantToTryTitle;
+        toggleWantToTry(title);
+        btn.classList.toggle("flagged", isWantToTry(title));
+        btn.textContent = isWantToTry(title) ? "🔖 Flagged" : "Want to Try";
+        btn.setAttribute("aria-label", isWantToTry(title) ? "Remove from want to try" : "Flag to try");
+        const card = btn.closest(".card");
+        const cover = card?.querySelector(".card-cover");
+        if (cover) {
+          const badge = cover.querySelector(".want-to-try-badge");
+          if (isWantToTry(title)) {
+            if (!badge) {
+              const newBadge = document.createElement("span");
+              newBadge.className = "want-to-try-badge";
+              newBadge.title = "Flagged to try";
+              newBadge.textContent = "🔖";
+              cover.appendChild(newBadge);
+            }
+          } else if (badge) {
+            badge.remove();
+          }
+        }
+      });
+    });
+  }
+
+  function initStackButtons() {
+    document.querySelectorAll(".stack-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const title = btn.dataset.stackTitle;
+        toggleStack(title);
+        btn.classList.toggle("in-stack", isInStack(title));
+        btn.textContent = isInStack(title) ? "✓ In Stack" : "+ Add to Stack";
+        btn.setAttribute("aria-label", isInStack(title) ? "Remove from My Stack" : "Add to My Stack");
+      });
+    });
   }
 
   render();
 
   /* ========== Search / filter ========== */
+  const searchResultsEl = document.getElementById("search-results");
+  const totalCards = () => document.querySelectorAll(".card").length;
+
+  function debounce(fn, ms) {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), ms);
+    };
+  }
+
   function filterCards(query) {
     const q = (query || "").toLowerCase().trim();
+    let visible = 0;
     document.querySelectorAll(".card").forEach((card) => {
       const title = (card.dataset.title || "").toLowerCase();
       const desc = (card.dataset.desc || "").toLowerCase();
       const tags = (card.dataset.tags || "").toLowerCase();
       const match = !q || title.includes(q) || desc.includes(q) || tags.includes(q);
       card.classList.toggle("hidden", !match);
+      if (match) visible++;
     });
+    let noResultsEl = document.getElementById("search-no-results");
+    if (q) {
+      if (searchResultsEl) {
+        searchResultsEl.textContent = visible + " of " + totalCards();
+      }
+      if (visible === 0 && !noResultsEl) {
+        noResultsEl = document.createElement("p");
+        noResultsEl.id = "search-no-results";
+        noResultsEl.className = "search-no-results";
+        noResultsEl.textContent = "No results for \"" + query + "\". Try different keywords.";
+        const firstGrid = document.querySelector(".card-grid");
+        if (firstGrid) firstGrid.appendChild(noResultsEl);
+      } else if (visible > 0 && noResultsEl) {
+        noResultsEl.remove();
+      }
+    } else {
+      if (searchResultsEl) searchResultsEl.textContent = "";
+      if (noResultsEl) noResultsEl.remove();
+    }
   }
 
-  searchEl.addEventListener("input", (e) => filterCards(e.target.value));
+  const debouncedFilter = debounce((v) => filterCards(v), 80);
+  searchEl.addEventListener("input", (e) => debouncedFilter(e.target.value));
   searchEl.addEventListener("search", (e) => filterCards(e.target.value));
+
+  /* ========== Back to top ========== */
+  const backToTop = document.getElementById("back-to-top");
+  if (backToTop) {
+    const scrollThreshold = 400;
+    const onScroll = () => {
+      backToTop.classList.toggle("hidden", window.scrollY < scrollThreshold);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    backToTop.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    onScroll();
+  }
 })();
