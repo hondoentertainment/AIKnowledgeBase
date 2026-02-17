@@ -310,6 +310,10 @@
 
     const cat = category || "taxes";
     const shareBtn = `<button type="button" class="share-btn" data-share-page="niche" data-share-category="${escapeAttr(cat)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`;
+    const visitUrl = url && url !== "#" ? url : null;
+    const visitBtn = visitUrl
+      ? `<a href="${escapeHtml(visitUrl)}" class="visit-btn" target="_blank" rel="noopener" aria-label="Visit ${escapeAttr(item.title)}">Visit</a>`
+      : "";
 
     return `
       <div class="card"
@@ -330,6 +334,7 @@
           <p class="card-desc">${escapeHtml(item.description)}</p>
           ${buildStarsHTML(item.title)}
           <div class="card-actions">
+            ${visitBtn}
             ${wantToTryBtn}
             ${directUseBtn}
             ${stackBtn}
@@ -564,18 +569,11 @@
       card.classList.toggle("hidden", !match);
       if (match) visible++;
     });
-    if (searchResultsEl) searchResultsEl.textContent = q ? visible + " of " + totalCards() : "";
-    let noResultsEl = document.getElementById("search-no-results");
-    if (q && visible === 0) {
-      if (!noResultsEl) {
-        noResultsEl = document.createElement("p");
-        noResultsEl.id = "search-no-results";
-        noResultsEl.className = "search-no-results";
-        noResultsEl.textContent = 'No results for "' + query + '". Try different keywords.';
-        const firstGrid = document.querySelector(".card-grid");
-        if (firstGrid) firstGrid.appendChild(noResultsEl);
-      }
-    } else if (noResultsEl) noResultsEl.remove();
+    const noResultsEl = document.getElementById("search-no-results");
+    if (noResultsEl) noResultsEl.remove();
+    if (searchResultsEl) {
+      searchResultsEl.textContent = q ? (visible === 0 ? "No results — try different keywords" : visible + " of " + totalCards()) : "";
+    }
   }
 
   const debouncedFilter = debounce((v) => filterCards(v), 80);

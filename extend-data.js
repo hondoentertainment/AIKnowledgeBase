@@ -1,5 +1,5 @@
 /**
- * Script to extend each section in data.js to 300 resources.
+ * Script to extend each section in data.js to 500 resources.
  * Run: node extend-data.js
  */
 
@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DATA_FILE = path.join(__dirname, 'data.js');
-const TARGET_PER_SECTION = 300;
+const TARGET_PER_SECTION = 500;
 
 const ICONS = ['💬', '🧠', '✨', '🔍', '📚', '🎙️', '📄', '🔧', '⚡', '🎨', '🖼️', '🎬', '📊', '🤖', '💻', '📝', '🎯', '🔬', '🌐', '📱', '🛠️', '📈', '🎓', '🌟', '💡', '🔗', '📋', '🦾', '☁️', '🎵'];
 const COLORS = [
@@ -19,14 +19,14 @@ const COLORS = [
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function level() { return Math.floor(Math.random() * 9) + 1; }
 
-function genTools(count) {
+function genTools(count, offset = 0) {
   const names = ['Nexus', 'Synth', 'Lumina', 'Cortex', 'Prism', 'Vector', 'Pulse', 'Flux', 'Apex', 'Nova', 'Spark', 'Forge', 'Echo', 'Atlas', 'Zenith', 'Horizon', 'Meridian', 'Vertex', 'Orbit', 'Helix'];
   const types = ['AI assistant', 'automation platform', 'content generator', 'research tool', 'writing copilot', 'analytics engine', 'code helper', 'design assistant', 'data processor', 'workflow builder'];
   const tags = ['LLM', 'Writing', 'Coding', 'Image', 'Video', 'Audio', 'Productivity', 'Research', 'Automation', 'Design', 'API', 'Analysis'];
   const items = [];
   const seen = new Set();
   for (let i = 0; i < count; i++) {
-    const name = `${pick(names)} AI ${i}`;
+    const name = `${pick(names)} AI ${offset + i}`;
     if (seen.has(name)) continue;
     seen.add(name);
     const t = pick(types);
@@ -35,7 +35,7 @@ function genTools(count) {
   return items;
 }
 
-function genKnowledge(count) {
+function genKnowledge(count, offset = 0) {
   const names = ['AI Digest', 'ML Weekly', 'Neural Notes', 'Deep Insights', 'AI Briefing', 'Tech Pulse', 'Research Roundup', 'Model Watch', 'AI Horizons'];
   const types = ['newsletter', 'blog', 'documentation', 'paper repository', 'tutorial site', 'community forum', 'course platform', 'research hub'];
   const tags = ['Research', 'Newsletter', 'Documentation', 'Papers', 'Tutorial', 'Community', 'Blog', 'Education'];
@@ -43,7 +43,7 @@ function genKnowledge(count) {
   const items = [];
   const seen = new Set();
   for (let i = 0; i < count; i++) {
-    const name = `${pick(names)} ${i}`;
+    const name = `${pick(names)} ${offset + i}`;
     if (seen.has(name)) continue;
     seen.add(name);
     const t = pick(types);
@@ -52,14 +52,14 @@ function genKnowledge(count) {
   return items;
 }
 
-function genPodcasts(count) {
+function genPodcasts(count, offset = 0) {
   const names = ['AI Talk', 'ML Minds', 'Data Deep Dive', 'Neural Net Chat', 'Future AI', 'Code & Cognition', 'The AI Show', 'Smart Machines', 'Deep Learning Daily'];
   const tags = ['AI', 'Machine Learning', 'Data Science', 'Research', 'Interviews', 'Industry'];
   const freqs = ['Weekly', 'Biweekly', 'Monthly', 'Daily'];
   const items = [];
   const seen = new Set();
   for (let i = 0; i < count; i++) {
-    const name = `${pick(names)} ${i}`;
+    const name = `${pick(names)} ${offset + i}`;
     if (seen.has(name)) continue;
     seen.add(name);
     items.push(`    { title: "${name}", description: "Podcast exploring AI, ML, and data science with industry experts.", url: "https://example.com/${name.toLowerCase().replace(/\s/g, '-')}", tags: [${[pick(tags), pick(tags)].map(t => `"${t}"`).join(', ')}], icon: "${pick(ICONS)}", color: [${pick(COLORS).map(c => `"${c}"`).join(', ')}], level: ${level()}, freq: "${pick(freqs)}" }`);
@@ -67,14 +67,14 @@ function genPodcasts(count) {
   return items;
 }
 
-function genYouTube(count) {
+function genYouTube(count, offset = 0) {
   const names = ['AI Explained', 'ML Tutorials', 'Data Science Daily', 'Neural Net Lab', 'Code with AI', 'Research Breakdown', 'Tech Deep Dive'];
   const tags = ['AI', 'Tutorials', 'Research', 'Education', 'Coding', 'Paper Reviews'];
   const freqs = ['Weekly', '2-3x Weekly', 'Monthly', 'Daily'];
   const items = [];
   const seen = new Set();
   for (let i = 0; i < count; i++) {
-    const name = `${pick(names)} ${i}`;
+    const name = `${pick(names)} ${offset + i}`;
     if (seen.has(name)) continue;
     seen.add(name);
     items.push(`    { title: "${name}", description: "YouTube channel covering AI, machine learning, and practical tutorials.", url: "https://www.youtube.com/@${name.toLowerCase().replace(/\s/g, '')}", tags: [${[pick(tags), pick(tags)].map(t => `"${t}"`).join(', ')}], icon: "${pick(ICONS)}", color: [${pick(COLORS).map(c => `"${c}"`).join(', ')}], level: ${level()}, freq: "${pick(freqs)}" }`);
@@ -82,7 +82,7 @@ function genYouTube(count) {
   return items;
 }
 
-function genTraining(count) {
+function genTraining(count, offset = 0) {
   const names = ['ML Fundamentals', 'Deep Learning Pro', 'AI for Beginners', 'NLP Mastery', 'Computer Vision', 'RL Workshop', 'MLOps Essentials'];
   const types = ['course', 'specialization', 'certification', 'tutorial series', 'bootcamp', 'nanodegree'];
   const tags = ['Machine Learning', 'Deep Learning', 'NLP', 'Computer Vision', 'Coursera', 'Self-Paced'];
@@ -90,7 +90,7 @@ function genTraining(count) {
   const items = [];
   const seen = new Set();
   for (let i = 0; i < count; i++) {
-    const name = `${pick(names)} ${i}`;
+    const name = `${pick(names)} ${offset + i}`;
     if (seen.has(name)) continue;
     seen.add(name);
     const t = pick(types);
@@ -99,12 +99,12 @@ function genTraining(count) {
   return items;
 }
 
-function genDailyWatch(count) {
+function genDailyWatch(count, offset = 0) {
   const names = ['ToolHunt', 'AI Launches', 'Product Daily', 'Startup Radar', 'Tech Releases', 'AI Directory', 'Innovation Watch', 'Launch Pad'];
   const items = [];
   const seen = new Set();
   for (let i = 0; i < count; i++) {
-    const name = `${pick(names)} ${i}`;
+    const name = `${pick(names)} ${offset + i}`;
     if (seen.has(name)) continue;
     seen.add(name);
     items.push(`    { title: "${name}", description: "Daily updated directory of new AI tools and product launches.", url: "https://example.com/${name.toLowerCase().replace(/\s/g, '-')}", tags: ["Discovery", "AI Tools", "Daily"], icon: "${pick(ICONS)}", color: [${pick(COLORS).map(c => `"${c}"`).join(', ')}], level: 1, freq: "Daily" }`);
@@ -112,14 +112,14 @@ function genDailyWatch(count) {
   return items;
 }
 
-function genBleedingEdge(count) {
+function genBleedingEdge(count, offset = 0) {
   const names = ['Nexus Agent', 'Cortex Autonomy', 'Reactor AI', 'Forge Agent', 'Pulse Reasoning', 'Vector Orchestrator', 'Flux Framework', 'Apex Autonomy', 'Synth Reasoning', 'Helix Agent'];
   const types = ['agent framework', 'autonomous system', 'reasoning model', 'multi-agent orchestrator', 'tool-use platform', 'memory layer', 'agentic workflow'];
   const tags = ['Agent', 'Autonomous', 'Reasoning', 'Framework', 'Multi-Agent', 'Tool Use', 'API', 'Research'];
   const items = [];
   const seen = new Set();
   for (let i = 0; i < count; i++) {
-    const name = `${pick(names)} ${i}`;
+    const name = `${pick(names)} ${offset + i}`;
     if (seen.has(name)) continue;
     seen.add(name);
     const t = pick(types);
@@ -167,7 +167,7 @@ function main() {
       console.log(`${name}: already has ${currentCount} (target ${TARGET_PER_SECTION})`);
       continue;
     }
-    const newItems = gen(need);
+    const newItems = gen(need, currentCount);
     const insert = '\n' + newItems.join(',\n') + ',';
     const newBody = bounds.body.trimEnd() + insert;
     const newSection = bounds.prefix + newBody + '\n' + bounds.suffix;

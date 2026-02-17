@@ -134,6 +134,25 @@
   gap: 0.25rem;
 }
 
+.stack-visit-btn {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.stack-visit-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-muted);
+}
+
 .stack-share-btn {
   padding: 0.35rem 0.6rem;
   font-size: 0.65rem;

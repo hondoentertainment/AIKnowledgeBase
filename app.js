@@ -78,6 +78,7 @@
     } else {
       searchEl.value = "";
       filterCards("");
+      searchToggle.focus();
     }
   });
 
@@ -91,6 +92,7 @@
       searchBar.classList.remove("open");
       searchEl.value = "";
       filterCards("");
+      searchToggle.focus();
     }
   });
 
@@ -110,6 +112,11 @@
   }, observerOpts);
 
   sections.forEach((s) => sectionObserver.observe(s));
+
+  /* ========== Haptic feedback (mobile polish) ========== */
+  function haptic() {
+    if (navigator.vibrate) navigator.vibrate(5);
+  }
 
   /* ========== Helpers ========== */
   function escapeHtml(s) {
@@ -238,6 +245,7 @@
           half.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
+            haptic();
             const val = parseFloat(half.dataset.val);
             const current = getRating(title);
             const newVal = current === val ? 0 : val;
@@ -251,6 +259,7 @@
         starEl.addEventListener("keydown", (e) => {
           if (!["ArrowLeft", "ArrowRight", "Enter", " "].includes(e.key)) return;
           e.preventDefault();
+          haptic();
           const current = getRating(title);
           if (e.key === "ArrowRight") {
             const next = Math.min(5, current + 0.5);
@@ -388,6 +397,7 @@
   }
 
   function showShareFeedback(btn, ok) {
+    if (ok) haptic();
     const label = btn.getAttribute("aria-label") || "Share";
     const prev = btn.textContent;
     btn.textContent = ok ? "Link copied!" : "Share";
@@ -465,6 +475,10 @@
 
     const cat = category || "tools";
     const shareBtn = `<button type="button" class="share-btn" data-share-page="index" data-share-category="${escapeAttr(cat)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`;
+    const visitUrl = url && url !== "#" ? url : null;
+    const visitBtn = visitUrl
+      ? `<a href="${escapeHtml(visitUrl)}" class="visit-btn" target="_blank" rel="noopener" aria-label="Visit ${escapeAttr(item.title)}">Visit</a>`
+      : "";
 
     return `
       <div class="card"
@@ -485,6 +499,7 @@
           <p class="card-desc">${escapeHtml(item.description)}</p>
           ${buildStarsHTML(item.title)}
           <div class="card-actions">
+            ${visitBtn}
             ${wantToTryBtn}
             ${directUseBtn}
             ${stackBtn}
@@ -612,6 +627,7 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        haptic();
         const title = btn.dataset.directUseTitle;
         toggleDirectUse(title);
         btn.classList.toggle("using", isDirectUse(title));
@@ -642,6 +658,7 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        haptic();
         const title = btn.dataset.wantToTryTitle;
         toggleWantToTry(title);
         btn.classList.toggle("flagged", isWantToTry(title));
@@ -672,6 +689,7 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        haptic();
         const title = btn.dataset.stackTitle;
         toggleStack(title);
         btn.classList.toggle("in-stack", isInStack(title));
@@ -708,24 +726,14 @@
       card.classList.toggle("hidden", !match);
       if (match) visible++;
     });
-    let noResultsEl = document.getElementById("search-no-results");
+    const noResultsEl = document.getElementById("search-no-results");
+    if (noResultsEl) noResultsEl.remove();
     if (q) {
       if (searchResultsEl) {
-        searchResultsEl.textContent = visible + " of " + totalCards();
-      }
-      if (visible === 0 && !noResultsEl) {
-        noResultsEl = document.createElement("p");
-        noResultsEl.id = "search-no-results";
-        noResultsEl.className = "search-no-results";
-        noResultsEl.textContent = "No results for \"" + query + "\". Try different keywords.";
-        const firstGrid = document.querySelector(".card-grid");
-        if (firstGrid) firstGrid.appendChild(noResultsEl);
-      } else if (visible > 0 && noResultsEl) {
-        noResultsEl.remove();
+        searchResultsEl.textContent = visible === 0 ? "No results — try different keywords" : visible + " of " + totalCards();
       }
     } else {
       if (searchResultsEl) searchResultsEl.textContent = "";
-      if (noResultsEl) noResultsEl.remove();
     }
   }
 

@@ -56,6 +56,19 @@
       <h1 class="section-title">Profiles</h1>
       <p class="section-intro" style="margin-bottom: 1.5rem;">Each profile has its own stack, ratings, and flags. Switch between Work, Personal, or any other context.</p>
 
+      <div class="data-export-import">
+        <h2 class="profile-form-title">Backup & restore</h2>
+        <p class="section-intro" style="margin-bottom: 0.75rem;">Export your profiles, stack, ratings, and flags. Import on another device to restore.</p>
+        <div class="data-actions">
+          <button type="button" id="data-export-btn" class="profile-form-btn">Export data</button>
+          <label class="data-import-label">
+            <input type="file" id="data-import-input" accept=".json,application/json" class="sr-only">
+            <span class="profile-form-btn">Import data</span>
+          </label>
+        </div>
+        <p id="data-feedback" class="data-feedback" role="status" aria-live="polite" style="display:none"></p>
+      </div>
+
       <div id="profiles-list" class="profiles-list"></div>
 
       <form id="profile-form" class="profile-form">
@@ -235,6 +248,58 @@
         window.ProfileStore.createProfile(name);
         input.value = "";
         render();
+      });
+
+      function showFeedback(msg, isError) {
+        const el = document.getElementById("data-feedback");
+        if (!el) return;
+        el.textContent = msg;
+        el.style.display = "block";
+        el.classList.toggle("data-feedback-error", !!isError);
+        setTimeout(() => { el.style.display = "none"; }, 4000);
+      }
+
+      document.getElementById("data-export-btn")?.addEventListener("click", () => {
+        const payload = {
+          v: 1,
+          exportedAt: new Date().toISOString(),
+          profiles: localStorage.getItem("profiles"),
+          activeProfileId: localStorage.getItem("activeProfileId"),
+          profileData: localStorage.getItem("profileData"),
+          customTools: localStorage.getItem("customTools"),
+          theme: localStorage.getItem("theme"),
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "ai-knowledge-hub-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showFeedback("Backup downloaded.");
+      });
+
+      document.getElementById("data-import-input")?.addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const r = new FileReader();
+        r.onload = () => {
+          try {
+            const payload = JSON.parse(r.result);
+            if (!payload || typeof payload !== "object") throw new Error("Invalid backup file");
+            if (payload.profiles) localStorage.setItem("profiles", payload.profiles);
+            if (payload.activeProfileId) localStorage.setItem("activeProfileId", payload.activeProfileId);
+            if (payload.profileData) localStorage.setItem("profileData", payload.profileData);
+            if (payload.customTools) localStorage.setItem("customTools", payload.customTools);
+            if (payload.theme) localStorage.setItem("theme", payload.theme);
+            window.dispatchEvent(new CustomEvent("profile-changed"));
+            showFeedback("Data restored. Reloading…");
+            setTimeout(() => window.location.reload(), 800);
+          } catch (err) {
+            showFeedback("Import failed: " + (err.message || "Invalid file"), true);
+          }
+        };
+        r.readAsText(file);
+        e.target.value = "";
       });
 
       render();

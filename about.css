@@ -45,6 +45,56 @@
   margin-bottom: 0;
 }
 
+.about-section-title {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 1rem;
+}
+
+.about-expertise {
+  padding: 2rem 0;
+  border-top: 1px solid var(--border-light);
+}
+
+.about-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--text);
+  line-height: 1.8;
+}
+
+.about-app {
+  padding: 2rem 0;
+  border-top: 1px solid var(--border-light);
+}
+
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.about-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--accent-muted);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.about-link:hover {
+  background: var(--accent);
+  color: var(--btn-on-accent);
+}
+
 /* --- Responsive -------------------------- */
 @media (max-width: 640px) {
   .about-main {

@@ -63,8 +63,8 @@
       if (!emailNorm || !password) {
         return { ok: false, error: "Email and password required." };
       }
-      if (password.length < 6) {
-        return { ok: false, error: "Password must be at least 6 characters." };
+      if (password.length < 8) {
+        return { ok: false, error: "Password must be at least 8 characters." };
       }
       const users = getUsers();
       if (users.some((u) => u.email === emailNorm)) {
@@ -156,8 +156,8 @@
       if (!token || !newPassword) {
         return { ok: false, error: "Token and new password required." };
       }
-      if (newPassword.length < 6) {
-        return { ok: false, error: "Password must be at least 6 characters." };
+      if (newPassword.length < 8) {
+        return { ok: false, error: "Password must be at least 8 characters." };
       }
       const tokens = getResetTokens();
       const now = Date.now();

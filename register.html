@@ -30,13 +30,14 @@
     <section class="auth-card" aria-labelledby="auth-heading">
       <h1 id="auth-heading" class="auth-title">Create account</h1>
       <p class="auth-intro">Sign up to save your stack and access Admin.</p>
+      <p class="auth-local-notice">Accounts and data are stored on this device only. Use <a href="profiles.html">Profiles</a> to export a backup.</p>
 
       <form id="register-form" class="auth-form">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-required="true">
 
-        <label for="password">Password (6+ characters)</label>
-        <input type="password" id="password" name="password" required autocomplete="new-password" minlength="6" placeholder="••••••••" aria-required="true">
+        <label for="password">Password (8+ characters)</label>
+        <input type="password" id="password" name="password" required autocomplete="new-password" minlength="8" placeholder="••••••••" aria-required="true">
 
         <label for="password-confirm">Confirm password</label>
         <input type="password" id="password-confirm" name="passwordConfirm" required autocomplete="new-password" placeholder="••••••••" aria-required="true">

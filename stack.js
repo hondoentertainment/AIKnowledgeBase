@@ -19,6 +19,11 @@
     niche: document.getElementById("stack-niche-grid"),
   };
 
+  /* ========== Haptic feedback ========== */
+  function haptic() {
+    if (navigator.vibrate) navigator.vibrate(5);
+  }
+
   /* ========== Stack helpers ========== */
   function getStack() {
     return window.ProfileStore ? window.ProfileStore.getStack() : [];
@@ -56,6 +61,7 @@
       } else {
         searchEl.value = "";
         filterCards("");
+        searchToggle.focus();
       }
     });
     document.addEventListener("keydown", (e) => {
@@ -68,6 +74,7 @@
         searchBar.classList.remove("open");
         searchEl.value = "";
         filterCards("");
+        searchToggle.focus();
       }
     });
   }
@@ -115,6 +122,7 @@
   }
 
   function showShareFeedback(btn, ok) {
+    if (ok) haptic();
     const label = btn.getAttribute("aria-label") || "Share";
     const prev = btn.textContent;
     btn.textContent = ok ? "Copied!" : prev;
@@ -172,6 +180,10 @@
     const shareBtn = sharePage && shareCategory
       ? `<button type="button" class="share-btn stack-share-btn" data-share-page="${escapeAttr(sharePage)}" data-share-category="${escapeAttr(shareCategory)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`
       : "";
+    const visitUrl = url && url !== "#" ? url : null;
+    const visitBtn = visitUrl
+      ? `<a href="${escapeHtml(visitUrl)}" class="visit-btn stack-visit-btn" target="_blank" rel="noopener" aria-label="Visit ${escapeAttr(item.title)}">Visit</a>`
+      : "";
 
     return `
       <div class="stack-card"
@@ -179,6 +191,7 @@
          data-desc="${escapeAttr(item.description)}"
          data-tags="${escapeAttr((item.tags || []).join(" "))}">
         <div class="stack-card-actions">
+          ${visitBtn}
           ${shareBtn}
           ${removeBtn}
         </div>
@@ -254,6 +267,7 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        haptic();
         const title = btn.dataset.removeTitle;
         removeFromStack(title);
         render();
@@ -278,21 +292,12 @@
       card.classList.toggle("hidden", !match);
       if (match) visible++;
     });
+    const noResultsEl = document.getElementById("search-no-results");
+    if (noResultsEl) noResultsEl.remove();
     if (searchResultsEl) {
-      searchResultsEl.textContent = q ? visible + " of " + cards.length : "";
-    }
-    let noResultsEl = document.getElementById("search-no-results");
-    if (q && visible === 0 && cards.length > 0) {
-      if (!noResultsEl) {
-        noResultsEl = document.createElement("p");
-        noResultsEl.id = "search-no-results";
-        noResultsEl.className = "search-no-results";
-        noResultsEl.textContent = 'No results for "' + query + '". Try different keywords.';
-        const firstGrid = document.querySelector(".stack-grid");
-        if (firstGrid) firstGrid.parentElement.appendChild(noResultsEl);
-      }
-    } else if (noResultsEl) {
-      noResultsEl.remove();
+      searchResultsEl.textContent = q
+        ? visible === 0 && cards.length > 0 ? "No results — try different keywords" : visible + " of " + cards.length
+        : "";
     }
   }
 
