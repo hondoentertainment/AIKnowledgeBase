@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Create account — AI Knowledge Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">&#x2B22;</span>
+        AI Knowledge Hub
+      </a>
+      <nav class="nav-tabs">
+        <a href="index.html" class="nav-tab">Home</a>
+        <a href="login.html" class="nav-tab">Log in</a>
+        <a href="register.html" class="nav-tab active">Sign up</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" class="auth-main">
+    <section class="auth-card" aria-labelledby="auth-heading">
+      <h1 id="auth-heading" class="auth-title">Create account</h1>
+      <p class="auth-intro">Sign up to save your stack and access Admin.</p>
+
+      <form id="register-form" class="auth-form">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-required="true">
+
+        <label for="password">Password (6+ characters)</label>
+        <input type="password" id="password" name="password" required autocomplete="new-password" minlength="6" placeholder="••••••••" aria-required="true">
+
+        <label for="password-confirm">Confirm password</label>
+        <input type="password" id="password-confirm" name="passwordConfirm" required autocomplete="new-password" placeholder="••••••••" aria-required="true">
+
+        <p id="auth-error" class="auth-error" role="alert" aria-live="polite" style="display:none"></p>
+
+        <button type="submit" id="submit-btn" class="auth-btn">Create account</button>
+      </form>
+
+      <div class="auth-links">
+        <a href="login.html" class="auth-link">Already have an account? Log in</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="auth.js"></script>
+  <script>
+    (function () {
+      if (window.Auth && window.Auth.isLoggedIn()) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      const form = document.getElementById("register-form");
+      const errorEl = document.getElementById("auth-error");
+      const submitBtn = document.getElementById("submit-btn");
+
+      function showError(msg) {
+        errorEl.textContent = msg;
+        errorEl.style.display = "block";
+      }
+      function hideError() {
+        errorEl.textContent = "";
+        errorEl.style.display = "none";
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        hideError();
+
+        const password = document.getElementById("password").value;
+        const passwordConfirm = document.getElementById("password-confirm").value;
+
+        if (password !== passwordConfirm) {
+          showError("Passwords do not match.");
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Creating…";
+
+        const email = document.getElementById("email").value;
+        const result = await window.Auth.register(email, password);
+
+        if (result.ok) {
+          window.location.href = "login.html?registered=1";
+          return;
+        }
+
+        showError(result.error || "Registration failed.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create account";
+      });
+    })();
+  </script>
+</body>
+</html>

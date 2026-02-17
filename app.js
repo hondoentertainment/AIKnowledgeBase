@@ -43,6 +43,17 @@
     localStorage.setItem("theme", next);
   });
 
+  /* ========== Topbar scroll shadow ========== */
+  const topbar = document.querySelector(".topbar");
+  if (topbar) {
+    const observer = new IntersectionObserver(
+      ([e]) => topbar.classList.toggle("topbar-scrolled", !e.isIntersecting),
+      { threshold: 0, rootMargin: "-1px 0px 0px 0px" }
+    );
+    const hero = document.querySelector(".hero");
+    if (hero) observer.observe(hero);
+  }
+
   /* ========== Mobile nav toggle ========== */
   const navToggle = document.getElementById("nav-toggle");
   const navTabsEl = document.querySelector(".nav-tabs");
@@ -123,15 +134,16 @@
   const STAR_HALF_SVG = '<svg class="star-icon" viewBox="0 0 24 24"><defs><linearGradient id="halfGrad"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="url(#halfGrad)" stroke="currentColor" stroke-width="0.5"/></svg>';
 
   function getRating(title) {
+    if (window.ProfileStore) return window.ProfileStore.getRating(title);
     const v = localStorage.getItem("rating:" + title);
     return v ? parseFloat(v) : 0;
   }
 
   function setRating(title, value) {
-    if (value === 0) {
-      localStorage.removeItem("rating:" + title);
-    } else {
-      localStorage.setItem("rating:" + title, String(value));
+    if (window.ProfileStore) window.ProfileStore.setRating(title, value);
+    else {
+      if (value === 0) localStorage.removeItem("rating:" + title);
+      else localStorage.setItem("rating:" + title, String(value));
     }
   }
 
@@ -266,19 +278,21 @@
 
   /* ========== Stack helpers ========== */
   function getStack() {
-    try {
-      const j = localStorage.getItem("myStack");
-      return j ? JSON.parse(j) : [];
-    } catch (_) { return []; }
+    return window.ProfileStore ? window.ProfileStore.getStack() : [];
   }
   function isInStack(title) { return getStack().includes(title); }
   function addToStack(title) {
     const s = getStack();
-    if (!s.includes(title)) { s.push(title); localStorage.setItem("myStack", JSON.stringify(s)); }
+    if (!s.includes(title)) {
+      s.push(title);
+      if (window.ProfileStore) window.ProfileStore.setStack(s);
+      else localStorage.setItem("myStack", JSON.stringify(s));
+    }
   }
   function removeFromStack(title) {
     const s = getStack().filter((t) => t !== title);
-    localStorage.setItem("myStack", JSON.stringify(s));
+    if (window.ProfileStore) window.ProfileStore.setStack(s);
+    else localStorage.setItem("myStack", JSON.stringify(s));
   }
   function toggleStack(title) {
     if (isInStack(title)) removeFromStack(title);
@@ -287,19 +301,21 @@
 
   /* ========== Direct-use (I use this) helpers ========== */
   function getDirectUse() {
-    try {
-      const j = localStorage.getItem("directUse");
-      return j ? JSON.parse(j) : [];
-    } catch (_) { return []; }
+    return window.ProfileStore ? window.ProfileStore.getDirectUse() : [];
   }
   function isDirectUse(title) { return getDirectUse().includes(title); }
   function addDirectUse(title) {
     const d = getDirectUse();
-    if (!d.includes(title)) { d.push(title); localStorage.setItem("directUse", JSON.stringify(d)); }
+    if (!d.includes(title)) {
+      d.push(title);
+      if (window.ProfileStore) window.ProfileStore.setDirectUse(d);
+      else localStorage.setItem("directUse", JSON.stringify(d));
+    }
   }
   function removeDirectUse(title) {
     const d = getDirectUse().filter((t) => t !== title);
-    localStorage.setItem("directUse", JSON.stringify(d));
+    if (window.ProfileStore) window.ProfileStore.setDirectUse(d);
+    else localStorage.setItem("directUse", JSON.stringify(d));
   }
   function toggleDirectUse(title) {
     if (isDirectUse(title)) removeDirectUse(title);
@@ -308,19 +324,21 @@
 
   /* ========== Want to Try (flag) helpers ========== */
   function getWantToTry() {
-    try {
-      const j = localStorage.getItem("wantToTry");
-      return j ? JSON.parse(j) : [];
-    } catch (_) { return []; }
+    return window.ProfileStore ? window.ProfileStore.getWantToTry() : [];
   }
   function isWantToTry(title) { return getWantToTry().includes(title); }
   function addWantToTry(title) {
     const w = getWantToTry();
-    if (!w.includes(title)) { w.push(title); localStorage.setItem("wantToTry", JSON.stringify(w)); }
+    if (!w.includes(title)) {
+      w.push(title);
+      if (window.ProfileStore) window.ProfileStore.setWantToTry(w);
+      else localStorage.setItem("wantToTry", JSON.stringify(w));
+    }
   }
   function removeWantToTry(title) {
     const w = getWantToTry().filter((t) => t !== title);
-    localStorage.setItem("wantToTry", JSON.stringify(w));
+    if (window.ProfileStore) window.ProfileStore.setWantToTry(w);
+    else localStorage.setItem("wantToTry", JSON.stringify(w));
   }
   function toggleWantToTry(title) {
     if (isWantToTry(title)) removeWantToTry(title);
@@ -344,8 +362,76 @@
     return "level-worldclass";
   }
 
+  /* ========== Share helpers ========== */
+  function getShareUrl(page, category, title) {
+    const base = page === "niche" ? "niche.html" : "index.html";
+    const params = new URLSearchParams({ share: category, id: title });
+    const url = new URL(base, window.location.href);
+    url.search = params.toString();
+    return url.toString();
+  }
+
+  function shareItem(page, category, title, description, shareBtn) {
+    const url = getShareUrl(page, category, title);
+    const shareData = { url, title, text: description || title };
+
+    const tryNative = navigator.share && navigator.canShare && navigator.canShare(shareData);
+    if (tryNative) {
+      navigator.share(shareData).then(() => showShareFeedback(shareBtn, true)).catch(() => copyAndFeedback(url, shareBtn));
+    } else {
+      copyAndFeedback(url, shareBtn);
+    }
+  }
+
+  function copyAndFeedback(url, btn) {
+    navigator.clipboard.writeText(url).then(() => showShareFeedback(btn, true)).catch(() => showShareFeedback(btn, false));
+  }
+
+  function showShareFeedback(btn, ok) {
+    const label = btn.getAttribute("aria-label") || "Share";
+    const prev = btn.textContent;
+    btn.textContent = ok ? "Link copied!" : "Share";
+    btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : label);
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = prev || "Share";
+      btn.setAttribute("aria-label", label);
+      btn.disabled = false;
+    }, 2000);
+  }
+
+  function initShareButtons() {
+    document.querySelectorAll(".share-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const { sharePage, shareCategory, shareTitle, shareDesc } = btn.dataset;
+        if (sharePage && shareCategory && shareTitle) {
+          shareItem(sharePage, shareCategory, shareTitle, shareDesc || "", btn);
+        }
+      });
+    });
+  }
+
+  function scrollToSharedCard() {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get("share");
+    const id = params.get("id");
+    if (!category || !id) return;
+    const decodedId = decodeURIComponent(id);
+    const section = document.getElementById(category);
+    if (!section) return;
+    const cards = section.querySelectorAll(".card");
+    const card = [...cards].find((c) => (c.dataset.title || "") === decodedId);
+    if (!card) return;
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.add("card-shared-highlight");
+    setTimeout(() => card.classList.remove("card-shared-highlight"), 2500);
+    history.replaceState({}, "", window.location.pathname + (window.location.hash || ""));
+  }
+
   /* ========== Build poster card ========== */
-  function buildCard(item) {
+  function buildCard(item, category) {
     const url = item.url || "#";
     const icon = item.icon || "";
     const grad = gradientCSS(item.color);
@@ -377,6 +463,9 @@
       : "";
     const wantToTryBtn = `<button type="button" class="want-to-try-btn ${flagged ? "flagged" : ""}" data-want-to-try-title="${escapeAttr(item.title)}" aria-label="${flagged ? "Remove from want to try" : "Flag to try"}">${flagged ? "🔖 Flagged" : "Want to Try"}</button>`;
 
+    const cat = category || "tools";
+    const shareBtn = `<button type="button" class="share-btn" data-share-page="index" data-share-category="${escapeAttr(cat)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`;
+
     return `
       <div class="card"
          data-title="${escapeAttr(item.title)}"
@@ -399,6 +488,7 @@
             ${wantToTryBtn}
             ${directUseBtn}
             ${stackBtn}
+            ${shareBtn}
           </div>
           ${tags ? `<div class="card-tags">${tags}</div>` : ""}
         </div>
@@ -422,9 +512,26 @@
       </a>`;
   }
 
+  /* ========== Custom tools (from Admin) ========== */
+  function getCustomTools() {
+    try {
+      const j = localStorage.getItem("customTools");
+      return j ? JSON.parse(j) : { tools: [], knowledge: [], podcasts: [], youtube: [], training: [], dailyWatch: [], bleedingEdge: [] };
+    } catch (_) {
+      return { tools: [], knowledge: [], podcasts: [], youtube: [], training: [], dailyWatch: [], bleedingEdge: [] };
+    }
+  }
+
   /* ========== Render ========== */
   function render() {
-    const { tools, knowledge, podcasts, youtube, training, dailyWatch, bleedingEdge } = siteData;
+    const custom = getCustomTools();
+    const tools = [...(siteData.tools || []), ...(custom.tools || [])];
+    const knowledge = [...(siteData.knowledge || []), ...(custom.knowledge || [])];
+    const podcasts = [...(siteData.podcasts || []), ...(custom.podcasts || [])];
+    const youtube = [...(siteData.youtube || []), ...(custom.youtube || [])];
+    const training = [...(siteData.training || []), ...(custom.training || [])];
+    const dailyWatch = [...(siteData.dailyWatch || []), ...(custom.dailyWatch || [])];
+    const bleedingEdge = [...(siteData.bleedingEdge || []), ...(custom.bleedingEdge || [])];
 
     toolsCount.textContent = tools.length;
     knowledgeCount.textContent = knowledge.length;
@@ -441,33 +548,21 @@
     if (heroKnowledge) heroKnowledge.textContent = knowledge.length;
     if (heroPodcasts) heroPodcasts.textContent = podcasts.length;
 
-    toolsGrid.innerHTML = tools.length
-      ? tools.map((t) => buildCard(t)).join("")
-      : '<p class="section-empty">No tools added yet. Edit data.js to add your AI tools.</p>';
+    const emptyTools = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📚</span><p>No tools in this category yet.</p><a href="admin.html" class="section-empty-cta">Add a tool in Admin</a></div>';
+    const emptyKnowledge = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📖</span><p>No knowledge items yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
+    const emptyPodcasts = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">🎙️</span><p>No podcasts yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
+    const emptyYoutube = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">▶️</span><p>No YouTube channels yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
+    const emptyTraining = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">🎓</span><p>No training links yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
+    const emptyDailyWatch = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📰</span><p>No daily watch sites yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
+    const emptyBleedingEdge = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">⚡</span><p>No bleeding edge resources yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
 
-    knowledgeGrid.innerHTML = knowledge.length
-      ? knowledge.map((k) => buildCard(k)).join("")
-      : '<p class="section-empty">No knowledge items yet.</p>';
-
-    podcastsGrid.innerHTML = podcasts.length
-      ? podcasts.map((p) => buildCard(p)).join("")
-      : '<p class="section-empty">No podcasts yet.</p>';
-
-    youtubeGrid.innerHTML = (youtube || []).length
-      ? youtube.map((y) => buildCard(y)).join("")
-      : '<p class="section-empty">No YouTube channels yet. Edit data.js to add channels.</p>';
-
-    trainingGrid.innerHTML = (training || []).length
-      ? training.map((t) => buildCard(t)).join("")
-      : '<p class="section-empty">No training links yet. Edit data.js to add courses and guides.</p>';
-
-    dailyWatchGrid.innerHTML = (dailyWatch || []).length
-      ? dailyWatch.map((d) => buildCard(d)).join("")
-      : '<p class="section-empty">No daily watch sites yet.</p>';
-
-    bleedingEdgeGrid.innerHTML = (bleedingEdge || []).length
-      ? bleedingEdge.map((b) => buildCard(b)).join("")
-      : '<p class="section-empty">No bleeding edge resources yet.</p>';
+    toolsGrid.innerHTML = tools.length ? tools.map((t) => buildCard(t, "tools")).join("") : emptyTools;
+    knowledgeGrid.innerHTML = knowledge.length ? knowledge.map((k) => buildCard(k, "knowledge")).join("") : emptyKnowledge;
+    podcastsGrid.innerHTML = podcasts.length ? podcasts.map((p) => buildCard(p, "podcasts")).join("") : emptyPodcasts;
+    youtubeGrid.innerHTML = (youtube || []).length ? youtube.map((y) => buildCard(y, "youtube")).join("") : emptyYoutube;
+    trainingGrid.innerHTML = (training || []).length ? training.map((t) => buildCard(t, "training")).join("") : emptyTraining;
+    dailyWatchGrid.innerHTML = (dailyWatch || []).length ? dailyWatch.map((d) => buildCard(d, "daily-watch")).join("") : emptyDailyWatch;
+    bleedingEdgeGrid.innerHTML = (bleedingEdge || []).length ? bleedingEdge.map((b) => buildCard(b, "bleeding-edge")).join("") : emptyBleedingEdge;
 
     /* Featured row: prioritize "Using" and high-rated items, then top picks per category */
     const directUse = getDirectUse();
@@ -502,6 +597,8 @@
     initStackButtons();
     initDirectUseButtons();
     initWantToTryButtons();
+    initShareButtons();
+    scrollToSharedCard();
   }
 
   function initDirectUseButtons() {
@@ -579,6 +676,8 @@
   }
 
   render();
+
+  window.addEventListener("profile-changed", () => render());
 
   /* ========== Search / filter ========== */
   const searchResultsEl = document.getElementById("search-results");

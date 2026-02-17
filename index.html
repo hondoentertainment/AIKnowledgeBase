@@ -6,7 +6,7 @@
   <title>AI Knowledge Hub — Curated AI Tools, Knowledge & Training | Rate, Stack & Search</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <meta name="description" content="Track AI tools, knowledge, podcasts & training. Rate with stars, save to your stack, search instantly. Your personal AI command center.">
 </head>
@@ -31,9 +31,17 @@
         <a href="#bleeding-edge" class="nav-tab" data-section="bleeding-edge">Bleeding Edge</a>
         <a href="niche.html" class="nav-tab">Niche AI</a>
         <a href="stack.html" class="nav-tab">My Stack</a>
+        <a href="profiles.html" class="nav-tab">Profiles</a>
+        <a href="admin.html" class="nav-tab">Admin</a>
+        <a href="login.html" class="nav-tab" id="nav-login">Log in</a>
+        <span class="auth-user-wrap" id="auth-user-wrap" style="display:none">
+          <span class="auth-user-email" id="auth-user-email"></span>
+          <button type="button" class="nav-tab nav-tab-btn" id="nav-logout">Log out</button>
+        </span>
         <a href="about.html" class="nav-tab">About</a>
       </nav>
       <div class="topbar-actions">
+        <div class="profile-switcher" id="profile-switcher"></div>
         <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
           <span class="nav-toggle-bar"></span>
           <span class="nav-toggle-bar"></span>
@@ -60,7 +68,9 @@
 
   <!-- Hero -->
   <section class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
     <div class="hero-inner">
+      <p class="hero-label">AI Knowledge Hub</p>
       <h1 class="hero-title">Your AI command center</h1>
       <p class="hero-desc">Curated tools, knowledge, podcasts &mdash; rate what you use, save what matters, and level up your AI game.</p>
       <div class="hero-stats" id="hero-stats">
@@ -103,6 +113,10 @@
       <span class="feature-chip">
         <span class="feature-chip-icon">🔖</span>
         Want to Try — flag for later
+      </span>
+      <span class="feature-chip">
+        <span class="feature-chip-icon">🔗</span>
+        Share — link to any tool
       </span>
     </div>
   </section>
@@ -181,15 +195,50 @@
     <span class="footer-logo">&#x2B22;</span>
     <p>AI Knowledge Hub &mdash; 2026</p>
     <div class="footer-links">
-      <a href="niche.html" class="footer-link">Niche AI</a>
-      <span class="footer-link-sep">·</span>
       <a href="stack.html" class="footer-link">My Stack</a>
+      <span class="footer-link-sep">·</span>
+      <a href="admin.html" class="footer-link">Admin</a>
+      <span class="footer-link-sep">·</span>
+      <a href="login.html" class="footer-link">Log in</a>
       <span class="footer-link-sep">·</span>
       <a href="about.html" class="footer-link">About</a>
     </div>
   </footer>
 
+  <script src="auth.js"></script>
+  <script src="profiles.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
+  <script src="profile-switcher.js"></script>
+  <script>
+    (function () {
+      const navLogin = document.getElementById("nav-login");
+      const authWrap = document.getElementById("auth-user-wrap");
+      const authEmail = document.getElementById("auth-user-email");
+      const navLogout = document.getElementById("nav-logout");
+      if (!navLogin || !authWrap) return;
+
+      function updateAuthNav() {
+        const session = window.Auth && window.Auth.getSession();
+        if (session) {
+          navLogin.style.display = "none";
+          authWrap.style.display = "inline-flex";
+          if (authEmail) authEmail.textContent = session.email;
+        } else {
+          navLogin.style.display = "block";
+          authWrap.style.display = "none";
+        }
+      }
+
+      updateAuthNav();
+      window.addEventListener("auth-changed", updateAuthNav);
+
+      if (navLogout) {
+        navLogout.addEventListener("click", () => {
+          window.Auth.logout();
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

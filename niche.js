@@ -1,6 +1,8 @@
 /**
  * Niche AI — App logic for niche categories
- * Taxes, Home, Travel, Books, Media, Entertainment, Sports
+ * Taxes, Home, Travel, Books, Media, Entertainment, Sports,
+ * Health, Education, Finance, Legal, Pets, Food, Gardening,
+ * Real Estate, Career, Automotive, Writing, Marketing
  */
 
 (function () {
@@ -14,7 +16,8 @@
 
   const categoryIds = [
     "taxes", "home", "travel", "books", "media", "entertainment", "sports",
-    "health", "education", "finance", "legal", "pets", "food", "gardening"
+    "health", "education", "finance", "legal", "pets", "food", "gardening",
+    "realEstate", "career", "automotive", "writing", "marketing"
   ];
 
   /* ========== Theme ========== */
@@ -181,27 +184,96 @@
 
   /* ========== Stack helpers ========== */
   function getStack() {
-    try {
-      const j = localStorage.getItem("myStack");
-      return j ? JSON.parse(j) : [];
-    } catch (_) { return []; }
+    return window.ProfileStore ? window.ProfileStore.getStack() : [];
   }
   function isInStack(title) { return getStack().includes(title); }
   function addToStack(title) {
     const s = getStack();
-    if (!s.includes(title)) { s.push(title); localStorage.setItem("myStack", JSON.stringify(s)); }
+    if (!s.includes(title)) {
+      s.push(title);
+      if (window.ProfileStore) window.ProfileStore.setStack(s);
+      else localStorage.setItem("myStack", JSON.stringify(s));
+    }
   }
   function removeFromStack(title) {
     const s = getStack().filter((t) => t !== title);
-    localStorage.setItem("myStack", JSON.stringify(s));
+    if (window.ProfileStore) window.ProfileStore.setStack(s);
+    else localStorage.setItem("myStack", JSON.stringify(s));
   }
   function toggleStack(title) {
     if (isInStack(title)) removeFromStack(title);
     else addToStack(title);
   }
 
+  /* ========== Share helpers ========== */
+  function getShareUrl(page, category, title) {
+    const base = page === "niche" ? "niche.html" : "index.html";
+    const params = new URLSearchParams({ share: category, id: title });
+    const url = new URL(base, window.location.href);
+    url.search = params.toString();
+    return url.toString();
+  }
+
+  function shareItem(page, category, title, description, shareBtn) {
+    const url = getShareUrl(page, category, title);
+    const shareData = { url, title, text: description || title };
+    const tryNative = navigator.share && navigator.canShare && navigator.canShare(shareData);
+    if (tryNative) {
+      navigator.share(shareData).then(() => showShareFeedback(shareBtn, true)).catch(() => copyAndFeedback(url, shareBtn));
+    } else {
+      copyAndFeedback(url, shareBtn);
+    }
+  }
+
+  function copyAndFeedback(url, btn) {
+    navigator.clipboard.writeText(url).then(() => showShareFeedback(btn, true)).catch(() => showShareFeedback(btn, false));
+  }
+
+  function showShareFeedback(btn, ok) {
+    const label = btn.getAttribute("aria-label") || "Share";
+    const prev = btn.textContent;
+    btn.textContent = ok ? "Link copied!" : "Share";
+    btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : label);
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = prev || "Share";
+      btn.setAttribute("aria-label", label);
+      btn.disabled = false;
+    }, 2000);
+  }
+
+  function initShareButtons() {
+    document.querySelectorAll(".share-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const { sharePage, shareCategory, shareTitle, shareDesc } = btn.dataset;
+        if (sharePage && shareCategory && shareTitle) {
+          shareItem(sharePage, shareCategory, shareTitle, shareDesc || "", btn);
+        }
+      });
+    });
+  }
+
+  function scrollToSharedCard() {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get("share");
+    const id = params.get("id");
+    if (!category || !id) return;
+    const decodedId = decodeURIComponent(id);
+    const section = document.getElementById(category);
+    if (!section) return;
+    const cards = section.querySelectorAll(".card");
+    const card = [...cards].find((c) => (c.dataset.title || "") === decodedId);
+    if (!card) return;
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.add("card-shared-highlight");
+    setTimeout(() => card.classList.remove("card-shared-highlight"), 2500);
+    history.replaceState({}, "", window.location.pathname + (window.location.hash || ""));
+  }
+
   /* ========== Build card ========== */
-  function buildCard(item) {
+  function buildCard(item, category) {
     const url = item.url || "#";
     const icon = item.icon || "";
     const grad = gradientCSS(item.color);
@@ -230,6 +302,9 @@
     const inStack = isInStack(item.title);
     const stackBtn = `<button type="button" class="stack-btn ${inStack ? "in-stack" : ""}" data-stack-title="${escapeAttr(item.title)}" aria-label="${inStack ? "Remove from My Stack" : "Add to My Stack"}">${inStack ? "✓ In Stack" : "+ Add to Stack"}</button>`;
 
+    const cat = category || "taxes";
+    const shareBtn = `<button type="button" class="share-btn" data-share-page="niche" data-share-category="${escapeAttr(cat)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`;
+
     return `
       <div class="card"
          data-title="${escapeAttr(item.title)}"
@@ -252,6 +327,7 @@
             ${wantToTryBtn}
             ${directUseBtn}
             ${stackBtn}
+            ${shareBtn}
           </div>
           ${tags ? `<div class="card-tags">${tags}</div>` : ""}
         </div>
@@ -284,8 +360,8 @@
       if (countEl) countEl.textContent = items.length;
       if (gridEl) {
         gridEl.innerHTML = items.length
-          ? items.map((item) => buildCard(item)).join("")
-          : `<p class="section-empty">No tools in this category yet. Edit niche-data.js to add.</p>`;
+          ? items.map((item) => buildCard(item, id)).join("")
+          : `<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📂</span><p>No tools in ${id} yet. Add via <a href="admin.html" class="section-empty-link">Admin</a> or edit niche-data.js.</p></div>`;
       }
     });
 
@@ -294,7 +370,9 @@
       nicheData.taxes?.[0],
       nicheData.travel?.[0],
       nicheData.entertainment?.[0],
-      nicheData.sports?.[0],
+      nicheData.health?.[0],
+      nicheData.realEstate?.[0],
+      nicheData.writing?.[0],
     ].filter(Boolean);
 
     featuredRow.innerHTML = featured.map((item) => buildFeaturedCard(item)).join("");
@@ -303,6 +381,8 @@
     initDirectUseButtons();
     initWantToTryButtons();
     initStackButtons();
+    initShareButtons();
+    scrollToSharedCard();
   }
 
   function initStarInteractions() {

@@ -51,12 +51,20 @@
 
 .stack-empty-msg {
   margin: 1rem 0 0;
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   background: var(--accent-muted);
   color: var(--text);
   font-size: 0.95rem;
   border-radius: var(--radius);
   border: 1px solid var(--accent);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.stack-empty-icon {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 .stack-empty-msg a {
   color: var(--accent);
@@ -119,11 +127,36 @@
   box-shadow: 0 0 20px var(--accent-glow), var(--shadow-hover);
 }
 
-.stack-remove-btn {
+.stack-card-actions {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stack-share-btn {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.stack-share-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-muted);
+}
+
+.stack-remove-btn {
   width: 44px;
   height: 44px;
   min-width: 44px;

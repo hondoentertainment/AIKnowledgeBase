@@ -21,14 +21,12 @@
 
   /* ========== Stack helpers ========== */
   function getStack() {
-    try {
-      const j = localStorage.getItem("myStack");
-      return j ? JSON.parse(j) : [];
-    } catch (_) { return []; }
+    return window.ProfileStore ? window.ProfileStore.getStack() : [];
   }
   function removeFromStack(title) {
     const s = getStack().filter((t) => t !== title);
-    localStorage.setItem("myStack", JSON.stringify(s));
+    if (window.ProfileStore) window.ProfileStore.setStack(s);
+    else localStorage.setItem("myStack", JSON.stringify(s));
   }
 
   /* ========== Theme ========== */
@@ -92,8 +90,68 @@
     return "linear-gradient(135deg, #30363d 0%, #21262d 100%)";
   }
 
+  /* ========== Share helpers ========== */
+  function getShareUrl(page, category, title) {
+    const base = page === "niche" ? "niche.html" : "index.html";
+    const params = new URLSearchParams({ share: category, id: title });
+    const url = new URL(base, window.location.href);
+    url.search = params.toString();
+    return url.toString();
+  }
+
+  function shareItem(page, category, title, description, shareBtn) {
+    const url = getShareUrl(page, category, title);
+    const shareData = { url, title, text: description || title };
+    const tryNative = navigator.share && navigator.canShare && navigator.canShare(shareData);
+    if (tryNative) {
+      navigator.share(shareData).then(() => showShareFeedback(shareBtn, true)).catch(() => copyAndFeedback(url, shareBtn));
+    } else {
+      copyAndFeedback(url, shareBtn);
+    }
+  }
+
+  function copyAndFeedback(url, btn) {
+    navigator.clipboard.writeText(url).then(() => showShareFeedback(btn, true)).catch(() => showShareFeedback(btn, false));
+  }
+
+  function showShareFeedback(btn, ok) {
+    const label = btn.getAttribute("aria-label") || "Share";
+    const prev = btn.textContent;
+    btn.textContent = ok ? "Copied!" : prev;
+    btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : label);
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = prev;
+      btn.setAttribute("aria-label", label);
+      btn.disabled = false;
+    }, 2000);
+  }
+
+  function findNicheCategory(title) {
+    if (typeof nicheData === "undefined") return "taxes";
+    const cats = ["taxes", "home", "travel", "books", "media", "entertainment", "sports", "health", "education", "finance", "legal", "pets", "food", "gardening", "realEstate", "career", "automotive", "writing", "marketing"];
+    for (const cat of cats) {
+      const items = nicheData[cat] || [];
+      if (items.some((i) => i.title === title)) return cat;
+    }
+    return "taxes";
+  }
+
+  function initShareButtons() {
+    document.querySelectorAll(".share-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const { sharePage, shareCategory, shareTitle, shareDesc } = btn.dataset;
+        if (sharePage && shareCategory && shareTitle) {
+          shareItem(sharePage, shareCategory, shareTitle, shareDesc || "", btn);
+        }
+      });
+    });
+  }
+
   /* ========== Build stack card ========== */
-  function buildStackCard(item) {
+  function buildStackCard(item, sharePage, shareCategory) {
     const url = item.url || "#";
     const icon = item.icon || "&#x1F4A1;";
     const grad = gradientCSS(item.color);
@@ -111,13 +169,19 @@
     const metaContent = tags + badges.join("");
     const badgesHtml = metaContent ? `<div class="stack-card-meta">${metaContent}</div>` : "";
     const removeBtn = `<button type="button" class="stack-remove-btn" data-remove-title="${escapeAttr(item.title)}" aria-label="Remove from My Stack">✕</button>`;
+    const shareBtn = sharePage && shareCategory
+      ? `<button type="button" class="share-btn stack-share-btn" data-share-page="${escapeAttr(sharePage)}" data-share-category="${escapeAttr(shareCategory)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`
+      : "";
 
     return `
       <div class="stack-card"
          data-title="${escapeAttr(item.title)}"
          data-desc="${escapeAttr(item.description)}"
          data-tags="${escapeAttr((item.tags || []).join(" "))}">
-        ${removeBtn}
+        <div class="stack-card-actions">
+          ${shareBtn}
+          ${removeBtn}
+        </div>
         <a href="${escapeHtml(url)}" class="stack-card-link" target="_blank" rel="noopener">
           <div class="stack-card-icon" style="background:${grad}">${icon}</div>
           <div class="stack-card-body">
@@ -129,9 +193,23 @@
       </div>`;
   }
 
+  /* ========== Custom tools ========== */
+  function getCustomTools() {
+    try {
+      const j = localStorage.getItem("customTools");
+      return j ? JSON.parse(j) : {};
+    } catch (_) { return {}; }
+  }
+
   /* ========== Render ========== */
   function getAllItems() {
-    const { tools, knowledge, podcasts, youtube, training, bleedingEdge } = siteData;
+    const custom = getCustomTools();
+    const tools = [...(siteData.tools || []), ...(custom.tools || [])];
+    const knowledge = [...(siteData.knowledge || []), ...(custom.knowledge || [])];
+    const podcasts = [...(siteData.podcasts || []), ...(custom.podcasts || [])];
+    const youtube = [...(siteData.youtube || []), ...(custom.youtube || [])];
+    const training = [...(siteData.training || []), ...(custom.training || [])];
+    const bleedingEdge = [...(siteData.bleedingEdge || []), ...(custom.bleedingEdge || [])];
     const stackSet = new Set(getStack());
     const nicheCategories = ["taxes", "home", "travel", "books", "media", "entertainment", "sports", "health", "education", "finance", "legal", "pets", "food", "gardening"];
     const nicheItems = (typeof nicheData !== "undefined" ? nicheCategories.flatMap((cat) => nicheData[cat] || []) : []);
@@ -153,13 +231,13 @@
 
     totalCountEl.textContent = total;
 
-    grids.tools.innerHTML = byCat.tools.map((t) => buildStackCard(t)).join("");
-    grids.knowledge.innerHTML = byCat.knowledge.map((k) => buildStackCard(k)).join("");
-    grids.podcasts.innerHTML = byCat.podcasts.map((p) => buildStackCard(p)).join("");
-    grids.youtube.innerHTML = byCat.youtube.map((y) => buildStackCard(y)).join("");
-    grids.training.innerHTML = byCat.training.map((t) => buildStackCard(t)).join("");
-    if (grids.bleedingEdge) grids.bleedingEdge.innerHTML = (byCat.bleedingEdge || []).map((b) => buildStackCard(b)).join("");
-    if (grids.niche) grids.niche.innerHTML = (byCat.niche || []).map((n) => buildStackCard(n)).join("");
+    grids.tools.innerHTML = byCat.tools.map((t) => buildStackCard(t, "index", "tools")).join("");
+    grids.knowledge.innerHTML = byCat.knowledge.map((k) => buildStackCard(k, "index", "knowledge")).join("");
+    grids.podcasts.innerHTML = byCat.podcasts.map((p) => buildStackCard(p, "index", "podcasts")).join("");
+    grids.youtube.innerHTML = byCat.youtube.map((y) => buildStackCard(y, "index", "youtube")).join("");
+    grids.training.innerHTML = byCat.training.map((t) => buildStackCard(t, "index", "training")).join("");
+    if (grids.bleedingEdge) grids.bleedingEdge.innerHTML = (byCat.bleedingEdge || []).map((b) => buildStackCard(b, "index", "bleeding-edge")).join("");
+    if (grids.niche) grids.niche.innerHTML = (byCat.niche || []).map((n) => buildStackCard(n, "niche", findNicheCategory(n.title))).join("");
 
     const emptyMsg = document.getElementById("stack-empty-msg");
     if (emptyMsg) {
@@ -167,6 +245,7 @@
     }
 
     initRemoveButtons();
+    initShareButtons();
     if (searchEl) filterCards(searchEl.value);
   }
 
@@ -247,4 +326,5 @@
   }
 
   render();
+  window.addEventListener("profile-changed", () => render());
 })();

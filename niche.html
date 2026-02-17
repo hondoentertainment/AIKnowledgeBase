@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Niche AI | Taxes · Home · Travel · Books · Media · Entertainment · Sports · Health · Education · Finance · Legal · Pets · Food · Gardening</title>
+  <title>Niche AI | Taxes · Home · Travel · Books · Media · Entertainment · Sports · Health · Education · Finance · Legal · Pets · Food · Gardening · Real Estate · Career · Automotive · Writing · Marketing</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -29,9 +29,17 @@
         <a href="index.html#bleeding-edge" class="nav-tab">Bleeding Edge</a>
         <a href="niche.html" class="nav-tab active">Niche AI</a>
         <a href="stack.html" class="nav-tab">My Stack</a>
+        <a href="profiles.html" class="nav-tab">Profiles</a>
+        <a href="admin.html" class="nav-tab">Admin</a>
+        <a href="login.html" class="nav-tab" id="nav-login">Log in</a>
+        <span class="auth-user-wrap" id="auth-user-wrap" style="display:none">
+          <span class="auth-user-email" id="auth-user-email"></span>
+          <button type="button" class="nav-tab nav-tab-btn" id="nav-logout">Log out</button>
+        </span>
         <a href="about.html" class="nav-tab">About</a>
       </nav>
       <div class="topbar-actions">
+        <div class="profile-switcher" id="profile-switcher"></div>
         <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
           <span class="nav-toggle-bar"></span>
           <span class="nav-toggle-bar"></span>
@@ -49,7 +57,7 @@
     <div class="search-bar" id="search-bar">
       <div class="search-bar-inner">
         <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="search" id="search" placeholder="Search taxes, home, travel, books, media, entertainment, sports, health, education, finance, legal, pets, food, gardening..." aria-label="Search">
+        <input type="search" id="search" placeholder="Search niche tools… (press /)" aria-label="Search">
         <span id="search-results" class="search-results" aria-live="polite"></span>
       </div>
     </div>
@@ -159,13 +167,48 @@
       </div>
       <div class="card-grid" id="gardening-grid"></div>
     </section>
+
+    <section id="realEstate" class="section">
+      <div class="section-header">
+        <h2 class="section-title">&#x1F3E1; Real Estate <span class="section-count" id="realEstate-count"></span></h2>
+      </div>
+      <div class="card-grid" id="realEstate-grid"></div>
+    </section>
+
+    <section id="career" class="section">
+      <div class="section-header">
+        <h2 class="section-title">&#x1F4BC; Career <span class="section-count" id="career-count"></span></h2>
+      </div>
+      <div class="card-grid" id="career-grid"></div>
+    </section>
+
+    <section id="automotive" class="section">
+      <div class="section-header">
+        <h2 class="section-title">&#x1F697; Automotive <span class="section-count" id="automotive-count"></span></h2>
+      </div>
+      <div class="card-grid" id="automotive-grid"></div>
+    </section>
+
+    <section id="writing" class="section">
+      <div class="section-header">
+        <h2 class="section-title">&#x270F;&#xFE0F; Writing <span class="section-count" id="writing-count"></span></h2>
+      </div>
+      <div class="card-grid" id="writing-grid"></div>
+    </section>
+
+    <section id="marketing" class="section">
+      <div class="section-header">
+        <h2 class="section-title">&#x1F4E1; Marketing <span class="section-count" id="marketing-count"></span></h2>
+      </div>
+      <div class="card-grid" id="marketing-grid"></div>
+    </section>
   </main>
 
   <button type="button" id="back-to-top" class="back-to-top hidden" aria-label="Back to top">↑</button>
 
   <footer class="footer">
     <span class="footer-logo">&#x2B22;</span>
-    <p>AI Knowledge Hub &mdash; Niche AI &mdash; 2026</p>
+    <p>AI Knowledge Hub &mdash; 2026</p>
     <div class="footer-links">
       <a href="index.html" class="footer-link">Home</a>
       <span class="footer-link-sep">·</span>
@@ -175,7 +218,33 @@
     </div>
   </footer>
 
+  <script src="auth.js"></script>
+  <script src="profiles.js"></script>
+  <script src="profile-switcher.js"></script>
   <script src="niche-data.js"></script>
   <script src="niche.js"></script>
+  <script>
+    (function () {
+      const navLogin = document.getElementById("nav-login");
+      const authWrap = document.getElementById("auth-user-wrap");
+      const authEmail = document.getElementById("auth-user-email");
+      const navLogout = document.getElementById("nav-logout");
+      if (!navLogin || !authWrap) return;
+      function updateAuthNav() {
+        const session = window.Auth && window.Auth.getSession();
+        if (session) {
+          navLogin.style.display = "none";
+          authWrap.style.display = "inline-flex";
+          if (authEmail) authEmail.textContent = session.email;
+        } else {
+          navLogin.style.display = "block";
+          authWrap.style.display = "none";
+        }
+      }
+      updateAuthNav();
+      window.addEventListener("auth-changed", updateAuthNav);
+      if (navLogout) navLogout.addEventListener("click", () => window.Auth.logout());
+    })();
+  </script>
 </body>
 </html>
