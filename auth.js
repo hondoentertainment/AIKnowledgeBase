@@ -7,8 +7,11 @@
   const USERS_KEY = "authUsers";
   const SESSION_KEY = "authSession";
   const RESET_TOKENS_KEY = "authResetTokens";
+  const RATE_LIMIT_KEY = "authResetRateLimit";
   const TOKEN_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
   const SESSION_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+  const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+  const RATE_LIMIT_MAX = 5;
 
   function getUsers() {
     try {
@@ -72,12 +75,14 @@
       }
       const salt = generateSalt();
       const passwordHash = await hashPassword(password, salt);
+      const isFirstUser = users.length === 0;
       users.push({
         id: crypto.randomUUID(),
         email: emailNorm,
         passwordHash,
         salt,
         createdAt: Date.now(),
+        role: isFirstUser ? "admin" : "limited",
       });
       saveUsers(users);
       return { ok: true };
@@ -100,8 +105,13 @@
       const session = {
         userId: user.id,
         email: user.email,
+        role: user.role || "admin",
         expiresAt: Date.now() + SESSION_EXPIRY_MS,
       };
+      if (!user.role) {
+        user.role = "admin";
+        saveUsers(users);
+      }
       localStorage.setItem(SESSION_KEY, JSON.stringify(session));
       return { ok: true };
     },
@@ -130,11 +140,29 @@
       return !!this.getSession();
     },
 
+    isAdmin() {
+      const s = this.getSession();
+      return s && s.role === "admin";
+    },
+
     async requestPasswordReset(email) {
       const emailNorm = (email || "").trim().toLowerCase();
       if (!emailNorm) {
         return { ok: false, error: "Email required." };
       }
+      try {
+        const limitData = JSON.parse(localStorage.getItem(RATE_LIMIT_KEY) || "{}");
+        const entry = limitData[emailNorm];
+        const now = Date.now();
+        if (entry) {
+          if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+            delete limitData[emailNorm];
+          } else if (entry.count >= RATE_LIMIT_MAX) {
+            const waitMin = Math.ceil((entry.windowStart + RATE_LIMIT_WINDOW_MS - now) / 60000);
+            return { ok: false, error: "Too many reset requests. Try again in about " + waitMin + " minutes." };
+          }
+        }
+      } catch (_) {}
       const users = getUsers();
       if (!users.some((u) => u.email === emailNorm)) {
         return { ok: true }; // Don't reveal whether email exists
@@ -147,6 +175,17 @@
         expiresAt: Date.now() + TOKEN_EXPIRY_MS,
       });
       saveResetTokens(tokens);
+      try {
+        const limitData = JSON.parse(localStorage.getItem(RATE_LIMIT_KEY) || "{}");
+        const entry = limitData[emailNorm] || { count: 0, windowStart: Date.now() };
+        if (Date.now() - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+          entry.count = 0;
+          entry.windowStart = Date.now();
+        }
+        entry.count = (entry.count || 0) + 1;
+        limitData[emailNorm] = entry;
+        localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(limitData));
+      } catch (_) {}
       const base = window.location.href.replace(/[^/]*$/, "");
       const resetUrl = base + "reset-password.html?token=" + token;
       return { ok: true, resetUrl };

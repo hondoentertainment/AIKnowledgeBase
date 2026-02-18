@@ -136,56 +136,86 @@
     return "level-worldclass";
   }
 
+  /* ========== Haptic feedback ========== */
+  function haptic() {
+    if (navigator.vibrate) navigator.vibrate(5);
+  }
+
   /* ========== Star rating helpers ========== */
-  const STAR_SVG = '<svg class="star-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>';
-  const STAR_HALF_SVG = '<svg class="star-icon" viewBox="0 0 24 24"><defs><linearGradient id="halfGrad"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="url(#halfGrad)" stroke="currentColor" stroke-width="0.5"/></svg>';
+  const STAR_SVG = '<svg class="star-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>';
+  function starHalfSvg(gradId) {
+    return '<svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="' + gradId + '"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="url(#' + gradId + ')" stroke="currentColor" stroke-width="0.5"/></svg>';
+  }
+  let _starGradCounter = 0;
+  function ratingGradId() {
+    return "halfStar-niche-" + (++_starGradCounter);
+  }
   function getRating(title) {
+    if (window.ProfileStore) return window.ProfileStore.getRating(title);
     const v = localStorage.getItem("rating:" + title);
     return v ? parseFloat(v) : 0;
   }
   function setRating(title, value) {
+    if (window.ProfileStore) {
+      window.ProfileStore.setRating(title, value);
+      return;
+    }
     if (value === 0) localStorage.removeItem("rating:" + title);
     else localStorage.setItem("rating:" + title, String(value));
   }
   function buildStarsHTML(title) {
     const saved = getRating(title);
+    const gradId = ratingGradId();
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       const isFull = saved >= i;
       const isHalf = !isFull && saved >= i - 0.5;
       const cls = "star" + (isFull ? " filled" : isHalf ? " half-filled" : "");
       stars.push(
-        '<span class="' + cls + '" data-star="' + i + '" tabindex="0" role="button" aria-label="Rate ' + i + ' of 5">' +
+        '<span class="' + cls + '" data-star="' + i + '" tabindex="0" role="button" aria-label="Rate ' + i + ' of 5 stars">' +
         '<span class="star-half star-left" data-val="' + (i - 0.5) + '"></span>' +
         '<span class="star-half star-right" data-val="' + i + '"></span>' +
-        (isHalf ? STAR_HALF_SVG : STAR_SVG) + '</span>'
+        (isHalf ? starHalfSvg(gradId) : STAR_SVG) + '</span>'
       );
     }
     const label = saved ? String(saved).replace(/\.0$/, "") : "";
-    return '<div class="card-rating" data-title="' + escapeAttr(title) + '" data-rating="' + saved + '" role="group" aria-label="Rate ' + escapeAttr(title) + '">' +
+    const ariaLabel = saved ? "Rate " + escapeAttr(title) + " — currently " + saved + " of 5 stars" : "Rate " + escapeAttr(title);
+    return '<div class="card-rating" data-title="' + escapeAttr(title) + '" data-rating="' + saved + '" data-grad-id="' + escapeAttr(gradId) + '" role="group" aria-label="' + ariaLabel + '">' +
       stars.join("") + '<span class="rating-value" aria-hidden="true">' + label + '</span></div>';
   }
 
   /* ========== Direct-use & Want to Try helpers ========== */
   function getDirectUse() {
-    try { const j = localStorage.getItem("directUse"); return j ? JSON.parse(j) : []; }
-    catch (_) { return []; }
+    return window.ProfileStore ? window.ProfileStore.getDirectUse() : [];
   }
   function isDirectUse(title) { return getDirectUse().includes(title); }
   function toggleDirectUse(title) {
     const d = getDirectUse();
-    if (d.includes(title)) localStorage.setItem("directUse", JSON.stringify(d.filter((t) => t !== title)));
-    else { d.push(title); localStorage.setItem("directUse", JSON.stringify(d)); }
+    if (d.includes(title)) {
+      const next = d.filter((t) => t !== title);
+      if (window.ProfileStore) window.ProfileStore.setDirectUse(next);
+      else localStorage.setItem("directUse", JSON.stringify(next));
+    } else {
+      d.push(title);
+      if (window.ProfileStore) window.ProfileStore.setDirectUse(d);
+      else localStorage.setItem("directUse", JSON.stringify(d));
+    }
   }
   function getWantToTry() {
-    try { const j = localStorage.getItem("wantToTry"); return j ? JSON.parse(j) : []; }
-    catch (_) { return []; }
+    return window.ProfileStore ? window.ProfileStore.getWantToTry() : [];
   }
   function isWantToTry(title) { return getWantToTry().includes(title); }
   function toggleWantToTry(title) {
     const w = getWantToTry();
-    if (w.includes(title)) localStorage.setItem("wantToTry", JSON.stringify(w.filter((t) => t !== title)));
-    else { w.push(title); localStorage.setItem("wantToTry", JSON.stringify(w)); }
+    if (w.includes(title)) {
+      const next = w.filter((t) => t !== title);
+      if (window.ProfileStore) window.ProfileStore.setWantToTry(next);
+      else localStorage.setItem("wantToTry", JSON.stringify(next));
+    } else {
+      w.push(title);
+      if (window.ProfileStore) window.ProfileStore.setWantToTry(w);
+      else localStorage.setItem("wantToTry", JSON.stringify(w));
+    }
   }
 
   /* ========== Stack helpers ========== */
@@ -406,6 +436,7 @@
         if (liveRegion) { liveRegion.textContent = msg; setTimeout(() => { liveRegion.textContent = ""; }, 500); }
       }
       function updateDisplay(rating) {
+        const gradId = container.dataset.gradId || "halfStar-fallback";
         starEls.forEach((el) => {
           const idx = parseInt(el.dataset.star, 10);
           el.classList.remove("filled", "half-filled", "preview", "preview-half");
@@ -414,13 +445,15 @@
             el.innerHTML = '<span class="star-half star-left" data-val="' + (idx - 0.5) + '"></span><span class="star-half star-right" data-val="' + idx + '"></span>' + STAR_SVG;
           } else if (rating >= idx - 0.5) {
             el.classList.add("half-filled");
-            el.innerHTML = '<span class="star-half star-left" data-val="' + (idx - 0.5) + '"></span><span class="star-half star-right" data-val="' + idx + '"></span>' + STAR_HALF_SVG;
+            el.innerHTML = '<span class="star-half star-left" data-val="' + (idx - 0.5) + '"></span><span class="star-half star-right" data-val="' + idx + '"></span>' + starHalfSvg(gradId);
           } else {
             el.innerHTML = '<span class="star-half star-left" data-val="' + (idx - 0.5) + '"></span><span class="star-half star-right" data-val="' + idx + '"></span>' + STAR_SVG;
           }
         });
         label.textContent = rating ? String(rating).replace(/\.0$/, "") : "";
         container.dataset.rating = rating;
+        const titleAttr = container.dataset.title || "";
+        container.setAttribute("aria-label", rating ? "Rate " + titleAttr + " — currently " + rating + " of 5 stars" : "Rate " + titleAttr);
       }
       function previewStars(hoverVal) {
         container.classList.add("hovering");
@@ -441,34 +474,44 @@
           half.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
+            haptic();
             const val = parseFloat(half.dataset.val);
             const current = getRating(title);
             const newVal = current === val ? 0 : val;
             setRating(title, newVal);
             clearPreview();
             updateDisplay(newVal);
+            container.classList.add("just-rated");
+            setTimeout(() => container.classList.remove("just-rated"), 450);
             announce(newVal ? "Rated " + newVal + " of 5" : "Rating cleared");
           });
         });
         starEl.addEventListener("keydown", (e) => {
           if (!["ArrowLeft", "ArrowRight", "Enter", " "].includes(e.key)) return;
           e.preventDefault();
+          haptic();
           const current = getRating(title);
+          const starArr = Array.from(starEls);
+          const idx = starArr.indexOf(starEl);
           if (e.key === "ArrowRight") {
             const next = Math.min(5, current + 0.5);
             setRating(title, next);
             updateDisplay(next);
+            if (idx < starArr.length - 1) starArr[idx + 1].focus();
             announce("Rated " + next + " of 5");
           } else if (e.key === "ArrowLeft") {
             const next = Math.max(0, current - 0.5);
             setRating(title, next);
             updateDisplay(next);
+            if (idx > 0) starArr[idx - 1].focus();
             announce(next ? "Rated " + next + " of 5" : "Rating cleared");
           } else if (e.key === "Enter" || e.key === " ") {
-            const idx = parseInt(starEl.dataset.star, 10);
-            const val = current === idx ? 0 : idx;
+            const starIdx = parseInt(starEl.dataset.star, 10);
+            const val = current === starIdx ? 0 : starIdx;
             setRating(title, val);
             updateDisplay(val);
+            container.classList.add("just-rated");
+            setTimeout(() => container.classList.remove("just-rated"), 450);
             announce(val ? "Rated " + val + " of 5" : "Rating cleared");
           }
         });
@@ -548,6 +591,8 @@
   }
 
   render();
+
+  window.addEventListener("profile-changed", () => render());
 
   /* ========== Search / filter ========== */
   const searchResultsEl = document.getElementById("search-results");

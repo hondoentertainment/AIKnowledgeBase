@@ -7,6 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%23c45c3e'/%3E%3Cpath d='M90 52l18 36 40 7-29 29 7 40-36-18-36 18 7-40-29-29 40-7z' fill='white'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,11 +17,11 @@
 
   <header class="topbar">
     <div class="topbar-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-icon">&#x2B22;</span>
+      <a href="index.html" class="logo" aria-label="AI Knowledge Hub – Home">
+        <span class="logo-icon" aria-hidden="true">&#x2B22;</span>
         AI Knowledge Hub
       </a>
-      <nav class="nav-tabs">
+      <nav class="nav-tabs" aria-label="Main navigation">
         <a href="index.html" class="nav-tab">Home</a>
         <a href="login.html" class="nav-tab">Log in</a>
         <a href="register.html" class="nav-tab active">Sign up</a>
@@ -34,13 +37,13 @@
 
       <form id="register-form" class="auth-form">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-required="true">
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
 
         <label for="password">Password (8+ characters)</label>
-        <input type="password" id="password" name="password" required autocomplete="new-password" minlength="8" placeholder="••••••••" aria-required="true">
+        <input type="password" id="password" name="password" required autocomplete="new-password" minlength="8" placeholder="••••••••" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
 
         <label for="password-confirm">Confirm password</label>
-        <input type="password" id="password-confirm" name="passwordConfirm" required autocomplete="new-password" placeholder="••••••••" aria-required="true">
+        <input type="password" id="password-confirm" name="passwordConfirm" required autocomplete="new-password" placeholder="••••••••" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
 
         <p id="auth-error" class="auth-error" role="alert" aria-live="polite" style="display:none"></p>
 
@@ -52,6 +55,34 @@
       </div>
     </section>
   </main>
+
+  <!-- Mobile bottom navigation -->
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <div class="bottom-nav-inner">
+      <a href="index.html" class="bottom-nav-item">
+        <span class="bottom-nav-icon" aria-hidden="true">🏠</span>
+        <span class="bottom-nav-label">Home</span>
+      </a>
+      <a href="tools.html" class="bottom-nav-item">
+        <span class="bottom-nav-icon" aria-hidden="true">🔧</span>
+        <span class="bottom-nav-label">Tools</span>
+      </a>
+      <button type="button" class="bottom-nav-item" id="bottom-search-btn" aria-label="Search">
+        <span class="bottom-nav-icon" aria-hidden="true">🔍</span>
+        <span class="bottom-nav-label">Search</span>
+      </button>
+      <a href="stack.html" class="bottom-nav-item">
+        <span class="bottom-nav-icon" aria-hidden="true">📚</span>
+        <span class="bottom-nav-label">My Stack</span>
+      </a>
+      <button type="button" class="bottom-nav-item" id="bottom-more-btn" aria-label="More pages">
+        <span class="bottom-nav-icon" aria-hidden="true">☰</span>
+        <span class="bottom-nav-label">More</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
 
   <script src="auth.js"></script>
   <script>
@@ -68,10 +99,12 @@
       function showError(msg) {
         errorEl.textContent = msg;
         errorEl.style.display = "block";
+        ["email", "password", "password-confirm"].forEach((id) => document.getElementById(id)?.setAttribute("aria-invalid", "true"));
       }
       function hideError() {
         errorEl.textContent = "";
         errorEl.style.display = "none";
+        ["email", "password", "password-confirm"].forEach((id) => document.getElementById(id)?.setAttribute("aria-invalid", "false"));
       }
 
       form.addEventListener("submit", async (e) => {

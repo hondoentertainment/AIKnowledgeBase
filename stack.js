@@ -98,8 +98,9 @@
   }
 
   /* ========== Share helpers ========== */
+  const SHARE_PAGE_MAP = { tools: "tools.html", knowledge: "knowledge.html", podcasts: "podcasts.html", youtube: "youtube.html", training: "training.html", "daily-watch": "daily-watch.html", "bleeding-edge": "bleeding-edge.html" };
   function getShareUrl(page, category, title) {
-    const base = page === "niche" ? "niche.html" : "index.html";
+    const base = page === "niche" ? "niche.html" : (SHARE_PAGE_MAP[category] || "tools.html");
     const params = new URLSearchParams({ share: category, id: title });
     const url = new URL(base, window.location.href);
     url.search = params.toString();

@@ -1,12 +1,14 @@
 {
   "name": "AI Knowledge Hub",
-  "short_name": "AI Knowledge Hub",
+  "short_name": "AI Hub",
   "description": "Curated AI tools, knowledge, podcasts & training. Rate what you use, save what matters.",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#faf8f5",
   "theme_color": "#c45c3e",
   "orientation": "portrait-primary",
+  "scope": ".",
+  "categories": ["productivity", "education"],
   "icons": [
     {
       "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%23c45c3e'/%3E%3Cpath d='M24 14l5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2z' fill='white'/%3E%3C/svg%3E",
@@ -19,6 +21,12 @@
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='108' fill='%23c45c3e'/%3E%3Cpath d='M256 144l54 108 118 20-86 86 22 118-108-54-108 54 22-118-86-86 118-20z' fill='white'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }

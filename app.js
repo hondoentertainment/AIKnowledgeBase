@@ -4,11 +4,15 @@
  */
 
 (function () {
+  const pageCategory = document.body.dataset.category; // "tools" | "knowledge" | ... or undefined (hub)
+  const isHub = !pageCategory;
+
   const searchToggle = document.getElementById("search-toggle");
   const searchBar = document.getElementById("search-bar");
   const searchEl = document.getElementById("search");
   const themeBtn = document.getElementById("theme-btn");
   const featuredRow = document.getElementById("featured-row");
+  const mainEl = document.getElementById("main-content");
   const toolsGrid = document.getElementById("tools-grid");
   const knowledgeGrid = document.getElementById("knowledge-grid");
   const podcastsGrid = document.getElementById("podcasts-grid");
@@ -33,9 +37,9 @@
   }
   const savedTheme = getInitialTheme();
   document.documentElement.setAttribute("data-theme", savedTheme);
-  themeBtn.setAttribute("aria-pressed", savedTheme === "dark");
+  if (themeBtn) themeBtn.setAttribute("aria-pressed", savedTheme === "dark");
 
-  themeBtn.addEventListener("click", () => {
+  if (themeBtn) themeBtn.addEventListener("click", () => {
     const current = document.documentElement.getAttribute("data-theme");
     const next = current === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", next);
@@ -57,21 +61,130 @@
   /* ========== Mobile nav toggle ========== */
   const navToggle = document.getElementById("nav-toggle");
   const navTabsEl = document.querySelector(".nav-tabs");
+  const navBackdrop = document.getElementById("nav-backdrop");
+  let scrollPosition = 0;
+
+  function closeMobileNav() {
+    if (!navTabsEl || !navToggle) return;
+    navTabsEl.classList.remove("open");
+    navToggle.setAttribute("aria-expanded", "false");
+    if (navBackdrop) {
+      navBackdrop.classList.remove("visible");
+      setTimeout(() => { navBackdrop.style.display = ""; }, 300);
+    }
+    document.body.classList.remove('nav-open');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollPosition);
+  }
+
+  function openMobileNav() {
+    if (!navTabsEl || !navToggle) return;
+    scrollPosition = window.scrollY;
+    document.body.style.top = `-${scrollPosition}px`;
+    document.body.classList.add('nav-open');
+    navTabsEl.classList.add("open");
+    navToggle.setAttribute("aria-expanded", "true");
+    if (navBackdrop) {
+      navBackdrop.style.display = "block";
+      requestAnimationFrame(() => navBackdrop.classList.add("visible"));
+    }
+    haptic();
+  }
+
   if (navToggle && navTabsEl) {
+    let touchStartX = 0;
+    let touchEndX = 0;
+
     navToggle.addEventListener("click", () => {
-      const open = navTabsEl.classList.toggle("open");
-      navToggle.setAttribute("aria-expanded", open);
+      const isOpen = navTabsEl.classList.contains("open");
+      if (isOpen) {
+        closeMobileNav();
+      } else {
+        openMobileNav();
+      }
     });
+
+    // Swipe gesture to close menu
+    navTabsEl.addEventListener("touchstart", (e) => {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    navTabsEl.addEventListener("touchmove", (e) => {
+      touchEndX = e.touches[0].clientX;
+      const diff = touchStartX - touchEndX;
+
+      if (diff > 0 && diff < 150) {
+        navTabsEl.style.transform = `translateX(-${diff}px)`;
+        if (navBackdrop) navBackdrop.style.opacity = Math.max(0, 1 - diff / 150);
+      }
+    }, { passive: true });
+
+    navTabsEl.addEventListener("touchend", () => {
+      const diff = touchStartX - touchEndX;
+      const threshold = 60;
+
+      navTabsEl.style.transform = '';
+      if (navBackdrop) navBackdrop.style.opacity = '';
+
+      if (diff > threshold) {
+        closeMobileNav();
+        haptic();
+      }
+    });
+
+    // Close on nav link click
     document.querySelectorAll(".nav-tab").forEach((tab) => {
       tab.addEventListener("click", () => {
-        navTabsEl.classList.remove("open");
-        navToggle.setAttribute("aria-expanded", "false");
+        haptic();
+        closeMobileNav();
       });
+    });
+
+    // Close on backdrop click
+    if (navBackdrop) {
+      navBackdrop.addEventListener("click", closeMobileNav);
+    }
+
+    // ESC key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && navTabsEl.classList.contains("open")) {
+        closeMobileNav();
+        navToggle.focus();
+      }
     });
   }
 
+  /* ========== Bottom nav ========== */
+  const bottomSearchBtn = document.getElementById("bottom-search-btn");
+  const bottomMoreBtn = document.getElementById("bottom-more-btn");
+
+  if (bottomSearchBtn && searchBar && searchEl) {
+    bottomSearchBtn.addEventListener("click", () => {
+      haptic();
+      searchBar.classList.add("open");
+      searchEl.focus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
+  if (bottomMoreBtn) {
+    bottomMoreBtn.addEventListener("click", () => {
+      haptic();
+      if (navTabsEl && !navTabsEl.classList.contains("open")) {
+        openMobileNav();
+      } else {
+        closeMobileNav();
+      }
+    });
+  }
+
+  // Haptic feedback on bottom nav items
+  document.querySelectorAll(".bottom-nav-item").forEach((item) => {
+    item.addEventListener("click", () => haptic());
+  });
+
   /* ========== Search toggle ========== */
-  searchToggle.addEventListener("click", () => {
+  if (searchToggle && searchBar && searchEl) searchToggle.addEventListener("click", () => {
     searchBar.classList.toggle("open");
     if (searchBar.classList.contains("open")) {
       searchEl.focus();
@@ -82,36 +195,23 @@
     }
   });
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "/" && document.activeElement !== searchEl) {
-      e.preventDefault();
-      searchBar.classList.add("open");
-      searchEl.focus();
-    }
-    if (e.key === "Escape" && searchBar.classList.contains("open")) {
-      searchBar.classList.remove("open");
-      searchEl.value = "";
-      filterCards("");
-      searchToggle.focus();
-    }
-  });
-
-  /* ========== Active nav tab on scroll ========== */
-  const sections = document.querySelectorAll(".section");
-  const observerOpts = { rootMargin: "-40% 0px -55% 0px" };
-
-  const sectionObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        navTabs.forEach((tab) => tab.classList.remove("active"));
-        const id = entry.target.id;
-        const match = document.querySelector(`.nav-tab[data-section="${id}"]`);
-        if (match) match.classList.add("active");
+  if (searchBar && searchEl) {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "/" && document.activeElement !== searchEl) {
+        e.preventDefault();
+        searchBar.classList.add("open");
+        searchEl.focus();
+      }
+      if (e.key === "Escape" && searchBar.classList.contains("open")) {
+        searchBar.classList.remove("open");
+        searchEl.value = "";
+        filterCards("");
+        if (searchToggle) searchToggle.focus();
       }
     });
-  }, observerOpts);
+  }
 
-  sections.forEach((s) => sectionObserver.observe(s));
+  /* ========== Active nav tab on scroll (category pages only; single section so initial active is fine) ========== */
 
   /* ========== Haptic feedback (mobile polish) ========== */
   function haptic() {
@@ -137,8 +237,14 @@
   }
 
   /* ========== Star rating helpers ========== */
-  const STAR_SVG = '<svg class="star-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>';
-  const STAR_HALF_SVG = '<svg class="star-icon" viewBox="0 0 24 24"><defs><linearGradient id="halfGrad"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="url(#halfGrad)" stroke="currentColor" stroke-width="0.5"/></svg>';
+  const STAR_SVG = '<svg class="star-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>';
+  function starHalfSvg(gradId) {
+    return '<svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="' + gradId + '"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="url(#' + gradId + ')" stroke="currentColor" stroke-width="0.5"/></svg>';
+  }
+  let _starGradCounter = 0;
+  function ratingGradId() {
+    return "halfStar-" + (++_starGradCounter);
+  }
 
   function getRating(title) {
     if (window.ProfileStore) return window.ProfileStore.getRating(title);
@@ -156,6 +262,7 @@
 
   function buildStarsHTML(title) {
     const saved = getRating(title);
+    const gradId = ratingGradId();
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       const isFull = saved >= i;
@@ -165,16 +272,17 @@
       else if (isHalf) cls += " half-filled";
 
       stars.push(
-        `<span class="${cls}" data-star="${i}" tabindex="0" role="button" aria-label="Rate ${i} of 5">` +
+        `<span class="${cls}" data-star="${i}" tabindex="0" role="button" aria-label="Rate ${i} of 5 stars">` +
           `<span class="star-half star-left" data-val="${i - 0.5}"></span>` +
           `<span class="star-half star-right" data-val="${i}"></span>` +
-          (isHalf ? STAR_HALF_SVG : STAR_SVG) +
+          (isHalf ? starHalfSvg(gradId) : STAR_SVG) +
         `</span>`
       );
     }
     const label = saved ? saved.toFixed(1).replace(/\.0$/, "") : "";
+    const ariaLabel = saved ? `Rate ${escapeAttr(title)} — currently ${saved} of 5 stars` : `Rate ${escapeAttr(title)}`;
     return (
-      `<div class="card-rating" data-title="${escapeAttr(title)}" data-rating="${saved}" role="group" aria-label="Rate ${escapeAttr(title)}">` +
+      `<div class="card-rating" data-title="${escapeAttr(title)}" data-rating="${saved}" data-grad-id="${escapeAttr(gradId)}" role="group" aria-label="${ariaLabel}">` +
         stars.join("") +
         `<span class="rating-value" aria-hidden="true">${label}</span>` +
       `</div>`
@@ -192,6 +300,7 @@
       const label = container.querySelector(".rating-value");
 
       function updateDisplay(rating) {
+        const gradId = container.dataset.gradId || "halfStar-fallback";
         starEls.forEach((el) => {
           const idx = parseInt(el.dataset.star, 10);
           el.classList.remove("filled", "half-filled", "preview", "preview-half");
@@ -206,7 +315,7 @@
             el.innerHTML =
               `<span class="star-half star-left" data-val="${idx - 0.5}"></span>` +
               `<span class="star-half star-right" data-val="${idx}"></span>` +
-              STAR_HALF_SVG;
+              starHalfSvg(gradId);
           } else {
             el.innerHTML =
               `<span class="star-half star-left" data-val="${idx - 0.5}"></span>` +
@@ -216,6 +325,8 @@
         });
         label.textContent = rating ? String(rating).replace(/\.0$/, "") : "";
         container.dataset.rating = rating;
+        const titleAttr = container.dataset.title || "";
+        container.setAttribute("aria-label", rating ? `Rate ${titleAttr} — currently ${rating} of 5 stars` : `Rate ${titleAttr}`);
       }
 
       function previewStars(hoverVal) {
@@ -252,6 +363,8 @@
             setRating(title, newVal);
             clearPreview();
             updateDisplay(newVal);
+            container.classList.add("just-rated");
+            setTimeout(() => container.classList.remove("just-rated"), 450);
             announce(newVal ? "Rated " + newVal + " of 5" : "Rating cleared");
           });
         });
@@ -261,21 +374,28 @@
           e.preventDefault();
           haptic();
           const current = getRating(title);
+          const starArr = Array.from(starEls);
+          const idx = starArr.indexOf(starEl);
+
           if (e.key === "ArrowRight") {
             const next = Math.min(5, current + 0.5);
             setRating(title, next);
             updateDisplay(next);
+            if (idx < starArr.length - 1) starArr[idx + 1].focus();
             announce("Rated " + next + " of 5");
           } else if (e.key === "ArrowLeft") {
             const next = Math.max(0, current - 0.5);
             setRating(title, next);
             updateDisplay(next);
+            if (idx > 0) starArr[idx - 1].focus();
             announce(next ? "Rated " + next + " of 5" : "Rating cleared");
           } else if (e.key === "Enter" || e.key === " ") {
-            const idx = parseInt(starEl.dataset.star, 10);
-            const val = current === idx ? 0 : idx;
+            const starIdx = parseInt(starEl.dataset.star, 10);
+            const val = current === starIdx ? 0 : starIdx;
             setRating(title, val);
             updateDisplay(val);
+            container.classList.add("just-rated");
+            setTimeout(() => container.classList.remove("just-rated"), 450);
             announce(val ? "Rated " + val + " of 5" : "Rating cleared");
           }
         });
@@ -372,8 +492,10 @@
   }
 
   /* ========== Share helpers ========== */
+  const SHARE_PAGE_MAP = { tools: "tools.html", knowledge: "knowledge.html", podcasts: "podcasts.html", youtube: "youtube.html", training: "training.html", "daily-watch": "daily-watch.html", "bleeding-edge": "bleeding-edge.html" };
+
   function getShareUrl(page, category, title) {
-    const base = page === "niche" ? "niche.html" : "index.html";
+    const base = page === "niche" ? "niche.html" : (SHARE_PAGE_MAP[page] || "index.html");
     const params = new URLSearchParams({ share: category, id: title });
     const url = new URL(base, window.location.href);
     url.search = params.toString();
@@ -428,6 +550,10 @@
     const category = params.get("share");
     const id = params.get("id");
     if (!category || !id) return;
+    if (isHub && SHARE_PAGE_MAP[category]) {
+      window.location.replace(SHARE_PAGE_MAP[category] + window.location.search);
+      return;
+    }
     const decodedId = decodeURIComponent(id);
     const section = document.getElementById(category);
     if (!section) return;
@@ -474,7 +600,7 @@
     const wantToTryBtn = `<button type="button" class="want-to-try-btn ${flagged ? "flagged" : ""}" data-want-to-try-title="${escapeAttr(item.title)}" aria-label="${flagged ? "Remove from want to try" : "Flag to try"}">${flagged ? "🔖 Flagged" : "Want to Try"}</button>`;
 
     const cat = category || "tools";
-    const shareBtn = `<button type="button" class="share-btn" data-share-page="index" data-share-category="${escapeAttr(cat)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`;
+    const shareBtn = `<button type="button" class="share-btn" data-share-page="${escapeAttr(pageCategory || cat)}" data-share-category="${escapeAttr(cat)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`;
     const visitUrl = url && url !== "#" ? url : null;
     const visitBtn = visitUrl
       ? `<a href="${escapeHtml(visitUrl)}" class="visit-btn" target="_blank" rel="noopener" aria-label="Visit ${escapeAttr(item.title)}">Visit</a>`
@@ -537,76 +663,121 @@
     }
   }
 
+  /* ========== Category config ========== */
+  const CATEGORY_CONFIG = [
+    { id: "tools", dataKey: "tools", gridId: "tools-grid", countId: "tools-count", hubCountId: "hub-tools-count", emptyHtml: '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📚</span><p>No tools in this category yet.</p><a href="admin.html" class="section-empty-cta">Add a tool in Admin</a></div>' },
+    { id: "knowledge", dataKey: "knowledge", gridId: "knowledge-grid", countId: "knowledge-count", hubCountId: "hub-knowledge-count", emptyHtml: '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📖</span><p>No knowledge items yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>' },
+    { id: "podcasts", dataKey: "podcasts", gridId: "podcasts-grid", countId: "podcasts-count", hubCountId: "hub-podcasts-count", emptyHtml: '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">🎙️</span><p>No podcasts yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>' },
+    { id: "youtube", dataKey: "youtube", gridId: "youtube-grid", countId: "youtube-count", hubCountId: "hub-youtube-count", emptyHtml: '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">▶️</span><p>No YouTube channels yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>' },
+    { id: "training", dataKey: "training", gridId: "training-grid", countId: "training-count", hubCountId: "hub-training-count", emptyHtml: '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">🎓</span><p>No training links yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>' },
+    { id: "daily-watch", dataKey: "dailyWatch", gridId: "daily-watch-grid", countId: "daily-watch-count", hubCountId: "hub-daily-watch-count", emptyHtml: '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📰</span><p>No daily watch sites yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>' },
+    { id: "bleeding-edge", dataKey: "bleedingEdge", gridId: "bleeding-edge-grid", countId: "bleeding-edge-count", hubCountId: "hub-bleeding-edge-count", emptyHtml: '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">⚡</span><p>No bleeding edge resources yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>' },
+  ];
+
   /* ========== Render ========== */
   function render() {
+    try {
+      if (typeof siteData !== "object" || !siteData) {
+        console.error("AI Knowledge Hub: siteData not loaded");
+        if (mainEl) {
+          mainEl.classList.remove("main-loading");
+          mainEl.innerHTML = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">⚠️</span><p>Unable to load content. Please refresh the page.</p></div>';
+        }
+        return;
+      }
+    } catch (err) {
+      console.error("AI Knowledge Hub: render error", err);
+      if (mainEl) {
+        mainEl.classList.remove("main-loading");
+        mainEl.innerHTML = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">⚠️</span><p>Something went wrong. Please refresh the page.</p></div>';
+      }
+      return;
+    }
+
     const custom = getCustomTools();
-    const tools = [...(siteData.tools || []), ...(custom.tools || [])];
-    const knowledge = [...(siteData.knowledge || []), ...(custom.knowledge || [])];
-    const podcasts = [...(siteData.podcasts || []), ...(custom.podcasts || [])];
-    const youtube = [...(siteData.youtube || []), ...(custom.youtube || [])];
-    const training = [...(siteData.training || []), ...(custom.training || [])];
-    const dailyWatch = [...(siteData.dailyWatch || []), ...(custom.dailyWatch || [])];
-    const bleedingEdge = [...(siteData.bleedingEdge || []), ...(custom.bleedingEdge || [])];
+    const data = {
+      tools: [...(siteData.tools || []), ...(custom.tools || [])],
+      knowledge: [...(siteData.knowledge || []), ...(custom.knowledge || [])],
+      podcasts: [...(siteData.podcasts || []), ...(custom.podcasts || [])],
+      youtube: [...(siteData.youtube || []), ...(custom.youtube || [])],
+      training: [...(siteData.training || []), ...(custom.training || [])],
+      dailyWatch: [...(siteData.dailyWatch || []), ...(custom.dailyWatch || [])],
+      bleedingEdge: [...(siteData.bleedingEdge || []), ...(custom.bleedingEdge || [])],
+    };
 
-    toolsCount.textContent = tools.length;
-    knowledgeCount.textContent = knowledge.length;
-    podcastsCount.textContent = podcasts.length;
-    youtubeCount.textContent = (youtube || []).length;
-    trainingCount.textContent = (training || []).length;
-    dailyWatchCount.textContent = (dailyWatch || []).length;
-    bleedingEdgeCount.textContent = (bleedingEdge || []).length;
+    const tools = data.tools;
+    const knowledge = data.knowledge;
+    const podcasts = data.podcasts;
+    const youtube = data.youtube || [];
+    const training = data.training || [];
+    const dailyWatch = data.dailyWatch || [];
+    const bleedingEdge = data.bleedingEdge || [];
 
-    const heroTools = document.getElementById("hero-tools-count");
-    const heroKnowledge = document.getElementById("hero-knowledge-count");
-    const heroPodcasts = document.getElementById("hero-podcasts-count");
-    if (heroTools) heroTools.textContent = tools.length;
-    if (heroKnowledge) heroKnowledge.textContent = knowledge.length;
-    if (heroPodcasts) heroPodcasts.textContent = podcasts.length;
+    if (isHub) {
+      const heroTools = document.getElementById("hero-tools-count");
+      const heroKnowledge = document.getElementById("hero-knowledge-count");
+      const heroPodcasts = document.getElementById("hero-podcasts-count");
+      if (heroTools) heroTools.textContent = tools.length;
+      if (heroKnowledge) heroKnowledge.textContent = knowledge.length;
+      if (heroPodcasts) heroPodcasts.textContent = podcasts.length;
 
-    const emptyTools = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📚</span><p>No tools in this category yet.</p><a href="admin.html" class="section-empty-cta">Add a tool in Admin</a></div>';
-    const emptyKnowledge = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📖</span><p>No knowledge items yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
-    const emptyPodcasts = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">🎙️</span><p>No podcasts yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
-    const emptyYoutube = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">▶️</span><p>No YouTube channels yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
-    const emptyTraining = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">🎓</span><p>No training links yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
-    const emptyDailyWatch = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📰</span><p>No daily watch sites yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
-    const emptyBleedingEdge = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">⚡</span><p>No bleeding edge resources yet.</p><a href="admin.html" class="section-empty-cta">Add in Admin</a></div>';
+      const heroAnnouncer = document.getElementById("hero-stats-announcer");
+      if (heroAnnouncer) {
+        heroAnnouncer.textContent = `Catalog loaded: ${tools.length} tools, ${knowledge.length} knowledge, ${podcasts.length} podcasts`;
+        setTimeout(() => { heroAnnouncer.textContent = ""; }, 800);
+      }
 
-    toolsGrid.innerHTML = tools.length ? tools.map((t) => buildCard(t, "tools")).join("") : emptyTools;
-    knowledgeGrid.innerHTML = knowledge.length ? knowledge.map((k) => buildCard(k, "knowledge")).join("") : emptyKnowledge;
-    podcastsGrid.innerHTML = podcasts.length ? podcasts.map((p) => buildCard(p, "podcasts")).join("") : emptyPodcasts;
-    youtubeGrid.innerHTML = (youtube || []).length ? youtube.map((y) => buildCard(y, "youtube")).join("") : emptyYoutube;
-    trainingGrid.innerHTML = (training || []).length ? training.map((t) => buildCard(t, "training")).join("") : emptyTraining;
-    dailyWatchGrid.innerHTML = (dailyWatch || []).length ? dailyWatch.map((d) => buildCard(d, "daily-watch")).join("") : emptyDailyWatch;
-    bleedingEdgeGrid.innerHTML = (bleedingEdge || []).length ? bleedingEdge.map((b) => buildCard(b, "bleeding-edge")).join("") : emptyBleedingEdge;
+      CATEGORY_CONFIG.forEach((cfg) => {
+        const hubEl = document.getElementById(cfg.hubCountId);
+        if (hubEl) hubEl.textContent = (data[cfg.dataKey] || []).length;
+      });
 
-    /* Featured row: prioritize "Using" and high-rated items, then top picks per category */
-    const directUse = getDirectUse();
-    const allItems = [
-      ...tools.map((t) => ({ ...t, cat: "tools" })),
-      ...(youtube || []).map((y) => ({ ...y, cat: "youtube" })),
-      ...(training || []).map((t) => ({ ...t, cat: "training" })),
-      ...podcasts.map((p) => ({ ...p, cat: "podcasts" })),
-      ...(bleedingEdge || []).map((b) => ({ ...b, cat: "bleedingEdge" })),
-    ];
-    const withScore = allItems.map((item) => {
-      const using = directUse.includes(item.title) ? 2 : 0;
-      const rating = getRating(item.title);
-      return { item, score: using + (rating || 0) };
-    });
-    const byScore = [...withScore].sort((a, b) => b.score - a.score);
-    const topByCat = {};
-    byScore.forEach(({ item }) => {
-      if (!topByCat[item.cat]) topByCat[item.cat] = item;
-    });
-    const featured = [
-      topByCat.tools || tools[0],
-      topByCat.bleedingEdge || (bleedingEdge ? bleedingEdge[0] : null),
-      topByCat.youtube || (youtube ? youtube[0] : null),
-      topByCat.training || (training ? training[0] : null),
-      topByCat.podcasts || podcasts[0],
-    ].filter(Boolean);
+      const directUse = getDirectUse();
+      const allItems = [
+        ...tools.map((t) => ({ ...t, cat: "tools" })),
+        ...youtube.map((y) => ({ ...y, cat: "youtube" })),
+        ...training.map((t) => ({ ...t, cat: "training" })),
+        ...podcasts.map((p) => ({ ...p, cat: "podcasts" })),
+        ...bleedingEdge.map((b) => ({ ...b, cat: "bleedingEdge" })),
+      ];
+      const withScore = allItems.map((item) => {
+        const using = directUse.includes(item.title) ? 2 : 0;
+        const rating = getRating(item.title);
+        return { item, score: using + (rating || 0) };
+      });
+      const byScore = [...withScore].sort((a, b) => b.score - a.score);
+      const topByCat = {};
+      byScore.forEach(({ item }) => { if (!topByCat[item.cat]) topByCat[item.cat] = item; });
+      const featured = [
+        topByCat.tools || tools[0],
+        topByCat.bleedingEdge || bleedingEdge[0],
+        topByCat.youtube || youtube[0],
+        topByCat.training || training[0],
+        topByCat.podcasts || podcasts[0],
+      ].filter(Boolean);
 
-    featuredRow.innerHTML = featured.map((item) => buildFeaturedCard(item)).join("");
+      if (featuredRow) {
+        featuredRow.removeAttribute("aria-busy");
+        const loadingEl = document.getElementById("featured-loading");
+        if (loadingEl) loadingEl.remove();
+        if (featured.length > 0) {
+          featuredRow.innerHTML = featured.map((item) => buildFeaturedCard(item)).join("");
+          featuredRow.setAttribute("aria-label", `Top picks: ${featured.length} items`);
+        } else {
+          featuredRow.innerHTML = '<p class="featured-empty">No top picks yet. Add items and rate them to see recommendations.</p>';
+          featuredRow.setAttribute("aria-label", "No top picks yet");
+        }
+      }
+    } else {
+      const cfg = CATEGORY_CONFIG.find((c) => c.id === pageCategory);
+      if (cfg) {
+        const grid = document.getElementById(cfg.gridId);
+        const countEl = document.getElementById(cfg.countId);
+        const items = data[cfg.dataKey] || [];
+        if (countEl) countEl.textContent = items.length;
+        if (grid) grid.innerHTML = items.length ? items.map((i) => buildCard(i, cfg.id)).join("") : cfg.emptyHtml;
+      }
+    }
 
     const main = document.getElementById("main-content");
     if (main) {
@@ -732,14 +903,26 @@
       if (searchResultsEl) {
         searchResultsEl.textContent = visible === 0 ? "No results — try different keywords" : visible + " of " + totalCards();
       }
+      if (visible === 0 && mainEl) {
+        const placeholder = document.createElement("div");
+        placeholder.id = "search-no-results";
+        placeholder.className = "section-empty";
+        placeholder.setAttribute("role", "status");
+        placeholder.innerHTML = '<span class="section-empty-icon" aria-hidden="true">🔍</span><p>No matches for "<strong></strong>". Try different keywords or clear search.</p>';
+        placeholder.querySelector("strong").textContent = query.trim();
+        const firstGrid = mainEl.querySelector(".card-grid");
+        if (firstGrid) firstGrid.appendChild(placeholder);
+      }
     } else {
       if (searchResultsEl) searchResultsEl.textContent = "";
     }
   }
 
   const debouncedFilter = debounce((v) => filterCards(v), 80);
-  searchEl.addEventListener("input", (e) => debouncedFilter(e.target.value));
-  searchEl.addEventListener("search", (e) => filterCards(e.target.value));
+  if (searchEl) {
+    searchEl.addEventListener("input", (e) => debouncedFilter(e.target.value));
+    searchEl.addEventListener("search", (e) => filterCards(e.target.value));
+  }
 
   /* ========== Back to top ========== */
   const backToTop = document.getElementById("back-to-top");
