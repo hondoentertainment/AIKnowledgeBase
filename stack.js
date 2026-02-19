@@ -15,6 +15,7 @@
     podcasts: document.getElementById("stack-podcasts-grid"),
     youtube: document.getElementById("stack-youtube-grid"),
     training: document.getElementById("stack-training-grid"),
+    dailyWatch: document.getElementById("stack-daily-watch-grid"),
     bleedingEdge: document.getElementById("stack-bleeding-edge-grid"),
     niche: document.getElementById("stack-niche-grid"),
   };
@@ -223,9 +224,10 @@
     const podcasts = [...(siteData.podcasts || []), ...(custom.podcasts || [])];
     const youtube = [...(siteData.youtube || []), ...(custom.youtube || [])];
     const training = [...(siteData.training || []), ...(custom.training || [])];
+    const dailyWatch = [...(siteData.dailyWatch || []), ...(custom.dailyWatch || [])];
     const bleedingEdge = [...(siteData.bleedingEdge || []), ...(custom.bleedingEdge || [])];
     const stackSet = new Set(getStack());
-    const nicheCategories = ["taxes", "home", "travel", "books", "media", "entertainment", "sports", "health", "education", "finance", "legal", "pets", "food", "gardening"];
+    const nicheCategories = ["taxes", "home", "travel", "books", "media", "entertainment", "sports", "health", "education", "finance", "legal", "pets", "food", "gardening", "realEstate", "career", "automotive", "writing", "marketing"];
     const nicheItems = (typeof nicheData !== "undefined" ? nicheCategories.flatMap((cat) => nicheData[cat] || []) : []);
     const byCategory = {
       tools: tools.filter((t) => stackSet.has(t.title)),
@@ -233,6 +235,7 @@
       podcasts: (podcasts || []).filter((p) => stackSet.has(p.title)),
       youtube: (youtube || []).filter((y) => stackSet.has(y.title)),
       training: (training || []).filter((t) => stackSet.has(t.title)),
+      dailyWatch: (dailyWatch || []).filter((d) => stackSet.has(d.title)),
       bleedingEdge: (bleedingEdge || []).filter((b) => stackSet.has(b.title)),
       niche: nicheItems.filter((n) => stackSet.has(n.title)),
     };
@@ -241,7 +244,7 @@
 
   function render(highlightFilter) {
     const byCat = getAllItems();
-    const total = byCat.tools.length + byCat.knowledge.length + byCat.podcasts.length + byCat.youtube.length + byCat.training.length + (byCat.bleedingEdge?.length || 0) + (byCat.niche?.length || 0);
+    const total = byCat.tools.length + byCat.knowledge.length + byCat.podcasts.length + byCat.youtube.length + byCat.training.length + (byCat.dailyWatch?.length || 0) + (byCat.bleedingEdge?.length || 0) + (byCat.niche?.length || 0);
 
     totalCountEl.textContent = total;
 
@@ -250,6 +253,7 @@
     grids.podcasts.innerHTML = byCat.podcasts.map((p) => buildStackCard(p, "index", "podcasts")).join("");
     grids.youtube.innerHTML = byCat.youtube.map((y) => buildStackCard(y, "index", "youtube")).join("");
     grids.training.innerHTML = byCat.training.map((t) => buildStackCard(t, "index", "training")).join("");
+    if (grids.dailyWatch) grids.dailyWatch.innerHTML = (byCat.dailyWatch || []).map((d) => buildStackCard(d, "index", "daily-watch")).join("");
     if (grids.bleedingEdge) grids.bleedingEdge.innerHTML = (byCat.bleedingEdge || []).map((b) => buildStackCard(b, "index", "bleeding-edge")).join("");
     if (grids.niche) grids.niche.innerHTML = (byCat.niche || []).map((n) => buildStackCard(n, "niche", findNicheCategory(n.title))).join("");
 

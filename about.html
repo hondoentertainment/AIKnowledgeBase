@@ -24,23 +24,31 @@
         AI Knowledge Hub
       </a>
       <nav class="nav-tabs" aria-label="Main navigation">
-        <a href="tools.html" class="nav-tab">Tools</a>
-        <a href="knowledge.html" class="nav-tab">Knowledge</a>
-        <a href="podcasts.html" class="nav-tab">Podcasts</a>
-        <a href="youtube.html" class="nav-tab">YouTube</a>
-        <a href="training.html" class="nav-tab">Training</a>
-        <a href="daily-watch.html" class="nav-tab">Daily Watch</a>
-        <a href="bleeding-edge.html" class="nav-tab">Bleeding Edge</a>
-        <a href="niche.html" class="nav-tab">Niche AI</a>
-        <a href="stack.html" class="nav-tab">My Stack</a>
-        <a href="profiles.html" class="nav-tab">Profiles</a>
-        <a href="admin.html" class="nav-tab" id="nav-admin">Admin</a>
-        <a href="about.html" class="nav-tab active">About</a>
-        <a href="login.html" class="nav-tab" id="nav-login">Log in</a>
-        <span class="auth-user-wrap" id="auth-user-wrap" style="display:none">
-          <span class="auth-user-email" id="auth-user-email"></span>
-          <button type="button" class="nav-tab nav-tab-btn" id="nav-logout">Log out</button>
-        </span>
+        <div class="nav-group" role="group" aria-label="Browse">
+          <span class="nav-group-label">Browse</span>
+          <a href="tools.html" class="nav-tab">Tools</a>
+          <a href="knowledge.html" class="nav-tab">Knowledge</a>
+          <a href="podcasts.html" class="nav-tab">Podcasts</a>
+          <a href="youtube.html" class="nav-tab">YouTube</a>
+          <a href="training.html" class="nav-tab">Training</a>
+        </div>
+        <div class="nav-group" role="group" aria-label="Discover">
+          <span class="nav-group-label">Discover</span>
+          <a href="daily-watch.html" class="nav-tab">Daily Watch</a>
+          <a href="bleeding-edge.html" class="nav-tab">Bleeding Edge</a>
+          <a href="niche.html" class="nav-tab">Niche AI</a>
+        </div>
+        <div class="nav-group" role="group" aria-label="Personal">
+          <span class="nav-group-label">You</span>
+          <a href="stack.html" class="nav-tab">My Stack</a>
+          <a href="profiles.html" class="nav-tab">Profiles</a>
+          <a href="about.html" class="nav-tab active">About</a>
+          <a href="login.html" class="nav-tab" id="nav-login">Log in</a>
+          <span class="auth-user-wrap" id="auth-user-wrap" style="display:none">
+            <span class="auth-user-email" id="auth-user-email"></span>
+            <button type="button" class="nav-tab nav-tab-btn" id="nav-logout">Log out</button>
+          </span>
+        </div>
       </nav>
       <div class="topbar-actions">
         <div class="profile-switcher" id="profile-switcher"></div>
@@ -152,7 +160,6 @@
       if (navLogin && authWrap) {
         function updateAuthNav() {
           const session = window.Auth && window.Auth.getSession();
-          const isAdmin = window.Auth && window.Auth.isAdmin();
           if (session) {
             navLogin.style.display = "none";
             authWrap.style.display = "inline-flex";
@@ -161,8 +168,6 @@
             navLogin.style.display = "block";
             authWrap.style.display = "none";
           }
-          const navAdmin = document.getElementById("nav-admin");
-          if (navAdmin) navAdmin.style.display = session && !isAdmin ? "none" : "";
         }
         updateAuthNav();
         window.addEventListener("auth-changed", updateAuthNav);

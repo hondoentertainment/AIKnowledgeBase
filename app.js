@@ -236,6 +236,41 @@
     return "linear-gradient(135deg, #30363d 0%, #21262d 100%)";
   }
 
+  function deriveTrustSignals(item) {
+    const trustSignals = [];
+    const tags = (item.tags || []).map((tag) => String(tag).toLowerCase());
+    const title = String(item.title || "").toLowerCase();
+    const desc = String(item.description || "").toLowerCase();
+    const url = String(item.url || "");
+    let host = "";
+    try {
+      host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    } catch (_) {
+      host = "";
+    }
+
+    const officialHosts = [
+      "openai.com", "anthropic.com", "google.com", "deepmind.com", "microsoft.com",
+      "aws.amazon.com", "huggingface.co", "github.com", "meta.com", "stability.ai"
+    ];
+    const hasOfficialHost = officialHosts.some((h) => host === h || host.endsWith("." + h));
+    const hasDocsSignal = title.includes("documentation") || title.includes("docs")
+      || desc.includes("documentation") || tags.some((t) => t.includes("documentation") || t.includes("guide"));
+    const hasSourceSignal = tags.some((t) => t.includes("open source"))
+      || desc.includes("open-source") || desc.includes("open source");
+    const hasEvidenceSignal = desc.includes("cited") || desc.includes("sourced")
+      || desc.includes("research") || tags.some((t) => t.includes("research"));
+    const hasSecureSignal = url.startsWith("https://");
+
+    if (hasOfficialHost) trustSignals.push({ cls: "trust-badge-official", label: "Official", title: "Official source domain" });
+    if (hasSourceSignal) trustSignals.push({ cls: "trust-badge-oss", label: "Open source", title: "Open-source project or ecosystem" });
+    if (hasDocsSignal) trustSignals.push({ cls: "trust-badge-docs", label: "Docs", title: "Documentation or learning guide" });
+    if (hasEvidenceSignal) trustSignals.push({ cls: "trust-badge-evidence", label: "Research", title: "Research-backed or cited content" });
+    if (hasSecureSignal) trustSignals.push({ cls: "trust-badge-secure", label: "HTTPS", title: "Secure connection available" });
+
+    return trustSignals.slice(0, 2);
+  }
+
   /* ========== Star rating helpers ========== */
   const STAR_SVG = '<svg class="star-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>';
   function starHalfSvg(gradId) {
@@ -331,6 +366,10 @@
 
       function previewStars(hoverVal) {
         container.classList.add("hovering");
+        if (label) {
+          label.textContent = String(hoverVal).replace(/\.0$/, "");
+          label.classList.add("previewing");
+        }
         starEls.forEach((el) => {
           const idx = parseInt(el.dataset.star, 10);
           el.classList.remove("preview", "preview-half");
@@ -344,6 +383,11 @@
 
       function clearPreview() {
         container.classList.remove("hovering");
+        if (label) {
+          const current = parseFloat(container.dataset.rating || "0");
+          label.textContent = current ? String(current).replace(/\.0$/, "") : "";
+          label.classList.remove("previewing");
+        }
         starEls.forEach((el) => el.classList.remove("preview", "preview-half"));
       }
 
@@ -605,6 +649,12 @@
     const visitBtn = visitUrl
       ? `<a href="${escapeHtml(visitUrl)}" class="visit-btn" target="_blank" rel="noopener" aria-label="Visit ${escapeAttr(item.title)}">Visit</a>`
       : "";
+    const trustSignals = deriveTrustSignals(item);
+    const trustSignalsHtml = trustSignals.length
+      ? `<div class="card-trust-signals" aria-label="Trust signals">${trustSignals
+          .map((signal) => `<span class="trust-badge ${signal.cls}" title="${escapeAttr(signal.title)}">${escapeHtml(signal.label)}</span>`)
+          .join("")}</div>`
+      : "";
 
     return `
       <div class="card"
@@ -623,6 +673,7 @@
         <div class="card-body">
           <a href="${escapeHtml(url)}" class="card-title" target="_blank" rel="noopener">${escapeHtml(item.title)}</a>
           <p class="card-desc">${escapeHtml(item.description)}</p>
+          ${trustSignalsHtml}
           ${buildStarsHTML(item.title)}
           <div class="card-actions">
             ${visitBtn}

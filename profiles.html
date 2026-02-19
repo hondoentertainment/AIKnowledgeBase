@@ -29,6 +29,18 @@
     .profile-admin-section .admin-tool-item button.admin-edit-btn:hover { color: var(--accent); }
     .profile-admin-section .admin-export { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
     .profile-admin-section .admin-export pre { background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius); font-size: 0.75rem; overflow-x: auto; max-height: 150px; overflow-y: auto; }
+
+    .profile-settings-section { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .profile-settings-section .intro { color: var(--text-muted); margin-bottom: 1.25rem; font-size: 0.9rem; }
+    .settings-card { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .settings-card-header { display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0; }
+    .settings-card-icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .settings-card-header strong { display: block; font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .settings-card-desc { color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.4; }
+    .settings-card-link { padding: 0.45rem 0.9rem; font-size: 0.85rem; font-weight: 600; color: var(--accent); background: var(--accent-muted); border: none; border-radius: var(--radius); cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.15s, color 0.15s; flex-shrink: 0; }
+    .settings-card-link:hover { background: var(--accent); color: var(--bg); }
+    .settings-logout-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+    .settings-logout-btn:hover { background: var(--bg-surface); color: var(--text); border-color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -41,23 +53,30 @@
         AI Knowledge Hub
       </a>
       <nav class="nav-tabs" aria-label="Main navigation">
-        <a href="tools.html" class="nav-tab">Tools</a>
-        <a href="knowledge.html" class="nav-tab">Knowledge</a>
-        <a href="podcasts.html" class="nav-tab">Podcasts</a>
-        <a href="youtube.html" class="nav-tab">YouTube</a>
-        <a href="training.html" class="nav-tab">Training</a>
-        <a href="daily-watch.html" class="nav-tab">Daily Watch</a>
-        <a href="bleeding-edge.html" class="nav-tab">Bleeding Edge</a>
-        <a href="niche.html" class="nav-tab">Niche AI</a>
-        <a href="stack.html" class="nav-tab">My Stack</a>
-        <a href="profiles.html" class="nav-tab active">Profiles</a>
-        <a href="admin.html" class="nav-tab" id="nav-admin">Admin</a>
-        <a href="about.html" class="nav-tab">About</a>
-        <a href="login.html" class="nav-tab" id="nav-login">Log in</a>
-        <span class="auth-user-wrap" id="auth-user-wrap" style="display:none">
-          <span class="auth-user-email" id="auth-user-email"></span>
-          <button type="button" class="nav-tab nav-tab-btn" id="nav-logout">Log out</button>
-        </span>
+        <div class="nav-group" role="group" aria-label="Browse">
+          <span class="nav-group-label">Browse</span>
+          <a href="tools.html" class="nav-tab">Tools</a>
+          <a href="knowledge.html" class="nav-tab">Knowledge</a>
+          <a href="podcasts.html" class="nav-tab">Podcasts</a>
+          <a href="youtube.html" class="nav-tab">YouTube</a>
+          <a href="training.html" class="nav-tab">Training</a>
+        </div>
+        <div class="nav-group" role="group" aria-label="Discover">
+          <span class="nav-group-label">Discover</span>
+          <a href="daily-watch.html" class="nav-tab">Daily Watch</a>
+          <a href="bleeding-edge.html" class="nav-tab">Bleeding Edge</a>
+          <a href="niche.html" class="nav-tab">Niche AI</a>
+        </div>
+        <div class="nav-group" role="group" aria-label="Personal">
+          <span class="nav-group-label">You</span>
+          <a href="stack.html" class="nav-tab">My Stack</a>
+          <a href="profiles.html" class="nav-tab active">Profiles</a>
+          <a href="login.html" class="nav-tab" id="nav-login">Log in</a>
+          <span class="auth-user-wrap" id="auth-user-wrap" style="display:none">
+            <span class="auth-user-email" id="auth-user-email"></span>
+            <button type="button" class="nav-tab nav-tab-btn" id="nav-logout">Log out</button>
+          </span>
+        </div>
       </nav>
       <div class="topbar-actions">
         <div class="profile-switcher" id="profile-switcher"></div>
@@ -162,6 +181,33 @@
           <pre id="profile-export-output" style="margin-top:0.5rem"></pre>
         </div>
       </div>
+
+      <div id="profile-settings-section" class="profile-settings-section" style="display:none">
+        <h2 class="profile-form-title">Settings</h2>
+        <p class="intro">Admin tools and site management.</p>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <span class="settings-card-icon">&#x2699;</span>
+            <div>
+              <strong>Tool management</strong>
+              <p class="settings-card-desc">Add, edit, or remove tools across all categories. Export custom tools to data.js.</p>
+            </div>
+          </div>
+          <a href="admin.html" class="settings-card-link">Open admin panel</a>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <span class="settings-card-icon">&#x1F464;</span>
+            <div>
+              <strong>Account</strong>
+              <p class="settings-card-desc" id="settings-account-email"></p>
+            </div>
+          </div>
+          <button type="button" class="settings-card-link settings-logout-btn" id="settings-logout">Log out</button>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -201,8 +247,6 @@
       <span class="footer-link-sep">·</span>
       <a href="stack.html" class="footer-link">My Stack</a>
       <span class="footer-link-sep">·</span>
-      <a href="admin.html" class="footer-link" id="footer-admin">Admin</a>
-      <span class="footer-link-sep" id="footer-admin-sep">·</span>
       <a href="about.html" class="footer-link">About</a>
     </div>
   </footer>
@@ -228,18 +272,18 @@
             navLogin.style.display = "block";
             authWrap.style.display = "none";
           }
-          const navAdmin = document.getElementById("nav-admin");
-          const footerAdmin = document.getElementById("footer-admin");
-          const footerAdminSep = document.getElementById("footer-admin-sep");
-          if (navAdmin) navAdmin.style.display = session && !isAdmin ? "none" : "";
-          if (footerAdmin) footerAdmin.style.display = session && !isAdmin ? "none" : "";
-          if (footerAdminSep) footerAdminSep.style.display = session && !isAdmin ? "none" : "";
           const adminSection = document.getElementById("profile-admin-section");
-          if (adminSection) adminSection.style.display = session && !isAdmin ? "block" : "none";
+          if (adminSection) adminSection.style.display = session ? "block" : "none";
+          const settingsSection = document.getElementById("profile-settings-section");
+          if (settingsSection) settingsSection.style.display = session && isAdmin ? "block" : "none";
+          const settingsEmail = document.getElementById("settings-account-email");
+          if (settingsEmail) settingsEmail.textContent = session ? session.email : "";
         }
         updateAuthNav();
         window.addEventListener("auth-changed", updateAuthNav);
         if (navLogout) navLogout.addEventListener("click", () => window.Auth.logout());
+        const settingsLogout = document.getElementById("settings-logout");
+        if (settingsLogout) settingsLogout.addEventListener("click", () => window.Auth.logout());
       }
     })();
   </script>

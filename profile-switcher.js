@@ -1,5 +1,5 @@
 /**
- * Profile switcher dropdown — rendered in header on all pages
+ * Profile switcher — rendered in header on all pages as a link to profiles page
  */
 (function () {
   function render() {
@@ -12,44 +12,11 @@
 
     const active = profiles.find((p) => p.id === activeId) || profiles[0];
     el.innerHTML = `
-      <div class="profile-switcher-trigger" id="profile-trigger" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch profile">
+      <a href="profiles.html" class="profile-switcher-trigger" aria-label="Profile: ${escapeAttr(active.name)} — manage profiles">
         <span class="profile-switcher-icon">👤</span>
         <span class="profile-switcher-name">${escapeHtml(active.name)}</span>
-        <span class="profile-switcher-chevron">▼</span>
-      </div>
-      <div class="profile-switcher-dropdown hidden" id="profile-dropdown" role="listbox">
-        ${profiles.map((p) => `
-          <button type="button" class="profile-switcher-option ${p.id === activeId ? "active" : ""}" data-id="${escapeAttr(p.id)}">${escapeHtml(p.name)}</button>
-        `).join("")}
-        <a href="profiles.html" class="profile-switcher-manage">Manage profiles</a>
-      </div>
+      </a>
     `;
-
-    const trigger = el.querySelector("#profile-trigger");
-    const dropdown = el.querySelector("#profile-dropdown");
-
-    trigger.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdown.classList.toggle("hidden");
-      trigger.setAttribute("aria-expanded", !dropdown.classList.contains("hidden"));
-    });
-
-    el.querySelectorAll(".profile-switcher-option").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        window.ProfileStore.setActiveProfile(btn.dataset.id);
-        dropdown.classList.add("hidden");
-        trigger.setAttribute("aria-expanded", "false");
-        render();
-      });
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!el.contains(e.target)) {
-        dropdown.classList.add("hidden");
-        if (trigger) trigger.setAttribute("aria-expanded", "false");
-      }
-    });
   }
 
   function escapeHtml(s) {
