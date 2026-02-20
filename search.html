@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Training | AI Knowledge Hub</title>
+  <title>Search | AI Knowledge Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -15,29 +15,24 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%23c45c3e'/%3E%3Cpath d='M90 52l18 36 40 7-29 29 7 40-36-18-36 18 7-40-29-29 40-7z' fill='white'/%3E%3C/svg%3E">
 </head>
-<body data-category="training">
+<body data-page="search">
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <span id="rating-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></span>
 
   <div id="header-root"></div>
   <script src="header.js"></script>
-  <script>Header.render({ activeNav: "training", searchMode: "expandable" });</script>
+  <script>Header.render({ activeNav: "search", searchMode: "always-open", searchPlaceholder: "Search tools, knowledge, podcasts… e.g. \"chat gpt\" or \"coding\" (press /)" });</script>
   <script src="theme.js"></script>
 
-  <main class="main main-loading" id="main-content" aria-busy="true">
-    <section id="training" class="section">
-      <div class="section-header">
-        <h2 class="section-title">Training <span class="section-count" id="training-count"></span></h2>
-      </div>
-      <div class="card-grid" id="training-grid">
-        <div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div>
-      </div>
-    </section>
+  <main class="main" id="main-content">
+    <div id="search-results-container" class="search-results-page">
+      <p id="search-empty" class="search-empty-hint" aria-live="polite">Enter a search term above.</p>
+      <div id="search-grouped"></div>
+    </div>
   </main>
 
   <button type="button" id="back-to-top" class="back-to-top hidden" aria-label="Back to top">↑</button>
 
-  <!-- Mobile bottom navigation -->
   <nav class="bottom-nav" aria-label="Mobile navigation">
     <div class="bottom-nav-inner">
       <a href="index.html" class="bottom-nav-item">
@@ -48,10 +43,10 @@
         <span class="bottom-nav-icon" aria-hidden="true">🔧</span>
         <span class="bottom-nav-label">Tools</span>
       </a>
-      <button type="button" class="bottom-nav-item" id="bottom-search-btn" aria-label="Search">
+      <a href="search.html" class="bottom-nav-item active" aria-current="page">
         <span class="bottom-nav-icon" aria-hidden="true">🔍</span>
         <span class="bottom-nav-label">Search</span>
-      </button>
+      </a>
       <a href="stack.html" class="bottom-nav-item">
         <span class="bottom-nav-icon" aria-hidden="true">📚</span>
         <span class="bottom-nav-label">My Stack</span>
@@ -81,8 +76,26 @@
   <script src="profiles.js"></script>
   <script src="data.js"></script>
   <script src="search-utils.js"></script>
-  <script src="app.js"></script>
+  <script src="search-page.js"></script>
   <script src="profile-switcher.js"></script>
   <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>
+  <script>
+    (function () {
+      if (document.body.dataset.page !== 'search') return;
+      const navToggle = document.getElementById("nav-toggle");
+      const navTabs = document.querySelector(".nav-tabs");
+      const backdrop = document.getElementById("nav-backdrop");
+      if (navToggle && navTabs) { navToggle.addEventListener("click", () => { navTabs.classList.toggle("open"); navToggle.setAttribute("aria-expanded", navTabs.classList.contains("open")); document.body.classList.toggle("nav-open", navTabs.classList.contains("open")); if (backdrop) { backdrop.style.display = navTabs.classList.contains("open") ? "block" : ""; backdrop.classList.toggle("visible", navTabs.classList.contains("open")); } }); if (backdrop) backdrop.addEventListener("click", () => { navTabs.classList.remove("open"); navToggle.setAttribute("aria-expanded", "false"); if (backdrop) { backdrop.style.display = ""; backdrop.classList.remove("visible"); } }); }
+      const backToTop = document.getElementById("back-to-top");
+      if (backToTop) { window.addEventListener("scroll", () => backToTop.classList.toggle("hidden", window.scrollY < 400), { passive: true }); backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" })); backToTop.classList.toggle("hidden", window.scrollY < 400); }
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "/" && document.activeElement !== document.getElementById("search")) {
+          e.preventDefault();
+          const el = document.getElementById("search");
+          if (el) el.focus();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

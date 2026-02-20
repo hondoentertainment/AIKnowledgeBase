@@ -9,7 +9,6 @@
   const searchToggle = document.getElementById("search-toggle");
   const searchBar = document.getElementById("search-bar");
   const searchEl = document.getElementById("search");
-  const themeBtn = document.getElementById("theme-btn");
   const featuredRow = document.getElementById("featured-row");
   const sections = document.querySelectorAll(".section");
   const navTabs = document.querySelectorAll(".nav-tab");
@@ -19,24 +18,6 @@
     "health", "education", "finance", "legal", "pets", "food", "gardening",
     "realEstate", "career", "automotive", "writing", "marketing"
   ];
-
-  /* ========== Theme ========== */
-  function getInitialTheme() {
-    const saved = localStorage.getItem("theme");
-    if (saved) return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
-  const savedTheme = getInitialTheme();
-  document.documentElement.setAttribute("data-theme", savedTheme);
-  themeBtn.setAttribute("aria-pressed", savedTheme === "dark");
-
-  themeBtn.addEventListener("click", () => {
-    const current = document.documentElement.getAttribute("data-theme");
-    const next = current === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    themeBtn.setAttribute("aria-pressed", next === "dark");
-    localStorage.setItem("theme", next);
-  });
 
   /* ========== Mobile nav toggle ========== */
   const navToggle = document.getElementById("nav-toggle");

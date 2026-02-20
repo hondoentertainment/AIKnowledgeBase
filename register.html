@@ -15,19 +15,10 @@
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a href="index.html" class="logo" aria-label="AI Knowledge Hub – Home">
-        <span class="logo-icon" aria-hidden="true">&#x2B22;</span>
-        AI Knowledge Hub
-      </a>
-      <nav class="nav-tabs" aria-label="Main navigation">
-        <a href="index.html" class="nav-tab">Home</a>
-        <a href="login.html" class="nav-tab">Log in</a>
-        <a href="register.html" class="nav-tab active">Sign up</a>
-      </nav>
-    </div>
-  </header>
+  <div id="header-root"></div>
+  <script src="header.js"></script>
+  <script>Header.render({ variant: "auth", authTabs: [{ href: "index.html", label: "Home", active: false }, { href: "login.html", label: "Log in", active: false }, { href: "register.html", label: "Sign up", active: true }] });</script>
+  <script src="theme.js"></script>
 
   <main id="main-content" class="auth-main">
     <section class="auth-card" aria-labelledby="auth-heading">
@@ -39,8 +30,9 @@
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
 
-        <label for="password">Password (8+ characters)</label>
-        <input type="password" id="password" name="password" required autocomplete="new-password" minlength="8" placeholder="••••••••" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="new-password" placeholder="••••••••" aria-required="true" aria-describedby="auth-error password-requirements" aria-invalid="false">
+        <p id="password-requirements" class="auth-hint">At least 8 characters, one letter, and one number.</p>
 
         <label for="password-confirm">Confirm password</label>
         <input type="password" id="password-confirm" name="passwordConfirm" required autocomplete="new-password" placeholder="••••••••" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
@@ -99,6 +91,7 @@
       function showError(msg) {
         errorEl.textContent = msg;
         errorEl.style.display = "block";
+        document.getElementById("password")?.focus();
         ["email", "password", "password-confirm"].forEach((id) => document.getElementById(id)?.setAttribute("aria-invalid", "true"));
       }
       function hideError() {

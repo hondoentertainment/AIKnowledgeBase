@@ -13,25 +13,12 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("theme")||"light");</script>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a href="index.html" class="logo" aria-label="AI Knowledge Hub – Home">
-        <span class="logo-icon" aria-hidden="true">&#x2B22;</span>
-        AI Knowledge Hub
-      </a>
-      <nav class="nav-tabs" aria-label="Main navigation">
-        <a href="index.html" class="nav-tab">Home</a>
-        <a href="login.html" class="nav-tab active">Log in</a>
-      </nav>
-      <button id="theme-btn" class="icon-btn" aria-label="Toggle theme">
-        <svg aria-hidden="true" class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg aria-hidden="true" class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      </button>
-    </div>
-  </header>
+  <div id="header-root"></div>
+  <script src="header.js"></script>
+  <script>Header.render({ variant: "auth", authTabs: [{ href: "index.html", label: "Home", active: false }, { href: "login.html", label: "Log in", active: true }] });</script>
+  <script src="theme.js"></script>
 
   <main id="main-content" class="auth-main">
     <section class="auth-card" aria-labelledby="auth-heading">
@@ -51,6 +38,15 @@
 
         <button type="submit" id="submit-btn" class="auth-btn">Log in</button>
       </form>
+
+      <div class="auth-divider" role="separator" aria-label="Or use Google">
+        <span>or</span>
+      </div>
+
+      <section class="auth-google" aria-label="Google login">
+        <p class="auth-google-note" id="google-note">Sign in with your Google account.</p>
+        <div id="google-signin-btn"></div>
+      </section>
 
       <div class="auth-links">
         <a href="forgot-password.html" class="auth-link">Forgot password?</a>
@@ -89,19 +85,7 @@
   <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
 
   <script src="auth.js"></script>
-  <script>
-    (function () {
-      const themeBtn = document.getElementById("theme-btn");
-      if (themeBtn) {
-        themeBtn.addEventListener("click", () => {
-          const cur = document.documentElement.getAttribute("data-theme");
-          const next = cur === "dark" ? "light" : "dark";
-          document.documentElement.setAttribute("data-theme", next);
-          localStorage.setItem("theme", next);
-        });
-      }
-    })();
-  </script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     (function () {
       const params = new URLSearchParams(window.location.search);
@@ -122,6 +106,8 @@
       const form = document.getElementById("login-form");
       const errorEl = document.getElementById("auth-error");
       const submitBtn = document.getElementById("submit-btn");
+      const googleNote = document.getElementById("google-note");
+      const googleBtnWrap = document.getElementById("google-signin-btn");
 
       function showError(msg) {
         errorEl.textContent = msg;
@@ -160,6 +146,51 @@
         submitBtn.disabled = false;
         submitBtn.textContent = "Log in";
       });
+
+      function setGoogleStatus(message) {
+        if (!googleNote) return;
+        googleNote.textContent = message;
+      }
+
+      function initializeGoogleLogin() {
+        if (!window.Auth || !googleBtnWrap) return;
+        const clientId = window.Auth.getGoogleClientId();
+        if (!clientId) {
+          setGoogleStatus("Google login is available after setting a Google Client ID (stored in localStorage key: googleClientId).");
+          return;
+        }
+        if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+          setGoogleStatus("Google login script did not load. Refresh to try again.");
+          return;
+        }
+
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response) => {
+            hideError();
+            setGoogleStatus("Signing in with Google…");
+            const result = await window.Auth.loginWithGoogleCredential(response.credential);
+            if (result.ok) {
+              const returnTo = new URLSearchParams(window.location.search).get("return") || "index.html";
+              window.location.href = returnTo;
+              return;
+            }
+            setGoogleStatus("Sign in with your Google account.");
+            showError(result.error || "Google sign-in failed.");
+          },
+        });
+        window.google.accounts.id.renderButton(googleBtnWrap, {
+          theme: "outline",
+          size: "large",
+          shape: "pill",
+          width: 280,
+          text: "continue_with",
+        });
+      }
+
+      // Wait for Google script (loaded async/defer), then initialize.
+      setTimeout(initializeGoogleLogin, 0);
+      window.addEventListener("load", initializeGoogleLogin);
     })();
   </script>
 </body>

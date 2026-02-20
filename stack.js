@@ -3,7 +3,6 @@
  */
 
 (function () {
-  const themeBtn = document.getElementById("theme-btn");
   const totalCountEl = document.getElementById("total-count");
   const searchToggle = document.getElementById("search-toggle");
   const searchBar = document.getElementById("search-bar");
@@ -34,24 +33,6 @@
     if (window.ProfileStore) window.ProfileStore.setStack(s);
     else localStorage.setItem("myStack", JSON.stringify(s));
   }
-
-  /* ========== Theme ========== */
-  function getInitialTheme() {
-    const saved = localStorage.getItem("theme");
-    if (saved) return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
-  const savedTheme = getInitialTheme();
-  document.documentElement.setAttribute("data-theme", savedTheme);
-  themeBtn.setAttribute("aria-pressed", savedTheme === "dark");
-
-  themeBtn.addEventListener("click", () => {
-    const current = document.documentElement.getAttribute("data-theme");
-    const next = current === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    themeBtn.setAttribute("aria-pressed", next === "dark");
-    localStorage.setItem("theme", next);
-  });
 
   /* ========== Search (if present) ========== */
   if (searchToggle && searchBar && searchEl) {

@@ -10,7 +10,6 @@
   const searchToggle = document.getElementById("search-toggle");
   const searchBar = document.getElementById("search-bar");
   const searchEl = document.getElementById("search");
-  const themeBtn = document.getElementById("theme-btn");
   const featuredRow = document.getElementById("featured-row");
   const mainEl = document.getElementById("main-content");
   const toolsGrid = document.getElementById("tools-grid");
@@ -28,24 +27,6 @@
   const dailyWatchCount = document.getElementById("daily-watch-count");
   const bleedingEdgeCount = document.getElementById("bleeding-edge-count");
   const navTabs = document.querySelectorAll(".nav-tab");
-
-  /* ========== Theme ========== */
-  function getInitialTheme() {
-    const saved = localStorage.getItem("theme");
-    if (saved) return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
-  const savedTheme = getInitialTheme();
-  document.documentElement.setAttribute("data-theme", savedTheme);
-  if (themeBtn) themeBtn.setAttribute("aria-pressed", savedTheme === "dark");
-
-  if (themeBtn) themeBtn.addEventListener("click", () => {
-    const current = document.documentElement.getAttribute("data-theme");
-    const next = current === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    themeBtn.setAttribute("aria-pressed", next === "dark");
-    localStorage.setItem("theme", next);
-  });
 
   /* ========== Topbar scroll shadow ========== */
   const topbar = document.querySelector(".topbar");
@@ -786,9 +767,11 @@
       const directUse = getDirectUse();
       const allItems = [
         ...tools.map((t) => ({ ...t, cat: "tools" })),
+        ...knowledge.map((k) => ({ ...k, cat: "knowledge" })),
+        ...podcasts.map((p) => ({ ...p, cat: "podcasts" })),
         ...youtube.map((y) => ({ ...y, cat: "youtube" })),
         ...training.map((t) => ({ ...t, cat: "training" })),
-        ...podcasts.map((p) => ({ ...p, cat: "podcasts" })),
+        ...dailyWatch.map((d) => ({ ...d, cat: "dailyWatch" })),
         ...bleedingEdge.map((b) => ({ ...b, cat: "bleedingEdge" })),
       ];
       const withScore = allItems.map((item) => {
@@ -796,16 +779,10 @@
         const rating = getRating(item.title);
         return { item, score: using + (rating || 0) };
       });
-      const byScore = [...withScore].sort((a, b) => b.score - a.score);
-      const topByCat = {};
-      byScore.forEach(({ item }) => { if (!topByCat[item.cat]) topByCat[item.cat] = item; });
-      const featured = [
-        topByCat.tools || tools[0],
-        topByCat.bleedingEdge || bleedingEdge[0],
-        topByCat.youtube || youtube[0],
-        topByCat.training || training[0],
-        topByCat.podcasts || podcasts[0],
-      ].filter(Boolean);
+      const featured = [...withScore]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 20)
+        .map(({ item }) => item);
 
       if (featuredRow) {
         featuredRow.removeAttribute("aria-busy");
@@ -938,13 +915,19 @@
   }
 
   function filterCards(query) {
-    const q = (query || "").toLowerCase().trim();
+    const q = (query || "").trim();
+    const matchFn = window.SearchUtils && window.SearchUtils.matchCard
+      ? (card) => window.SearchUtils.matchCard(q, card)
+      : (card) => {
+          const ql = q.toLowerCase();
+          const title = (card.dataset.title || "").toLowerCase();
+          const desc = (card.dataset.desc || "").toLowerCase();
+          const tags = (card.dataset.tags || "").toLowerCase();
+          return !ql || title.includes(ql) || desc.includes(ql) || tags.includes(ql);
+        };
     let visible = 0;
     document.querySelectorAll(".card").forEach((card) => {
-      const title = (card.dataset.title || "").toLowerCase();
-      const desc = (card.dataset.desc || "").toLowerCase();
-      const tags = (card.dataset.tags || "").toLowerCase();
-      const match = !q || title.includes(q) || desc.includes(q) || tags.includes(q);
+      const match = !q || matchFn(card);
       card.classList.toggle("hidden", !match);
       if (match) visible++;
     });
@@ -970,9 +953,94 @@
   }
 
   const debouncedFilter = debounce((v) => filterCards(v), 80);
+  const searchForm = document.getElementById("search-form");
   if (searchEl) {
-    searchEl.addEventListener("input", (e) => debouncedFilter(e.target.value));
+    searchEl.addEventListener("input", (e) => {
+      debouncedFilter(e.target.value);
+      updateSearchSuggestions(e.target.value);
+    });
     searchEl.addEventListener("search", (e) => filterCards(e.target.value));
+  }
+  if (searchForm && searchEl) {
+    searchForm.addEventListener("submit", (e) => {
+      const q = (searchEl.value || "").trim();
+      if (q && window.SearchUtils) window.SearchUtils.addRecentSearch(q);
+      if (pageCategory) {
+        e.preventDefault();
+        filterCards(q);
+      }
+    });
+  }
+
+  /* ========== Search suggestions (recent + popular) ========== */
+  let searchSuggestionsEl = null;
+  function ensureSuggestionsDropdown() {
+    if (searchSuggestionsEl) return;
+    const inner = searchBar && searchBar.querySelector(".search-bar-inner");
+    if (!inner) return;
+    searchSuggestionsEl = document.createElement("div");
+    searchSuggestionsEl.id = "search-suggestions";
+    searchSuggestionsEl.className = "search-suggestions";
+    searchSuggestionsEl.setAttribute("role", "listbox");
+    searchSuggestionsEl.setAttribute("aria-label", "Recent and popular searches");
+    searchSuggestionsEl.hidden = true;
+    inner.appendChild(searchSuggestionsEl);
+  }
+  function renderSuggestions(recent, popular) {
+    if (!searchSuggestionsEl) return;
+    const parts = [];
+    if (recent && recent.length > 0) {
+      parts.push('<div class="search-suggestions-section"><span class="search-suggestions-label">Recent</span>');
+      recent.slice(0, 5).forEach((q) => {
+        parts.push(`<button type="button" class="search-suggestion" role="option" data-query="${escapeAttr(q)}">${escapeHtml(q)}</button>`);
+      });
+      parts.push("</div>");
+    }
+    const pop = popular || (window.SearchUtils && window.SearchUtils.getPopularQueries ? window.SearchUtils.getPopularQueries() : []);
+    if (pop && pop.length > 0) {
+      parts.push('<div class="search-suggestions-section"><span class="search-suggestions-label">Popular</span>');
+      pop.slice(0, 5).forEach((q) => {
+        parts.push(`<button type="button" class="search-suggestion" role="option" data-query="${escapeAttr(q)}">${escapeHtml(q)}</button>`);
+      });
+      parts.push("</div>");
+    }
+    searchSuggestionsEl.innerHTML = parts.join("");
+    searchSuggestionsEl.querySelectorAll(".search-suggestion").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const query = btn.dataset.query || "";
+        if (searchEl) searchEl.value = query;
+        filterCards(query);
+        if (query && window.SearchUtils) window.SearchUtils.addRecentSearch(query);
+        if (query && isHub) window.location.href = "search.html?q=" + encodeURIComponent(query);
+        hideSuggestions();
+      });
+    });
+  }
+  function updateSearchSuggestions(inputValue) {
+    if (!searchBar || !searchEl) return;
+    const q = (inputValue || "").trim();
+    if (q.length > 0) {
+      hideSuggestions();
+      return;
+    }
+    ensureSuggestionsDropdown();
+    const recent = window.SearchUtils && window.SearchUtils.getRecentSearches ? window.SearchUtils.getRecentSearches() : [];
+    const popular = window.SearchUtils && window.SearchUtils.getPopularQueries ? window.SearchUtils.getPopularQueries() : [];
+    renderSuggestions(recent, popular);
+    if (recent.length > 0 || (popular && popular.length > 0)) {
+      searchSuggestionsEl.hidden = false;
+    } else {
+      searchSuggestionsEl.hidden = true;
+    }
+  }
+  function hideSuggestions() {
+    if (searchSuggestionsEl) searchSuggestionsEl.hidden = true;
+  }
+  if (searchBar && searchEl) {
+    searchEl.addEventListener("focus", () => updateSearchSuggestions(searchEl.value));
+    searchBar.addEventListener("focusout", (e) => {
+      if (!searchBar.contains(e.relatedTarget)) setTimeout(hideSuggestions, 150);
+    });
   }
 
   /* ========== Back to top ========== */
