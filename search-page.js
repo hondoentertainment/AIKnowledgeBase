@@ -11,6 +11,7 @@
     { id: "training", label: "Training", page: "training.html" },
     { id: "daily-watch", label: "Daily Watch", page: "daily-watch.html" },
     { id: "bleeding-edge", label: "Bleeding Edge", page: "bleeding-edge.html" },
+    { id: "niche", label: "Niche AI", page: "niche.html" },
   ];
 
   const DATA_KEY_MAP = {
@@ -21,6 +22,7 @@
     training: "training",
     "daily-watch": "dailyWatch",
     "bleeding-edge": "bleedingEdge",
+    niche: "niche",
   };
 
   function getCustomTools() {
@@ -35,11 +37,21 @@
   function getAllItems() {
     const custom = getCustomTools();
     const data = typeof siteData === "object" && siteData ? siteData : {};
+    const niche = typeof nicheData === "object" && nicheData ? nicheData : {};
     const items = [];
     CATEGORY_CONFIG.forEach((cfg) => {
       const key = DATA_KEY_MAP[cfg.id] || cfg.id;
-      const baseItems = (data[key] || []);
-      const customItems = (custom[key] || []);
+      let baseItems = [];
+      if (cfg.id === "niche") {
+        Object.keys(niche).filter((k) => Array.isArray(niche[k])).forEach((cat) => {
+          (niche[cat] || []).forEach((item) =>
+            items.push({ ...item, category: "niche", categoryLabel: "Niche AI", categoryPage: "niche.html", nicheSection: cat })
+          );
+        });
+        return;
+      }
+      baseItems = data[key] || [];
+      const customItems = custom[key] || [];
       const all = [...baseItems, ...customItems];
       all.forEach((item) => items.push({ ...item, category: cfg.id, categoryLabel: cfg.label, categoryPage: cfg.page }));
     });
@@ -66,6 +78,10 @@
   }
 
   function buildResultCard(item) {
+    if (window.CardBuilder && typeof window.CardBuilder.buildCard === "function") {
+      const cat = item.category || "tools";
+      return window.CardBuilder.buildCard(item, cat);
+    }
     const url = item.url || "#";
     const icon = item.icon || "";
     const grad = gradientCSS(item.color);
@@ -124,6 +140,9 @@
     });
     groupedEl.innerHTML = html;
     if (emptyEl) emptyEl.textContent = "";
+    if (window.CardBuilder && typeof window.CardBuilder.initInteractions === "function") {
+      window.CardBuilder.initInteractions(groupedEl);
+    }
   }
 
   function init() {
@@ -133,6 +152,8 @@
     const searchResultsEl = document.getElementById("search-results");
     const searchBar = document.getElementById("search-bar");
     const liveRegion = document.getElementById("search-results");
+    const groupedEl = document.getElementById("search-grouped");
+    const emptyEl = document.getElementById("search-empty");
 
     if (searchEl) {
       searchEl.value = q;
@@ -149,9 +170,17 @@
         url.searchParams.delete("q");
       }
       history.replaceState({}, "", url.toString());
-      const count = document.querySelectorAll(".search-result-card").length;
+      const count = document.querySelectorAll("#search-grouped .card").length;
       if (searchResultsEl) searchResultsEl.textContent = count ? `${count} results` : "";
       if (liveRegion) liveRegion.setAttribute("aria-live", "polite");
+    }
+
+    if (q && groupedEl) {
+      groupedEl.innerHTML = '<div class="search-results-loading" aria-busy="true" aria-label="Searching"><div class="card-grid">' +
+        '<div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div>' +
+        '<div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div>' +
+        '</div></div>';
+      if (emptyEl) emptyEl.textContent = "";
     }
 
     runSearch();
@@ -160,6 +189,14 @@
       let debounceTimer;
       searchEl.addEventListener("input", () => {
         clearTimeout(debounceTimer);
+        const val = searchEl.value.trim();
+        if (val && groupedEl) {
+          groupedEl.innerHTML = '<div class="search-results-loading" aria-busy="true" aria-label="Searching"><div class="card-grid">' +
+            '<div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div>' +
+            '<div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div>' +
+            '</div></div>';
+          if (emptyEl) emptyEl.textContent = "";
+        }
         debounceTimer = setTimeout(runSearch, 80);
         updateSuggestions();
       });

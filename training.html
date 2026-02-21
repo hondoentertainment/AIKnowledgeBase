@@ -13,6 +13,9 @@
   <meta name="theme-color" content="#1a1816" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta property="og:title" content="Training | AI Knowledge Hub">
+  <meta property="og:description" content="Curated AI training resources. Rate and discover.">
+  <meta property="og:type" content="website">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%23c45c3e'/%3E%3Cpath d='M90 52l18 36 40 7-29 29 7 40-36-18-36 18 7-40-29-29 40-7z' fill='white'/%3E%3C/svg%3E">
 </head>
 <body data-category="training">
@@ -23,11 +26,20 @@
   <script src="header.js"></script>
   <script>Header.render({ activeNav: "training", searchMode: "expandable" });</script>
   <script src="theme.js"></script>
+  <script src="mobile-ux.js"></script>
 
   <main class="main main-loading" id="main-content" aria-busy="true">
     <section id="training" class="section">
       <div class="section-header">
         <h2 class="section-title">Training <span class="section-count" id="training-count"></span></h2>
+        <div class="section-sort-wrap">
+          <label for="training-sort" class="sr-only">Sort by</label>
+          <select id="training-sort" class="section-sort" aria-label="Sort training by">
+            <option value="default">Default order</option>
+            <option value="rating">Rating (high first)</option>
+            <option value="level">Level (high first)</option>
+          </select>
+        </div>
       </div>
       <div class="card-grid" id="training-grid">
         <div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div>
@@ -81,8 +93,10 @@
   <script src="profiles.js"></script>
   <script src="data.js"></script>
   <script src="search-utils.js"></script>
+  <script src="card-builder.js"></script>
   <script src="app.js"></script>
   <script src="profile-switcher.js"></script>
+  <script src="bottom-nav.js"></script>
   <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>
 </body>
 </html>

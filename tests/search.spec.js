@@ -12,9 +12,15 @@ test.describe('Search', () => {
     test('search page with query shows results or empty state', async ({ page }) => {
       await page.goto('/search.html?q=chat');
       await page.waitForLoadState('networkidle');
-      const hasResults = await page.locator('.search-result-card').count() > 0;
+      const hasResults = await page.locator('#search-grouped .card').count() > 0;
       const hasEmptyHint = await page.locator('#search-empty').isVisible();
       expect(hasResults || hasEmptyHint).toBeTruthy();
+    });
+
+    test('CardBuilder and interactive cards available on search page', async ({ page }) => {
+      await page.goto('/search.html');
+      const hasCardBuilder = await page.evaluate(() => typeof window.CardBuilder === 'object' && typeof window.CardBuilder.buildCard === 'function');
+      expect(hasCardBuilder).toBeTruthy();
     });
 
     test('empty query shows hint', async ({ page }) => {
@@ -67,7 +73,7 @@ test.describe('Search', () => {
       await page.goto('/search.html');
       await page.locator('#search').focus();
       await page.waitForTimeout(150);
-      const hasPopular = await page.locator('.search-suggestions-label:has-text("Popular")').isVisible();
+      const hasPopular = await page.locator('.search-suggestions-label').filter({ hasText: 'Popular' }).first().isVisible();
       expect(hasPopular).toBeTruthy();
     });
   });

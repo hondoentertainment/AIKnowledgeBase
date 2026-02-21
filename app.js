@@ -135,39 +135,13 @@
     });
   }
 
-  /* ========== Bottom nav ========== */
-  const bottomSearchBtn = document.getElementById("bottom-search-btn");
-  const bottomMoreBtn = document.getElementById("bottom-more-btn");
-
-  if (bottomSearchBtn && searchBar && searchEl) {
-    bottomSearchBtn.addEventListener("click", () => {
-      haptic();
-      searchBar.classList.add("open");
-      searchEl.focus();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }
-
-  if (bottomMoreBtn) {
-    bottomMoreBtn.addEventListener("click", () => {
-      haptic();
-      if (navTabsEl && !navTabsEl.classList.contains("open")) {
-        openMobileNav();
-      } else {
-        closeMobileNav();
-      }
-    });
-  }
-
-  // Haptic feedback on bottom nav items
-  document.querySelectorAll(".bottom-nav-item").forEach((item) => {
-    item.addEventListener("click", () => haptic());
-  });
-
   /* ========== Search toggle ========== */
   if (searchToggle && searchBar && searchEl) searchToggle.addEventListener("click", () => {
     searchBar.classList.toggle("open");
-    if (searchBar.classList.contains("open")) {
+    const isOpen = searchBar.classList.contains("open");
+    searchBar.setAttribute("aria-expanded", isOpen);
+    if (searchToggle) searchToggle.setAttribute("aria-expanded", isOpen);
+    if (isOpen) {
       searchEl.focus();
     } else {
       searchEl.value = "";
@@ -181,10 +155,14 @@
       if (e.key === "/" && document.activeElement !== searchEl) {
         e.preventDefault();
         searchBar.classList.add("open");
+        searchBar.setAttribute("aria-expanded", "true");
+        if (searchToggle) searchToggle.setAttribute("aria-expanded", "true");
         searchEl.focus();
       }
       if (e.key === "Escape" && searchBar.classList.contains("open")) {
         searchBar.classList.remove("open");
+        searchBar.setAttribute("aria-expanded", "false");
+        if (searchToggle) searchToggle.setAttribute("aria-expanded", "false");
         searchEl.value = "";
         filterCards("");
         if (searchToggle) searchToggle.focus();
@@ -382,6 +360,7 @@
             e.preventDefault();
             e.stopPropagation();
             haptic();
+            window.MobileUX?.haptic?.success?.();
             const val = parseFloat(half.dataset.val);
             const current = getRating(title);
             const newVal = current === val ? 0 : val;
@@ -547,8 +526,8 @@
     if (ok) haptic();
     const label = btn.getAttribute("aria-label") || "Share";
     const prev = btn.textContent;
-    btn.textContent = ok ? "Link copied!" : "Share";
-    btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : label);
+    btn.textContent = ok ? "Link copied!" : "Copy failed";
+    btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : "Copy failed");
     btn.disabled = true;
     setTimeout(() => {
       btn.textContent = prev || "Share";
@@ -588,84 +567,48 @@
     card.scrollIntoView({ behavior: "smooth", block: "center" });
     card.classList.add("card-shared-highlight");
     setTimeout(() => card.classList.remove("card-shared-highlight"), 2500);
+    updateOgMetaForShare(decodedId, card.dataset.desc || decodedId);
     history.replaceState({}, "", window.location.pathname + (window.location.hash || ""));
   }
 
-  /* ========== Build poster card ========== */
+  function updateOgMetaForShare(title, description) {
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogTitle) ogTitle.setAttribute("content", title + " | AI Knowledge Hub");
+    if (ogDesc) ogDesc.setAttribute("content", description || "Shared from AI Knowledge Hub");
+  }
+
+  /* ========== Build poster card (uses CardBuilder when loaded) ========== */
   function buildCard(item, category) {
+    if (window.CardBuilder?.buildCard) return window.CardBuilder.buildCard(item, category);
+    return buildCardLegacy(item, category);
+  }
+  function buildCardLegacy(item, category) {
     const url = item.url || "#";
     const icon = item.icon || "";
     const grad = gradientCSS(item.color);
-    const tags = (item.tags || [])
-      .map((t) => `<span class="card-tag">${escapeHtml(t)}</span>`)
-      .join("");
-
+    const tags = (item.tags || []).map((t) => `<span class="card-tag">${escapeHtml(t)}</span>`).join("");
     const lvl = item.level || 0;
-    const levelBadge = lvl
-      ? `<span class="level-badge ${levelClass(lvl)}" title="${levelLabel(lvl)} (${lvl}/10)">${lvl}</span>`
-      : "";
-
+    const levelBadge = lvl ? `<span class="level-badge ${levelClass(lvl)}" title="${levelLabel(lvl)} (${lvl}/10)">${lvl}</span>` : "";
     const freq = item.freq || "";
-    const freqBadge = freq
-      ? `<span class="freq-badge" title="Output: ${escapeAttr(freq)}">${escapeHtml(freq)}</span>`
-      : "";
+    const freqBadge = freq ? `<span class="freq-badge" title="Output: ${escapeAttr(freq)}">${escapeHtml(freq)}</span>` : "";
     const inStack = isInStack(item.title);
     const stackBtn = `<button type="button" class="stack-btn ${inStack ? "in-stack" : ""}" data-stack-title="${escapeAttr(item.title)}" aria-label="${inStack ? "Remove from My Stack" : "Add to My Stack"}">${inStack ? "✓ In Stack" : "+ Add to Stack"}</button>`;
-
     const using = isDirectUse(item.title);
-    const directUseBadge = using
-      ? `<span class="direct-use-badge" title="I use this tool directly">✓ Using</span>`
-      : "";
+    const directUseBadge = using ? `<span class="direct-use-badge" title="I use this tool directly">✓ Using</span>` : "";
     const directUseBtn = `<button type="button" class="direct-use-btn ${using ? "using" : ""}" data-direct-use-title="${escapeAttr(item.title)}" aria-label="${using ? "Unmark as using" : "Mark as using directly"}">${using ? "✓ Using" : "I Use This"}</button>`;
-
     const flagged = isWantToTry(item.title);
-    const wantToTryBadge = flagged
-      ? `<span class="want-to-try-badge" title="Flagged to try">🔖</span>`
-      : "";
+    const wantToTryBadge = flagged ? `<span class="want-to-try-badge" title="Flagged to try">🔖</span>` : "";
     const wantToTryBtn = `<button type="button" class="want-to-try-btn ${flagged ? "flagged" : ""}" data-want-to-try-title="${escapeAttr(item.title)}" aria-label="${flagged ? "Remove from want to try" : "Flag to try"}">${flagged ? "🔖 Flagged" : "Want to Try"}</button>`;
-
     const cat = category || "tools";
-    const shareBtn = `<button type="button" class="share-btn" data-share-page="${escapeAttr(pageCategory || cat)}" data-share-category="${escapeAttr(cat)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`;
+    const shareCat = (item.category === "niche" && item.nicheSection) ? item.nicheSection : cat;
+    const sharePage = (item.category === "niche") ? "niche" : (pageCategory || cat);
+    const shareBtn = `<button type="button" class="share-btn" data-share-page="${escapeAttr(sharePage)}" data-share-category="${escapeAttr(shareCat)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`;
     const visitUrl = url && url !== "#" ? url : null;
-    const visitBtn = visitUrl
-      ? `<a href="${escapeHtml(visitUrl)}" class="visit-btn" target="_blank" rel="noopener" aria-label="Visit ${escapeAttr(item.title)}">Visit</a>`
-      : "";
+    const visitBtn = visitUrl ? `<a href="${escapeHtml(visitUrl)}" class="visit-btn" target="_blank" rel="noopener" aria-label="Visit ${escapeAttr(item.title)}">Visit</a>` : "";
     const trustSignals = deriveTrustSignals(item);
-    const trustSignalsHtml = trustSignals.length
-      ? `<div class="card-trust-signals" aria-label="Trust signals">${trustSignals
-          .map((signal) => `<span class="trust-badge ${signal.cls}" title="${escapeAttr(signal.title)}">${escapeHtml(signal.label)}</span>`)
-          .join("")}</div>`
-      : "";
-
-    return `
-      <div class="card"
-         data-title="${escapeAttr(item.title)}"
-         data-desc="${escapeAttr(item.description)}"
-         data-tags="${escapeAttr((item.tags || []).join(" "))}">
-        <a href="${escapeHtml(url)}" class="card-link" target="_blank" rel="noopener">
-          <div class="card-cover" style="background:${grad}">
-            ${freqBadge}
-            ${levelBadge}
-            ${directUseBadge}
-            ${wantToTryBadge}
-            <span class="card-cover-icon">${icon}</span>
-          </div>
-        </a>
-        <div class="card-body">
-          <a href="${escapeHtml(url)}" class="card-title" target="_blank" rel="noopener">${escapeHtml(item.title)}</a>
-          <p class="card-desc">${escapeHtml(item.description)}</p>
-          ${trustSignalsHtml}
-          ${buildStarsHTML(item.title)}
-          <div class="card-actions">
-            ${visitBtn}
-            ${wantToTryBtn}
-            ${directUseBtn}
-            ${stackBtn}
-            ${shareBtn}
-          </div>
-          ${tags ? `<div class="card-tags">${tags}</div>` : ""}
-        </div>
-      </div>`;
+    const trustSignalsHtml = trustSignals.length ? `<div class="card-trust-signals" aria-label="Trust signals">${trustSignals.map((s) => `<span class="trust-badge ${s.cls}" title="${escapeAttr(s.title)}">${escapeHtml(s.label)}</span>`).join("")}</div>` : "";
+    return `<div class="card" data-title="${escapeAttr(item.title)}" data-desc="${escapeAttr(item.description)}" data-tags="${escapeAttr((item.tags || []).join(" "))}"><a href="${escapeHtml(url)}" class="card-link" target="_blank" rel="noopener"><div class="card-cover" style="background:${grad}">${freqBadge}${levelBadge}${directUseBadge}${wantToTryBadge}<span class="card-cover-icon">${icon}</span></div></a><div class="card-body"><a href="${escapeHtml(url)}" class="card-title" target="_blank" rel="noopener">${escapeHtml(item.title)}</a><p class="card-desc">${escapeHtml(item.description)}</p>${trustSignalsHtml}${buildStarsHTML(item.title)}<div class="card-actions">${visitBtn}${wantToTryBtn}${directUseBtn}${stackBtn}${shareBtn}</div>${tags ? `<div class="card-tags">${tags}</div>` : ""}</div></div>`;
   }
 
   /* ========== Build featured card ========== */
@@ -708,6 +651,7 @@
 
   /* ========== Render ========== */
   function render() {
+    if (document.body.dataset.page === "search") return;
     try {
       if (typeof siteData !== "object" || !siteData) {
         console.error("AI Knowledge Hub: siteData not loaded");
@@ -759,9 +703,16 @@
         setTimeout(() => { heroAnnouncer.textContent = ""; }, 800);
       }
 
+      const hubGrid = document.getElementById("category-hub-grid");
+      if (hubGrid) {
+        hubGrid.removeAttribute("aria-busy");
+      }
       CATEGORY_CONFIG.forEach((cfg) => {
         const hubEl = document.getElementById(cfg.hubCountId);
-        if (hubEl) hubEl.textContent = (data[cfg.dataKey] || []).length;
+        if (hubEl) {
+          hubEl.textContent = (data[cfg.dataKey] || []).length;
+          hubEl.classList.remove("category-hub-count-loading");
+        }
       });
 
       const directUse = getDirectUse();
@@ -801,9 +752,20 @@
       if (cfg) {
         const grid = document.getElementById(cfg.gridId);
         const countEl = document.getElementById(cfg.countId);
-        const items = data[cfg.dataKey] || [];
+        const sortEl = document.getElementById(cfg.id + "-sort");
+        let items = data[cfg.dataKey] || [];
+        const sortBy = sortEl?.value || "default";
+        if (sortBy === "rating") {
+          items = [...items].sort((a, b) => (getRating(b.title) || 0) - (getRating(a.title) || 0));
+        } else if (sortBy === "level") {
+          items = [...items].sort((a, b) => (b.level || 0) - (a.level || 0));
+        }
         if (countEl) countEl.textContent = items.length;
         if (grid) grid.innerHTML = items.length ? items.map((i) => buildCard(i, cfg.id)).join("") : cfg.emptyHtml;
+        if (sortEl && !sortEl.dataset.sortWired) {
+          sortEl.dataset.sortWired = "1";
+          sortEl.addEventListener("change", () => render());
+        }
       }
     }
 
@@ -813,11 +775,14 @@
       main.removeAttribute("aria-busy");
     }
 
-    initStarInteractions();
-    initStackButtons();
-    initDirectUseButtons();
-    initWantToTryButtons();
-    initShareButtons();
+    if (window.CardBuilder?.initInteractions) window.CardBuilder.initInteractions();
+    else {
+      initStarInteractions();
+      initStackButtons();
+      initDirectUseButtons();
+      initWantToTryButtons();
+      initShareButtons();
+    }
     scrollToSharedCard();
   }
 
@@ -828,7 +793,9 @@
         e.stopPropagation();
         haptic();
         const title = btn.dataset.directUseTitle;
+        const wasUsing = isDirectUse(title);
         toggleDirectUse(title);
+        if (isDirectUse(title) && !wasUsing) window.MobileUX?.haptic?.success?.();
         btn.classList.toggle("using", isDirectUse(title));
         btn.textContent = isDirectUse(title) ? "✓ Using" : "I Use This";
         btn.setAttribute("aria-label", isDirectUse(title) ? "Unmark as using" : "Mark as using directly");
@@ -859,7 +826,9 @@
         e.stopPropagation();
         haptic();
         const title = btn.dataset.wantToTryTitle;
+        const wasFlagged = isWantToTry(title);
         toggleWantToTry(title);
+        if (isWantToTry(title) && !wasFlagged) window.MobileUX?.haptic?.success?.();
         btn.classList.toggle("flagged", isWantToTry(title));
         btn.textContent = isWantToTry(title) ? "🔖 Flagged" : "Want to Try";
         btn.setAttribute("aria-label", isWantToTry(title) ? "Remove from want to try" : "Flag to try");
@@ -888,12 +857,15 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        haptic();
         const title = btn.dataset.stackTitle;
+        const wasInStack = isInStack(title);
+        haptic();
         toggleStack(title);
-        btn.classList.toggle("in-stack", isInStack(title));
-        btn.textContent = isInStack(title) ? "✓ In Stack" : "+ Add to Stack";
-        btn.setAttribute("aria-label", isInStack(title) ? "Remove from My Stack" : "Add to My Stack");
+        const nowInStack = isInStack(title);
+        if (nowInStack && !wasInStack) window.MobileUX?.haptic?.success?.();
+        btn.classList.toggle("in-stack", nowInStack);
+        btn.textContent = nowInStack ? "✓ In Stack" : "+ Add to Stack";
+        btn.setAttribute("aria-label", nowInStack ? "Remove from My Stack" : "Add to My Stack");
       });
     });
   }
@@ -901,6 +873,19 @@
   render();
 
   window.addEventListener("profile-changed", () => render());
+
+  if (document.body.dataset.page === "search" && !window.CardBuilder) {
+    window.CardBuilder = {
+      buildCard: (item, category) => buildCard(item, category),
+      initInteractions: () => {
+        initStarInteractions();
+        initStackButtons();
+        initDirectUseButtons();
+        initWantToTryButtons();
+        initShareButtons();
+      },
+    };
+  }
 
   /* ========== Search / filter ========== */
   const searchResultsEl = document.getElementById("search-results");

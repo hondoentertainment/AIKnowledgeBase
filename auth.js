@@ -212,6 +212,14 @@
       }
     },
 
+    getSessionExpiryInfo() {
+      const s = this.getSession();
+      if (!s || !s.expiresAt) return null;
+      const msLeft = s.expiresAt - Date.now();
+      const daysLeft = msLeft / (24 * 60 * 60 * 1000);
+      return { daysLeft, msLeft, expiresAt: s.expiresAt };
+    },
+
     isLoggedIn() {
       return !!this.getSession();
     },
@@ -306,6 +314,7 @@
     const navLogin = document.getElementById("nav-login");
     const authWrap = document.getElementById("auth-user-wrap");
     const authEmail = document.getElementById("auth-user-email");
+    const sessionExpiryNote = document.getElementById("session-expiry-note");
     const navLogout = document.getElementById("nav-logout");
     if (!navLogin || !authWrap) return;
     function update() {
@@ -314,9 +323,25 @@
         navLogin.style.display = "none";
         authWrap.style.display = "inline-flex";
         if (authEmail) authEmail.textContent = s.email;
+        if (sessionExpiryNote) {
+          const info = window.Auth.getSessionExpiryInfo();
+          if (info && info.daysLeft < 2 && info.daysLeft > 0) {
+            sessionExpiryNote.textContent = info.daysLeft < 1
+              ? "Session expires in " + Math.round(info.daysLeft * 24) + " hours"
+              : "Session expires in " + (info.daysLeft < 1.5 ? "1 day" : Math.round(info.daysLeft) + " days");
+            sessionExpiryNote.style.display = "";
+          } else if (info && info.daysLeft <= 0) {
+            sessionExpiryNote.textContent = "Session expired";
+            sessionExpiryNote.style.display = "";
+          } else {
+            sessionExpiryNote.textContent = "";
+            sessionExpiryNote.style.display = "none";
+          }
+        }
       } else {
         navLogin.style.display = "block";
         authWrap.style.display = "none";
+        if (sessionExpiryNote) sessionExpiryNote.textContent = "";
       }
     }
     update();

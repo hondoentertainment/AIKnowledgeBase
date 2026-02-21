@@ -50,6 +50,7 @@
   <script src="header.js"></script>
   <script>Header.render({ activeNav: null, searchMode: "expandable" });</script>
   <script src="theme.js"></script>
+  <script src="mobile-ux.js"></script>
 
   <main class="main profiles-main" id="main-content" style="max-width: 600px; margin: 0 auto; padding: 2rem 1.25rem;">
     <section class="section">
@@ -69,7 +70,8 @@
         <p id="data-feedback" class="data-feedback" role="status" aria-live="polite" style="display:none"></p>
       </div>
 
-      <div id="profiles-list" class="profiles-list"></div>
+      <span id="profile-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></span>
+      <div id="profiles-list" class="profiles-list" role="listbox" aria-label="Profiles"></div>
 
       <form id="profile-form" class="profile-form">
         <h2 class="profile-form-title">Create profile</h2>
@@ -212,6 +214,7 @@
   <script src="auth.js"></script>
   <script src="profiles.js"></script>
   <script src="profile-switcher.js"></script>
+  <script src="bottom-nav.js"></script>
   <script>
     (function () {
       const navLogin = document.getElementById("nav-login");
@@ -251,6 +254,21 @@
       const navTabs = document.querySelector(".nav-tabs");
       navToggle?.addEventListener("click", () => navTabs?.classList.toggle("open"));
 
+      function announceProfileSwitch(name) {
+        const announcer = document.getElementById("profile-announcer");
+        if (announcer) {
+          announcer.textContent = "Switched to " + (name || "profile");
+          setTimeout(() => { announcer.textContent = ""; }, 1000);
+        }
+      }
+
+      function switchToProfile(id, name) {
+        if (!id) return;
+        window.ProfileStore.setActiveProfile(id);
+        announceProfileSwitch(name);
+        render();
+      }
+
       function render() {
         const list = document.getElementById("profiles-list");
         const profiles = window.ProfileStore?.getProfiles() || [];
@@ -260,7 +278,7 @@
         list.innerHTML = profiles.map((p) => {
           const isEditing = p.id === editingId;
           return `
-          <div class="profile-item ${p.id === activeId ? "active" : ""}" data-profile-id="${escapeAttr(p.id)}">
+          <div class="profile-item ${p.id === activeId ? "active" : ""}" data-profile-id="${escapeAttr(p.id)}" role="option" id="profile-option-${escapeAttr(p.id)}" aria-selected="${p.id === activeId}">
             <div class="profile-item-info">
               ${isEditing
                 ? `<form class="profile-rename-form" data-id="${escapeAttr(p.id)}">
@@ -274,12 +292,12 @@
             <div class="profile-item-actions">
               ${!isEditing ? (
                 `<button type="button" class="profile-item-rename" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" aria-label="Rename ${escapeAttr(p.name)}">Rename</button>` +
-                (p.id !== activeId ? `<button type="button" class="profile-item-switch" data-id="${escapeAttr(p.id)}">Switch</button>` : "") +
+                (p.id !== activeId ? `<button type="button" class="profile-item-switch" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}">Switch</button>` : "") +
                 (profiles.length > 1 ? `
                   <span class="profile-delete-wrap">
                     <button type="button" class="profile-item-delete" data-id="${escapeAttr(p.id)}" aria-label="Delete profile">Delete</button>
                     <span class="profile-delete-confirm hidden">
-                      <span class="profile-delete-msg">Delete?</span>
+                      <span class="profile-delete-msg">Delete profile? This cannot be undone.</span>
                       <button type="button" class="profile-delete-yes" data-id="${escapeAttr(p.id)}">Yes</button>
                       <button type="button" class="profile-delete-no">No</button>
                     </span>
@@ -290,9 +308,12 @@
         }).join("") || '<p class="section-empty">No profiles yet. Create one below.</p>';
 
         list.querySelectorAll(".profile-item-switch").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            window.ProfileStore.setActiveProfile(btn.dataset.id);
-            render();
+          btn.addEventListener("click", () => switchToProfile(btn.dataset.id, btn.dataset.name));
+          btn.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              switchToProfile(btn.dataset.id, btn.dataset.name);
+            }
           });
         });
         list.querySelectorAll(".profile-item-rename").forEach((btn) => {
@@ -317,11 +338,20 @@
               render();
             }
           });
+          form.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              delete list.dataset.editingId;
+              render();
+            }
+          });
         });
         list.querySelectorAll(".profile-rename-cancel").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            delete list.dataset.editingId;
-            render();
+          const cancelRename = () => { delete list.dataset.editingId; render(); };
+          btn.addEventListener("click", cancelRename);
+          btn.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); cancelRename(); }
+            if (e.key === "Escape") { e.preventDefault(); cancelRename(); }
           });
         });
         list.querySelectorAll(".profile-item-delete").forEach((btn) => {
@@ -331,10 +361,17 @@
           });
         });
         list.querySelectorAll(".profile-delete-no").forEach((btn) => {
-          btn.addEventListener("click", () => {
+          const cancelDelete = () => {
             const wrap = btn.closest(".profile-delete-wrap");
             wrap?.querySelector(".profile-item-delete")?.classList.remove("hidden");
             wrap?.querySelector(".profile-delete-confirm")?.classList.add("hidden");
+          };
+          btn.addEventListener("click", cancelDelete);
+          btn.addEventListener("keydown", (e) => {
+            if (["Escape", "Enter", " "].includes(e.key)) {
+              e.preventDefault();
+              cancelDelete();
+            }
           });
         });
         list.querySelectorAll(".profile-delete-yes").forEach((btn) => {

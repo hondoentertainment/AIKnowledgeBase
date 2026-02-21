@@ -15,6 +15,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%23c45c3e'/%3E%3Cpath d='M90 52l18 36 40 7-29 29 7 40-36-18-36 18 7-40-29-29 40-7z' fill='white'/%3E%3C/svg%3E">
+  <link rel="apple-touch-startup-image" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844'%3E%3Crect width='390' height='844' fill='%23faf8f5'/%3E%3Cg transform='translate(105,332)'%3E%3Crect width='180' height='180' rx='36' fill='%23c45c3e'/%3E%3Cpath d='M90 52l18 36 40 7-29 29 7 40-36-18-36 18 7-40-29-29 40-7z' fill='white'/%3E%3C/g%3E%3C/svg%3E" media="(max-width: 428px) and (orientation: portrait)">
+  <meta property="og:title" content="AI Knowledge Hub — Curated AI Tools, Knowledge &amp; Training">
+  <meta property="og:description" content="Track AI tools, knowledge, podcasts &amp; training. Rate with stars, save to your stack, search instantly. Your personal AI command center.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"AI Knowledge Hub","description":"Curated AI tools, knowledge, podcasts and training. Rate what you use, save what matters, search instantly.","applicationCategory":"UtilitiesApplication"}</script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -25,6 +30,7 @@
   <script src="header.js"></script>
   <script>Header.render({ searchMode: "expandable" });</script>
   <script src="theme.js"></script>
+  <script src="mobile-ux.js"></script>
 
   <!-- Hero -->
   <section class="hero">
@@ -37,6 +43,7 @@
         <a href="tools.html" class="hero-cta-btn primary">Explore Top Tools</a>
         <a href="stack.html" class="hero-cta-btn secondary">Open My Stack</a>
       </div>
+      <p class="hero-shortcut-hint" aria-hidden="true">Press <kbd>/</kbd> anywhere to search</p>
       <div class="hero-stats" id="hero-stats" aria-live="polite" aria-atomic="true" role="status">
         <span class="hero-stat"><strong id="hero-tools-count">0</strong> tools</span>
         <span class="hero-stat-sep">·</span>
@@ -89,26 +96,43 @@
   <section class="featured" id="featured" aria-label="Top picks from your catalog">
     <h2 class="featured-heading">Top picks</h2>
     <div class="featured-inner" id="featured-row" aria-live="polite" aria-busy="true" aria-label="Loading top picks">
-      <p class="featured-loading" id="featured-loading">Loading top picks…</p>
+      <div class="featured-loading featured-loading-wrap" id="featured-loading" aria-hidden="true">
+        <span class="featured-skeleton"></span>
+        <span class="featured-skeleton"></span>
+        <span class="featured-skeleton"></span>
+        <span class="featured-skeleton"></span>
+        <span class="featured-skeleton"></span>
+      </div>
     </div>
   </section>
 
   <main class="main main-loading" id="main-content" aria-busy="true">
     <section class="category-hub" aria-label="Browse by category">
       <h2 class="category-hub-heading">Browse by category</h2>
-      <div class="category-hub-grid">
-        <a href="tools.html" class="category-hub-card"><span class="category-hub-icon">🔧</span><span class="category-hub-label">AI Tools</span><span class="category-hub-count" id="hub-tools-count">0</span></a>
-        <a href="knowledge.html" class="category-hub-card"><span class="category-hub-icon">📖</span><span class="category-hub-label">Knowledge</span><span class="category-hub-count" id="hub-knowledge-count">0</span></a>
-        <a href="podcasts.html" class="category-hub-card"><span class="category-hub-icon">🎙️</span><span class="category-hub-label">Podcasts</span><span class="category-hub-count" id="hub-podcasts-count">0</span></a>
-        <a href="youtube.html" class="category-hub-card"><span class="category-hub-icon">▶️</span><span class="category-hub-label">YouTube</span><span class="category-hub-count" id="hub-youtube-count">0</span></a>
-        <a href="training.html" class="category-hub-card"><span class="category-hub-icon">🎓</span><span class="category-hub-label">Training</span><span class="category-hub-count" id="hub-training-count">0</span></a>
-        <a href="daily-watch.html" class="category-hub-card"><span class="category-hub-icon">📰</span><span class="category-hub-label">Daily Watch</span><span class="category-hub-count" id="hub-daily-watch-count">0</span></a>
-        <a href="bleeding-edge.html" class="category-hub-card"><span class="category-hub-icon">⚡</span><span class="category-hub-label">Bleeding Edge</span><span class="category-hub-count" id="hub-bleeding-edge-count">0</span></a>
+      <div class="category-hub-grid" id="category-hub-grid" aria-busy="true">
+        <a href="tools.html" class="category-hub-card"><span class="category-hub-icon">🔧</span><span class="category-hub-label">AI Tools</span><span class="category-hub-count category-hub-count-loading" id="hub-tools-count">—</span></a>
+        <a href="knowledge.html" class="category-hub-card"><span class="category-hub-icon">📖</span><span class="category-hub-label">Knowledge</span><span class="category-hub-count category-hub-count-loading" id="hub-knowledge-count">—</span></a>
+        <a href="podcasts.html" class="category-hub-card"><span class="category-hub-icon">🎙️</span><span class="category-hub-label">Podcasts</span><span class="category-hub-count category-hub-count-loading" id="hub-podcasts-count">—</span></a>
+        <a href="youtube.html" class="category-hub-card"><span class="category-hub-icon">▶️</span><span class="category-hub-label">YouTube</span><span class="category-hub-count category-hub-count-loading" id="hub-youtube-count">—</span></a>
+        <a href="training.html" class="category-hub-card"><span class="category-hub-icon">🎓</span><span class="category-hub-label">Training</span><span class="category-hub-count category-hub-count-loading" id="hub-training-count">—</span></a>
+        <a href="daily-watch.html" class="category-hub-card"><span class="category-hub-icon">📰</span><span class="category-hub-label">Daily Watch</span><span class="category-hub-count category-hub-count-loading" id="hub-daily-watch-count">—</span></a>
+        <a href="bleeding-edge.html" class="category-hub-card"><span class="category-hub-icon">⚡</span><span class="category-hub-label">Bleeding Edge</span><span class="category-hub-count category-hub-count-loading" id="hub-bleeding-edge-count">—</span></a>
       </div>
     </section>
   </main>
 
   <button type="button" id="back-to-top" class="back-to-top hidden" aria-label="Back to top">↑</button>
+
+  <!-- PWA install banner -->
+  <div id="pwa-install-banner" class="pwa-install-banner" aria-hidden="true" role="dialog" aria-label="Install app">
+    <div class="pwa-install-banner-inner">
+      <p class="pwa-install-banner-text">Install AI Knowledge Hub for quick access</p>
+      <div class="pwa-install-banner-actions">
+        <button type="button" class="pwa-install-btn" data-pwa-install>Install</button>
+        <button type="button" class="pwa-install-dismiss" data-pwa-dismiss aria-label="Dismiss">Not now</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Mobile bottom navigation -->
   <nav class="bottom-nav" aria-label="Mobile navigation">
@@ -155,8 +179,11 @@
   <script src="profiles.js"></script>
   <script src="data.js"></script>
   <script src="search-utils.js"></script>
+  <script src="card-builder.js"></script>
   <script src="app.js"></script>
   <script src="profile-switcher.js"></script>
+  <script src="bottom-nav.js"></script>
+  <script src="pwa-install.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js").catch(() => {});

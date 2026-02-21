@@ -47,6 +47,10 @@
     .admin-copy-btn:hover { background: var(--accent-hover); }
     .admin-copy-feedback { font-size: 0.9rem; color: var(--accent); }
     .admin-export pre { background: var(--bg-surface); padding: 1rem; border-radius: var(--radius); font-size: 0.8rem; overflow-x: auto; max-height: 200px; overflow-y: auto; }
+    .admin-settings { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .admin-settings .admin-form-row { display: flex; gap: 0.75rem; align-items: center; }
+    .admin-settings #google-client-id { flex: 1; }
+    .admin-field-error { display: block; font-size: 0.85rem; color: #e74c3c; margin-top: 0.25rem; }
     .auth-links-row { margin-top: 1rem; font-size: 0.9rem; }
     .auth-links-row .auth-link { color: var(--accent); font-weight: 500; }
   </style>
@@ -58,6 +62,7 @@
   <script src="header.js"></script>
   <script>Header.render({ activeNav: null, searchMode: "expandable" });</script>
   <script src="theme.js"></script>
+  <script src="mobile-ux.js"></script>
 
   <main id="main-content">
     <div id="admin-login-screen" class="admin-login-screen">
@@ -77,6 +82,7 @@
       <p class="intro">New tools appear immediately and are stored in your browser. Use "Export for data.js" to make them permanent.</p>
 
       <form id="tool-form">
+        <p id="tool-form-error" class="auth-error" role="alert" style="display:none;margin-bottom:1rem"></p>
         <label for="tool-title">Title *</label>
         <input type="text" id="tool-title" required placeholder="e.g. ChatGPT">
 
@@ -84,7 +90,8 @@
         <textarea id="tool-description" rows="2" required placeholder="Short summary of the tool"></textarea>
 
         <label for="tool-url">URL</label>
-        <input type="url" id="tool-url" placeholder="https://...">
+        <input type="url" id="tool-url" placeholder="https://..." aria-describedby="tool-url-error" aria-invalid="false">
+        <span id="tool-url-error" class="admin-field-error" role="alert"></span>
 
         <div class="admin-form-row">
           <div>
@@ -121,9 +128,14 @@
 
         <label for="tool-color1">Color gradient (hex)</label>
         <div class="admin-form-row">
-          <input type="text" id="tool-color1" placeholder="#10a37f" maxlength="7">
-          <input type="text" id="tool-color2" placeholder="#1a7f5a" maxlength="7">
+          <div>
+            <input type="text" id="tool-color1" placeholder="#10a37f" maxlength="7" aria-describedby="tool-color-error" aria-invalid="false">
+          </div>
+          <div>
+            <input type="text" id="tool-color2" placeholder="#1a7f5a" maxlength="7" aria-describedby="tool-color-error" aria-invalid="false">
+          </div>
         </div>
+        <span id="tool-color-error" class="admin-field-error" role="alert"></span>
 
         <div class="admin-form-actions">
           <button type="submit" id="tool-form-submit">Add tool</button>
@@ -133,6 +145,17 @@
       </form>
 
       <div class="admin-tools-list" id="custom-tools-list"></div>
+
+      <div class="admin-settings">
+        <h2>Settings</h2>
+        <label for="google-client-id">Google OAuth Client ID</label>
+        <p class="intro">Enable "Sign in with Google" on login and register pages. <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Create credentials</a> in Google Cloud Console, then paste the Client ID here.</p>
+        <div class="admin-form-row">
+          <input type="text" id="google-client-id" placeholder="123456789-abc.apps.googleusercontent.com" aria-label="Google OAuth Client ID">
+          <button type="button" id="save-google-client-id" class="admin-copy-btn">Save</button>
+        </div>
+        <span id="google-client-id-feedback" class="admin-copy-feedback" aria-live="polite"></span>
+      </div>
 
       <div class="admin-export">
         <h2>Export for data.js</h2>
@@ -177,6 +200,7 @@
   <script src="profiles.js"></script>
   <script src="profile-switcher.js"></script>
   <script src="auth.js"></script>
+  <script src="bottom-nav.js"></script>
   <script>
     (function () {
       if (window.Auth?.isLoggedIn() && !window.Auth?.isAdmin()) {
@@ -247,13 +271,35 @@
         loadForm();
         renderCustomList();
         renderExport();
+        loadGoogleClientId();
+        const firstInput = adminContent.querySelector("#tool-title");
+        if (firstInput) firstInput.focus();
       }
+
+      function loadGoogleClientId() {
+        const el = document.getElementById("google-client-id");
+        if (el && window.Auth) el.value = window.Auth.getGoogleClientId() || "";
+      }
+
+      document.getElementById("save-google-client-id")?.addEventListener("click", function () {
+        const el = document.getElementById("google-client-id");
+        const feedback = document.getElementById("google-client-id-feedback");
+        if (!el || !window.Auth) return;
+        const value = el.value.trim();
+        window.Auth.setGoogleClientId(value);
+        if (feedback) {
+          feedback.textContent = value ? "Saved. Google sign-in is now available." : "Cleared.";
+          setTimeout(function () { feedback.textContent = ""; }, 3000);
+        }
+      });
 
       function showLogin() {
         loginScreen.style.display = "block";
         adminContent.style.display = "none";
         if (navLogin) navLogin.style.display = "block";
         if (logoutWrap) logoutWrap.style.display = "none";
+        const emailInput = document.getElementById("admin-email");
+        if (emailInput) emailInput.focus();
       }
 
       if (window.Auth && window.Auth.isLoggedIn()) {
@@ -295,20 +341,97 @@
         localStorage.setItem("customTools", JSON.stringify(data));
       }
 
+      let formDirty = false;
+
       function loadForm() {
         clearEdit();
         document.getElementById("tool-form").reset();
         document.getElementById("tool-level").value = "1";
+        formDirty = false;
+        clearFieldErrors();
       }
+
+      function clearFieldErrors() {
+        const urlErr = document.getElementById("tool-url-error");
+        const colorErr = document.getElementById("tool-color-error");
+        const urlInput = document.getElementById("tool-url");
+        const color1 = document.getElementById("tool-color1");
+        const color2 = document.getElementById("tool-color2");
+        if (urlErr) urlErr.textContent = "";
+        if (colorErr) colorErr.textContent = "";
+        if (urlInput) urlInput.setAttribute("aria-invalid", "false");
+        if (color1) color1.setAttribute("aria-invalid", "false");
+        if (color2) color2.setAttribute("aria-invalid", "false");
+      }
+
+      function showUrlError(msg) {
+        const el = document.getElementById("tool-url-error");
+        const input = document.getElementById("tool-url");
+        if (el) el.textContent = msg || "";
+        if (input) input.setAttribute("aria-invalid", msg ? "true" : "false");
+      }
+
+      function showColorError(msg) {
+        const el = document.getElementById("tool-color-error");
+        const c1 = document.getElementById("tool-color1");
+        const c2 = document.getElementById("tool-color2");
+        if (el) el.textContent = msg || "";
+        const invalid = !!msg;
+        if (c1) c1.setAttribute("aria-invalid", invalid ? "true" : "false");
+        if (c2) c2.setAttribute("aria-invalid", invalid ? "true" : "false");
+      }
+
+      function isValidHex(s) { return /^#[0-9a-fA-F]{6}$/.test(s || ""); }
+      function isValidUrl(s) { if (!s || s === "#") return true; try { new URL(s); return true; } catch (_) { return false; } }
+
+      var toolForm = document.getElementById("tool-form");
+      if (toolForm) {
+        toolForm.querySelectorAll("input, select, textarea").forEach(function (el) {
+          el.addEventListener("input", function () { formDirty = true; });
+          el.addEventListener("change", function () { formDirty = true; });
+        });
+      }
+
+      document.getElementById("tool-url")?.addEventListener("blur", function () {
+        var v = this.value.trim();
+        if (!v || v === "#") { showUrlError(""); return; }
+        showUrlError(isValidUrl(v) ? "" : "Enter a valid URL (e.g. https://example.com)");
+      });
+
+      function validateColorsOnBlur() {
+        var c1 = (document.getElementById("tool-color1")?.value || "").trim() || "#10a37f";
+        var c2 = (document.getElementById("tool-color2")?.value || "").trim() || "#1a7f5a";
+        if (isValidHex(c1) && isValidHex(c2)) showColorError("");
+        else showColorError("Use hex format (e.g. #10a37f)");
+      }
+      document.getElementById("tool-color1")?.addEventListener("blur", validateColorsOnBlur);
+      document.getElementById("tool-color2")?.addEventListener("blur", validateColorsOnBlur);
+      document.getElementById("tool-color1")?.addEventListener("input", validateColorsOnBlur);
+      document.getElementById("tool-color2")?.addEventListener("input", validateColorsOnBlur);
+
+      window.addEventListener("beforeunload", function (e) {
+        if (formDirty) e.preventDefault();
+      });
 
       document.getElementById("tool-form").addEventListener("submit", (e) => {
         e.preventDefault();
+        const urlVal = document.getElementById("tool-url").value.trim();
+        const color1 = document.getElementById("tool-color1").value.trim() || "#10a37f";
+        const color2 = document.getElementById("tool-color2").value.trim() || "#1a7f5a";
+        const errEl = document.getElementById("tool-form-error");
+        if (errEl) errEl.style.display = "none";
+        showUrlError(urlVal && !isValidUrl(urlVal) ? "Enter a valid URL." : "");
+        if (!isValidHex(color1) || !isValidHex(color2)) showColorError("Use hex format (e.g. #10a37f)");
+        else showColorError("");
+        if ((urlVal && !isValidUrl(urlVal)) || !isValidHex(color1) || !isValidHex(color2)) {
+          if (errEl) { errEl.textContent = "Please fix the errors above."; errEl.style.display = "block"; }
+          return;
+        }
+
         const tags = (document.getElementById("tool-tags").value || "")
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean);
-        const color1 = document.getElementById("tool-color1").value || "#10a37f";
-        const color2 = document.getElementById("tool-color2").value || "#1a7f5a";
 
         const item = {
           title: document.getElementById("tool-title").value.trim(),
@@ -338,15 +461,18 @@
           data[cat].push(item);
         }
         saveCustomTools(data);
+        formDirty = false;
+        clearFieldErrors();
 
         loadForm();
         renderCustomList();
         renderExport();
       });
 
-      document.getElementById("reset-form").addEventListener("click", loadForm);
-      document.getElementById("cancel-edit").addEventListener("click", () => {
+      document.getElementById("reset-form").addEventListener("click", function () { loadForm(); });
+      document.getElementById("cancel-edit").addEventListener("click", function () {
         clearEdit();
+        formDirty = false;
       });
 
       function renderCustomList() {
@@ -385,6 +511,9 @@
         });
         el.querySelectorAll("button[data-action='remove']").forEach((btn) => {
           btn.addEventListener("click", () => {
+            const item = (getCustomTools()[btn.dataset.cat] || [])[parseInt(btn.dataset.i, 10)];
+            const title = item?.title || "this tool";
+            if (!confirm("Remove \"" + title + "\"? This cannot be undone.")) return;
             const data = getCustomTools();
             const cat = btn.dataset.cat;
             const i = parseInt(btn.dataset.i, 10);

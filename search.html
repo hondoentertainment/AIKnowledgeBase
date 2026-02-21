@@ -23,6 +23,7 @@
   <script src="header.js"></script>
   <script>Header.render({ activeNav: "search", searchMode: "always-open", searchPlaceholder: "Search tools, knowledge, podcasts… e.g. \"chat gpt\" or \"coding\" (press /)" });</script>
   <script src="theme.js"></script>
+  <script src="mobile-ux.js"></script>
 
   <main class="main" id="main-content">
     <div id="search-results-container" class="search-results-page">
@@ -32,6 +33,16 @@
   </main>
 
   <button type="button" id="back-to-top" class="back-to-top hidden" aria-label="Back to top">↑</button>
+
+  <div id="pwa-install-banner" class="pwa-install-banner" aria-hidden="true" role="dialog" aria-label="Install app">
+    <div class="pwa-install-banner-inner">
+      <p class="pwa-install-banner-text">Install AI Knowledge Hub for quick access</p>
+      <div class="pwa-install-banner-actions">
+        <button type="button" class="pwa-install-btn" data-pwa-install>Install</button>
+        <button type="button" class="pwa-install-dismiss" data-pwa-dismiss aria-label="Dismiss">Not now</button>
+      </div>
+    </div>
+  </div>
 
   <nav class="bottom-nav" aria-label="Mobile navigation">
     <div class="bottom-nav-inner">
@@ -75,9 +86,14 @@
   <script src="auth.js"></script>
   <script src="profiles.js"></script>
   <script src="data.js"></script>
+  <script src="niche-data.js"></script>
   <script src="search-utils.js"></script>
+  <script src="card-builder.js"></script>
+  <script src="app.js"></script>
   <script src="search-page.js"></script>
   <script src="profile-switcher.js"></script>
+  <script src="bottom-nav.js"></script>
+  <script src="pwa-install.js"></script>
   <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>
   <script>
     (function () {

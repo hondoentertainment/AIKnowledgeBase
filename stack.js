@@ -108,7 +108,7 @@
     if (ok) haptic();
     const label = btn.getAttribute("aria-label") || "Share";
     const prev = btn.textContent;
-    btn.textContent = ok ? "Copied!" : prev;
+    btn.textContent = ok ? "Copied!" : "Copy failed";
     btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : label);
     btn.disabled = true;
     setTimeout(() => {

@@ -58,13 +58,14 @@
 
     const isSearchPage = searchMode === "always-open";
     const searchBarCls = "search-bar" + (isSearchPage ? " search-bar-always-open open" : "");
+    const searchBarAria = isSearchPage ? ' aria-expanded="true"' : ' aria-expanded="false"';
     const searchInnerCls = "search-bar-inner" + (isSearchPage ? " search-bar-inner-with-suggestions" : "");
     const hasSearchForm = !isSearchPage;
 
     let searchToggleHtml = "";
     if (searchMode === "expandable") {
       searchToggleHtml =
-        '<button id="search-toggle" class="icon-btn" aria-label="Toggle search">' +
+        '<button id="search-toggle" class="icon-btn" aria-label="Toggle search" aria-expanded="false">' +
         ICON_SEARCH +
         "</button>";
     } else if (searchMode === "always-open") {
@@ -78,6 +79,7 @@
       '<a href="login.html" class="nav-tab" id="nav-login">Log in</a>' +
       '<span class="auth-user-wrap" id="auth-user-wrap" style="display:none">' +
       '<span class="auth-user-email" id="auth-user-email"></span>' +
+      '<span class="session-expiry-note" id="session-expiry-note" aria-live="polite"></span>' +
       '<button type="button" class="nav-tab nav-tab-btn" id="nav-logout">Log out</button>' +
       "</span>";
 
@@ -161,7 +163,9 @@
       "  </div>" +
       '  <div class="' +
       searchBarCls +
-      '" id="search-bar">' +
+      '" id="search-bar"' +
+      searchBarAria +
+      ">" +
       '    <div class="' +
       searchInnerCls +
       '">' +

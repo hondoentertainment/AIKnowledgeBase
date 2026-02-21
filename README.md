@@ -57,6 +57,10 @@ The repo includes a GitHub Actions workflow that deploys on every push to `main`
 
 Pushes to `main` will auto-deploy to production. PRs get preview URLs.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to run locally, add content, and submit changes. The [architecture](ARCHITECTURE.md) and [agent pipeline](docs/AGENTS.md) are documented for contributors.
+
 ## Other hosting
 
 - **Netlify** — Drag-and-drop the folder or connect a repo

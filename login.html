@@ -19,12 +19,13 @@
   <script src="header.js"></script>
   <script>Header.render({ variant: "auth", authTabs: [{ href: "index.html", label: "Home", active: false }, { href: "login.html", label: "Log in", active: true }] });</script>
   <script src="theme.js"></script>
+  <script src="mobile-ux.js"></script>
 
   <main id="main-content" class="auth-main">
     <section class="auth-card" aria-labelledby="auth-heading">
       <h1 id="auth-heading" class="auth-title">Log in</h1>
       <p class="auth-intro" id="auth-intro">Sign in to access Admin and your personalized stack.</p>
-      <p class="auth-local-notice">Accounts and data are stored on this device only. Use <a href="profiles.html">Profiles</a> to export a backup.</p>
+      <p class="auth-local-notice">Accounts and data are stored on this device only. Use <a href="profiles.html">Profiles</a> to export a backup. Sessions last 7 days.</p>
       <p class="auth-success-msg" id="auth-success-msg" style="display:none">Account created. Log in below.</p>
 
       <form id="login-form" class="auth-form">
@@ -32,7 +33,10 @@
         <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
 
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
+        <div class="auth-password-wrap">
+          <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
+          <button type="button" id="toggle-password" class="auth-password-toggle" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
 
         <p id="auth-error" class="auth-error" role="alert" aria-live="polite" style="display:none"></p>
 
@@ -45,6 +49,7 @@
 
       <section class="auth-google" aria-label="Google login">
         <p class="auth-google-note" id="google-note">Sign in with your Google account.</p>
+        <p class="auth-google-setup" style="font-size:0.78rem;color:var(--text-dim);margin-top:0.5rem;line-height:1.4">To enable Google sign-in: <a href="admin.html">log in to Admin</a>, then add your Google OAuth Client ID in Settings. <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Get credentials</a> from Google Cloud Console.</p>
         <div id="google-signin-btn"></div>
       </section>
 
@@ -84,6 +89,7 @@
 
   <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
 
+  <script src="bottom-nav.js"></script>
   <script src="auth.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
@@ -112,11 +118,11 @@
       function showError(msg) {
         errorEl.textContent = msg;
         errorEl.style.display = "block";
-        const emailEl = document.getElementById("email");
-        const passwordEl = document.getElementById("password");
+        var emailEl = document.getElementById("email");
+        var passwordEl = document.getElementById("password");
         if (emailEl) emailEl.setAttribute("aria-invalid", "true");
         if (passwordEl) passwordEl.setAttribute("aria-invalid", "true");
-        emailEl?.focus();
+        (emailEl || passwordEl).focus();
       }
       function hideError() {
         errorEl.textContent = "";
@@ -188,10 +194,24 @@
         });
       }
 
-      // Wait for Google script (loaded async/defer), then initialize.
+      function setupPasswordToggle() {
+        var btn = document.getElementById("toggle-password");
+        var input = document.getElementById("password");
+        if (!btn || !input) return;
+        btn.addEventListener("click", function () {
+          var show = input.type === "password";
+          input.type = show ? "text" : "password";
+          btn.textContent = show ? "Hide" : "Show";
+          btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+          btn.setAttribute("aria-pressed", show);
+        });
+      }
+      setupPasswordToggle();
+
       setTimeout(initializeGoogleLogin, 0);
       window.addEventListener("load", initializeGoogleLogin);
     })();
   </script>
+  <script src="bottom-nav.js"></script>
 </body>
 </html>

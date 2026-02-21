@@ -19,23 +19,30 @@
   <script src="header.js"></script>
   <script>Header.render({ variant: "auth", authTabs: [{ href: "index.html", label: "Home", active: false }, { href: "login.html", label: "Log in", active: false }, { href: "register.html", label: "Sign up", active: true }] });</script>
   <script src="theme.js"></script>
+  <script src="mobile-ux.js"></script>
 
   <main id="main-content" class="auth-main">
     <section class="auth-card" aria-labelledby="auth-heading">
       <h1 id="auth-heading" class="auth-title">Create account</h1>
       <p class="auth-intro">Sign up to save your stack and access Admin.</p>
-      <p class="auth-local-notice">Accounts and data are stored on this device only. Use <a href="profiles.html">Profiles</a> to export a backup.</p>
+      <p class="auth-local-notice">Accounts and data are stored on this device only. Use <a href="profiles.html">Profiles</a> to export a backup. Sessions last 7 days.</p>
 
       <form id="register-form" class="auth-form">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
 
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required autocomplete="new-password" placeholder="••••••••" aria-required="true" aria-describedby="auth-error password-requirements" aria-invalid="false">
-        <p id="password-requirements" class="auth-hint">At least 8 characters, one letter, and one number.</p>
+        <div class="auth-password-wrap">
+          <input type="password" id="password" name="password" required autocomplete="new-password" placeholder="••••••••" aria-required="true" aria-describedby="auth-error password-requirements" aria-invalid="false">
+          <button type="button" id="toggle-password" class="auth-password-toggle" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
+        <p id="password-requirements" class="auth-hint" aria-live="polite">At least 8 characters, one letter, and one number.</p>
 
         <label for="password-confirm">Confirm password</label>
-        <input type="password" id="password-confirm" name="passwordConfirm" required autocomplete="new-password" placeholder="••••••••" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
+        <div class="auth-password-wrap">
+          <input type="password" id="password-confirm" name="passwordConfirm" required autocomplete="new-password" placeholder="••••••••" aria-required="true" aria-describedby="auth-error" aria-invalid="false">
+          <button type="button" id="toggle-password-confirm" class="auth-password-toggle" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
 
         <p id="auth-error" class="auth-error" role="alert" aria-live="polite" style="display:none"></p>
 
@@ -88,10 +95,11 @@
       const errorEl = document.getElementById("auth-error");
       const submitBtn = document.getElementById("submit-btn");
 
-      function showError(msg) {
+      function showError(msg, focusId) {
         errorEl.textContent = msg;
         errorEl.style.display = "block";
-        document.getElementById("password")?.focus();
+        var el = document.getElementById(focusId || "password");
+        if (el) el.focus();
         ["email", "password", "password-confirm"].forEach((id) => document.getElementById(id)?.setAttribute("aria-invalid", "true"));
       }
       function hideError() {
@@ -108,7 +116,7 @@
         const passwordConfirm = document.getElementById("password-confirm").value;
 
         if (password !== passwordConfirm) {
-          showError("Passwords do not match.");
+          showError("Passwords do not match.", "password-confirm");
           return;
         }
 
@@ -123,11 +131,54 @@
           return;
         }
 
-        showError(result.error || "Registration failed.");
+        var focusId = "password";
+        if (result.error && result.error.indexOf("email") !== -1) focusId = "email";
+        showError(result.error || "Registration failed.", focusId);
         submitBtn.disabled = false;
         submitBtn.textContent = "Create account";
       });
+
+      function setupPasswordToggle(btnId, inputId) {
+        var btn = document.getElementById(btnId);
+        var input = document.getElementById(inputId);
+        if (!btn || !input) return;
+        btn.addEventListener("click", function () {
+          var show = input.type === "password";
+          input.type = show ? "text" : "password";
+          btn.textContent = show ? "Hide" : "Show";
+          btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+          btn.setAttribute("aria-pressed", show);
+        });
+      }
+      setupPasswordToggle("toggle-password", "password");
+      setupPasswordToggle("toggle-password-confirm", "password-confirm");
+
+      var passwordEl = document.getElementById("password");
+      var requirementsEl = document.getElementById("password-requirements");
+      if (passwordEl && requirementsEl && window.Auth && window.Auth.validatePassword) {
+        function updatePasswordFeedback() {
+          var pw = passwordEl.value;
+          if (!pw) {
+            requirementsEl.textContent = "At least 8 characters, one letter, and one number.";
+            requirementsEl.classList.remove("auth-hint-valid");
+            return;
+          }
+          var err = window.Auth.validatePassword(pw);
+          if (!err) {
+            requirementsEl.textContent = "Password meets requirements.";
+            requirementsEl.classList.add("auth-hint-valid");
+            passwordEl.setAttribute("aria-invalid", "false");
+          } else {
+            requirementsEl.textContent = err;
+            requirementsEl.classList.remove("auth-hint-valid");
+            passwordEl.setAttribute("aria-invalid", pw.length > 0 ? "true" : "false");
+          }
+        }
+        passwordEl.addEventListener("input", updatePasswordFeedback);
+        passwordEl.addEventListener("blur", updatePasswordFeedback);
+      }
     })();
   </script>
+  <script src="bottom-nav.js"></script>
 </body>
 </html>

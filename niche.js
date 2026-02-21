@@ -83,6 +83,28 @@
 
   sections.forEach((s) => sectionObserver.observe(s));
 
+  /* ========== TOC collapse toggle (mobile) ========== */
+  const tocToggle = document.getElementById("niche-toc-toggle");
+  const tocLinks = document.getElementById("niche-toc-links");
+  if (tocToggle && tocLinks) {
+    const collapsedKey = "nicheTocCollapsed";
+    const isCollapsed = () => tocLinks.classList.contains("collapsed");
+    function updateToggleLabel() {
+      tocToggle.textContent = isCollapsed() ? "Show categories" : "Hide categories";
+      tocToggle.setAttribute("aria-expanded", !isCollapsed());
+    }
+    if (typeof localStorage !== "undefined" && localStorage.getItem(collapsedKey) === "1") {
+      tocLinks.classList.add("collapsed");
+      updateToggleLabel();
+    }
+    tocToggle.addEventListener("click", () => {
+      tocLinks.classList.toggle("collapsed");
+      localStorage.setItem(collapsedKey, isCollapsed() ? "1" : "0");
+      updateToggleLabel();
+    });
+    updateToggleLabel();
+  }
+
   /* ========== Helpers ========== */
   function escapeHtml(s) {
     const d = document.createElement("div");
@@ -249,8 +271,8 @@
   function showShareFeedback(btn, ok) {
     const label = btn.getAttribute("aria-label") || "Share";
     const prev = btn.textContent;
-    btn.textContent = ok ? "Link copied!" : "Share";
-    btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : label);
+    btn.textContent = ok ? "Link copied!" : "Copy failed";
+    btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : "Copy failed");
     btn.disabled = true;
     setTimeout(() => {
       btn.textContent = prev || "Share";
@@ -286,6 +308,10 @@
     card.scrollIntoView({ behavior: "smooth", block: "center" });
     card.classList.add("card-shared-highlight");
     setTimeout(() => card.classList.remove("card-shared-highlight"), 2500);
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogTitle) ogTitle.setAttribute("content", decodedId + " | AI Knowledge Hub");
+    if (ogDesc) ogDesc.setAttribute("content", (card.dataset.desc || decodedId) + " — shared from AI Knowledge Hub");
     history.replaceState({}, "", window.location.pathname + (window.location.hash || ""));
   }
 
@@ -382,7 +408,12 @@
       if (countEl) countEl.textContent = items.length;
       if (gridEl) {
         gridEl.innerHTML = items.length
-          ? items.map((item) => buildCard(item, id)).join("")
+          ? items.map((item) => {
+              const enriched = { ...item, category: "niche", nicheSection: id };
+              return (window.CardBuilder?.buildCard)
+                ? window.CardBuilder.buildCard(enriched, id)
+                : buildCard(item, id);
+            }).join("")
           : `<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">📂</span><p>No tools in ${id} yet. Add via <a href="admin.html" class="section-empty-link">Admin</a> or edit niche-data.js.</p></div>`;
       }
     });
@@ -399,11 +430,14 @@
 
     featuredRow.innerHTML = featured.map((item) => buildFeaturedCard(item)).join("");
 
-    initStarInteractions();
-    initDirectUseButtons();
-    initWantToTryButtons();
-    initStackButtons();
-    initShareButtons();
+    if (window.CardBuilder?.initInteractions) window.CardBuilder.initInteractions();
+    else {
+      initStarInteractions();
+      initDirectUseButtons();
+      initWantToTryButtons();
+      initStackButtons();
+      initShareButtons();
+    }
     scrollToSharedCard();
   }
 
@@ -456,6 +490,7 @@
             e.preventDefault();
             e.stopPropagation();
             haptic();
+            window.MobileUX?.haptic?.success?.();
             const val = parseFloat(half.dataset.val);
             const current = getRating(title);
             const newVal = current === val ? 0 : val;
@@ -506,8 +541,11 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        haptic();
         const title = btn.dataset.directUseTitle;
+        const wasUsing = isDirectUse(title);
         toggleDirectUse(title);
+        if (isDirectUse(title) && !wasUsing) window.MobileUX?.haptic?.success?.();
         btn.classList.toggle("using", isDirectUse(title));
         btn.textContent = isDirectUse(title) ? "✓ Using" : "I Use This";
         btn.setAttribute("aria-label", isDirectUse(title) ? "Unmark as using" : "Mark as using directly");
@@ -534,8 +572,11 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        haptic();
         const title = btn.dataset.wantToTryTitle;
+        const wasFlagged = isWantToTry(title);
         toggleWantToTry(title);
+        if (isWantToTry(title) && !wasFlagged) window.MobileUX?.haptic?.success?.();
         btn.classList.toggle("flagged", isWantToTry(title));
         btn.textContent = isWantToTry(title) ? "🔖 Flagged" : "Want to Try";
         btn.setAttribute("aria-label", isWantToTry(title) ? "Remove from want to try" : "Flag to try");
@@ -562,11 +603,15 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        haptic();
         const title = btn.dataset.stackTitle;
+        const wasInStack = isInStack(title);
         toggleStack(title);
-        btn.classList.toggle("in-stack", isInStack(title));
-        btn.textContent = isInStack(title) ? "✓ In Stack" : "+ Add to Stack";
-        btn.setAttribute("aria-label", isInStack(title) ? "Remove from My Stack" : "Add to My Stack");
+        const nowInStack = isInStack(title);
+        if (nowInStack && !wasInStack) window.MobileUX?.haptic?.success?.();
+        btn.classList.toggle("in-stack", nowInStack);
+        btn.textContent = nowInStack ? "✓ In Stack" : "+ Add to Stack";
+        btn.setAttribute("aria-label", nowInStack ? "Remove from My Stack" : "Add to My Stack");
       });
     });
   }
