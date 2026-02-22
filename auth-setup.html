@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Auth Setup — AI Knowledge Hub</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    .auth-setup-main { max-width: 640px; margin: 2rem auto; padding: 0 1.25rem 4rem; }
+    .auth-setup-main h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .auth-setup-main h2 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .auth-setup-main p, .auth-setup-main li { color: var(--text-muted); line-height: 1.6; margin-bottom: 0.75rem; }
+    .auth-setup-main a { color: var(--accent); }
+    .auth-setup-main table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+    .auth-setup-main th, .auth-setup-main td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+    .auth-setup-main th { font-weight: 600; color: var(--text); }
+    .auth-setup-main ul { padding-left: 1.25rem; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="header-root"></div>
+  <script src="header.js"></script>
+  <script>Header.render({ activeNav: null, searchMode: "expandable" });</script>
+  <script src="theme.js"></script>
+  <script src="mobile-ux.js"></script>
+
+  <main id="main-content" class="auth-setup-main">
+    <h1>Auth Setup Guide</h1>
+    <p>AI Knowledge Hub uses device-local auth (localStorage). This guide covers Google OAuth setup and session behavior.</p>
+
+    <h2>Google Sign-In Setup</h2>
+    <p>To enable "Sign in with Google" on the login and register pages:</p>
+    <ol>
+      <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud Console → Credentials</a></li>
+      <li>Create or select a project, then <strong>Create Credentials</strong> → <strong>OAuth client ID</strong></li>
+      <li>Configure the OAuth consent screen if prompted</li>
+      <li>Choose <strong>Web application</strong>, add your origins (e.g. <code>https://your-domain.com</code>)</li>
+      <li>Copy the <strong>Client ID</strong> (format: <code>123456789-abc.apps.googleusercontent.com</code>)</li>
+      <li>Log in to <a href="admin.html">Admin</a> → Settings → paste the Client ID → Save</li>
+    </ol>
+    <p>The Client ID is stored in localStorage on this device. The "Sign in with Google" button will appear on login and register pages.</p>
+
+    <h2>Session &amp; Login Behavior</h2>
+    <table>
+      <thead>
+        <tr><th>Setting</th><th>Value</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Session length</td><td>7 days</td><td>Sessions expire 7 days after login</td></tr>
+        <tr><td>Expiry notice</td><td>Under 2 days</td><td>Header shows "Session expires in X hours/days" when logged in</td></tr>
+        <tr><td>Storage</td><td>Device only</td><td>Accounts and data stay in this browser</td></tr>
+      </tbody>
+    </table>
+    <p>All sessions last 7 days by design. Use <a href="profiles.html">Profiles</a> to export a backup.</p>
+
+    <p><a href="login.html">← Back to Log in</a></p>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="bottom-nav.js"></script>
+</body>
+</html>

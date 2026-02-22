@@ -23,8 +23,9 @@ Each item needs:
 
 ## Features
 
-- **Search** — Instant filter across tools, knowledge, and podcasts
+- **Search** — Instant filter across tools, knowledge, and podcasts (full card actions: rate, stack, I Use This, Want to Try)
 - **Dark mode** — Toggle in the top-right; preference is saved
+- **Auth** — Login, register, Google OAuth (see [auth-setup.html](auth-setup.html) for setup). Sessions last 7 days
 - **Responsive** — Works on desktop and mobile
 
 ## GitHub Pages deployment
