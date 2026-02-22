@@ -30,10 +30,20 @@
         <span class="stack-empty-icon" aria-hidden="true">📚</span>
         Your stack is empty. Visit the <a href="index.html">main hub</a> and click <strong>"Add to Stack"</strong> on tools you want to save.
       </p>
-      <div class="stack-stats">
-        <span class="stack-stat"><strong id="total-count">0</strong> total</span>
-        <span class="stack-stat-sep">·</span>
-        <span class="stack-stat">8 categories</span>
+      <div class="stack-stats-wrap">
+        <div class="stack-stats">
+          <span class="stack-stat"><strong id="total-count">0</strong> total</span>
+          <span class="stack-stat-sep">·</span>
+          <span class="stack-stat">8 categories</span>
+        </div>
+        <div class="stack-sort-wrap" id="stack-sort-wrap" style="display:none">
+          <label for="stack-sort" class="sr-only">Sort stack by</label>
+          <select id="stack-sort" class="stack-sort" aria-label="Sort stack by">
+            <option value="default">Default order</option>
+            <option value="rating">Rating (high first)</option>
+            <option value="name">Name (A–Z)</option>
+          </select>
+        </div>
       </div>
     </section>
 

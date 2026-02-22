@@ -42,7 +42,9 @@
     .admin-tool-item button:hover { color: #e74c3c; }
     .admin-tool-item button.admin-edit-btn:hover { color: var(--accent); }
     .admin-export { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
-    .admin-export-actions { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .admin-export-actions { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.admin-import-label { margin: 0; cursor: pointer; }
+.admin-import-label input { position: absolute; width: 0.1px; height: 0.1px; opacity: 0; }
     .admin-copy-btn { padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600; background: var(--accent); color: var(--btn-on-accent); border: none; border-radius: var(--radius); cursor: pointer; }
     .admin-copy-btn:hover { background: var(--accent-hover); }
     .admin-copy-feedback { font-size: 0.9rem; color: var(--accent); }
@@ -162,6 +164,11 @@
         <p class="intro">Copy this and paste into data.js to make custom tools permanent.</p>
         <div class="admin-export-actions">
           <button type="button" id="admin-copy-export" class="admin-copy-btn">Copy to clipboard</button>
+          <button type="button" id="admin-download-json" class="admin-copy-btn">Download JSON</button>
+          <label class="admin-import-label">
+            <input type="file" id="admin-import-json" accept=".json,application/json" class="sr-only">
+            <span class="admin-copy-btn">Import JSON</span>
+          </label>
           <span id="admin-copy-feedback" class="admin-copy-feedback" aria-live="polite"></span>
         </div>
         <pre id="export-output"></pre>
@@ -590,6 +597,56 @@
         }).catch(() => {
           if (feedback) feedback.textContent = "Copy failed.";
         });
+      });
+
+      document.getElementById("admin-download-json")?.addEventListener("click", () => {
+        const data = getCustomTools();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "ai-knowledge-hub-custom-tools-" + new Date().toISOString().slice(0, 10) + ".json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        const feedback = document.getElementById("admin-copy-feedback");
+        if (feedback) {
+          feedback.textContent = "Downloaded.";
+          setTimeout(() => { feedback.textContent = ""; }, 2000);
+        }
+      });
+
+      document.getElementById("admin-import-json")?.addEventListener("change", function (e) {
+        const file = e.target?.files?.[0];
+        if (!file) return;
+        const feedback = document.getElementById("admin-copy-feedback");
+        const r = new FileReader();
+        r.onerror = () => { if (feedback) feedback.textContent = "Could not read file."; };
+        r.onload = () => {
+          try {
+            const raw = r.result;
+            if (typeof raw !== "string" || !raw.trim()) throw new Error("File is empty");
+            const imported = JSON.parse(raw);
+            if (!imported || typeof imported !== "object") throw new Error("Invalid JSON");
+            const names = ["tools", "knowledge", "podcasts", "youtube", "training", "dailyWatch", "bleedingEdge"];
+            const existing = getCustomTools();
+            names.forEach((cat) => {
+              const arr = imported[cat];
+              if (Array.isArray(arr) && arr.length > 0) {
+                existing[cat] = [...(existing[cat] || []), ...arr];
+              }
+            });
+            saveCustomTools(existing);
+            renderCustomList();
+            renderExport();
+            if (feedback) {
+              feedback.textContent = "Imported successfully.";
+              setTimeout(() => { feedback.textContent = ""; }, 3000);
+            }
+          } catch (err) {
+            if (feedback) feedback.textContent = "Import failed: " + (err.message || "Invalid file");
+          }
+        };
+        r.readAsText(file);
+        e.target.value = "";
       });
 
       function escapeHtml(s) {

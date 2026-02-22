@@ -332,6 +332,7 @@ a { color: inherit; text-decoration: none; }
   display: block;
   width: 100%;
   padding: 0.5rem 0.75rem;
+  min-height: var(--touch-target);
   font-size: 0.9rem;
   text-align: left;
   background: none;
@@ -1842,7 +1843,9 @@ a { color: inherit; text-decoration: none; }
 .direct-use-btn:focus-visible,
 .want-to-try-btn:focus-visible,
 .stack-btn:focus-visible,
-.search-bar input:focus-visible {
+.search-bar input:focus-visible,
+.profile-switcher-trigger:focus-visible,
+.stack-sort:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -2211,7 +2214,7 @@ a { color: inherit; text-decoration: none; }
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
 }
-.back-to-top:focus {
+.back-to-top:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
@@ -2518,7 +2521,8 @@ body.more-menu-open {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.35rem 0.6rem;
+  min-height: var(--touch-target);
   font-size: 0.65rem;
   font-weight: 600;
   border: 1px solid var(--border);
@@ -2545,7 +2549,8 @@ body.more-menu-open {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.35rem 0.6rem;
+  min-height: var(--touch-target);
   font-size: 0.65rem;
   font-weight: 600;
   border: 1px solid var(--border);
@@ -2572,7 +2577,7 @@ body.more-menu-open {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.35rem 0.6rem;
   font-size: 0.65rem;
   font-weight: 600;
   border: 1px solid var(--border);

@@ -7,9 +7,29 @@
   const RECENT_MAX = 10;
 
   /**
+   * Fuzzy match: term matches haystack if substring, prefix of a word, or within 1-edit distance.
+   * Handles common typos: "chatgp" -> "chatgpt", "claude" with "claud".
+   */
+  function termMatches(term, haystack) {
+    if (!term || !haystack) return false;
+    if (haystack.includes(term)) return true;
+    const words = haystack.split(/\s+/);
+    for (const w of words) {
+      if (w.startsWith(term) || term.startsWith(w)) return true;
+      if (term.length >= 3 && w.length >= 3 && Math.abs(term.length - w.length) <= 1) {
+        let diffs = 0;
+        const minLen = Math.min(term.length, w.length);
+        for (let i = 0; i < minLen && diffs <= 1; i++) if (term[i] !== w[i]) diffs++;
+        diffs += Math.abs(term.length - w.length);
+        if (diffs <= 1) return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Multi-term + fuzzy-friendly matching.
-   * Splits query by spaces; each term must appear (as substring) in title, desc, or tags.
-   * Normalizes spaces and case. "chat gpt" matches "ChatGPT", "chat gpt" matches "chat GPT".
+   * Splits query by spaces; each term must appear (as substring, prefix, or fuzzy) in title, desc, or tags.
    */
   function matchItem(query, item) {
     const q = (query || "").toLowerCase().trim();
@@ -21,9 +41,10 @@
     const title = String(item.title || "").toLowerCase();
     const desc = String(item.description || "").toLowerCase();
     const tagsStr = (item.tags || []).map((t) => String(t).toLowerCase()).join(" ");
+    const combined = title + " " + desc + " " + tagsStr;
 
     return terms.every((term) => {
-      return title.includes(term) || desc.includes(term) || tagsStr.includes(term);
+      return termMatches(term, title) || termMatches(term, desc) || termMatches(term, tagsStr) || termMatches(term, combined);
     });
   }
 

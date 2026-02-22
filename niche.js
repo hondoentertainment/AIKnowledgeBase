@@ -258,21 +258,23 @@
     const shareData = { url, title, text: description || title };
     const tryNative = navigator.share && navigator.canShare && navigator.canShare(shareData);
     if (tryNative) {
-      navigator.share(shareData).then(() => showShareFeedback(shareBtn, true)).catch(() => copyAndFeedback(url, shareBtn));
+      navigator.share(shareData).then(() => showShareFeedback(shareBtn, true, true)).catch(() => copyAndFeedback(url, shareBtn));
     } else {
       copyAndFeedback(url, shareBtn);
     }
   }
 
   function copyAndFeedback(url, btn) {
-    navigator.clipboard.writeText(url).then(() => showShareFeedback(btn, true)).catch(() => showShareFeedback(btn, false));
+    navigator.clipboard.writeText(url).then(() => showShareFeedback(btn, true, false)).catch(() => showShareFeedback(btn, false, false));
   }
 
-  function showShareFeedback(btn, ok) {
+  function showShareFeedback(btn, ok, wasNativeShare) {
     const label = btn.getAttribute("aria-label") || "Share";
     const prev = btn.textContent;
-    btn.textContent = ok ? "Link copied!" : "Copy failed";
-    btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : "Copy failed");
+    const successMsg = (wasNativeShare === true) ? "Shared!" : "Link copied!";
+    const successAria = (wasNativeShare === true) ? "Shared successfully" : "Link copied to clipboard";
+    btn.textContent = ok ? successMsg : "Copy failed";
+    btn.setAttribute("aria-label", ok ? successAria : "Copy failed");
     btn.disabled = true;
     setTimeout(() => {
       btn.textContent = prev || "Share";

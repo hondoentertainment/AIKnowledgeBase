@@ -28,6 +28,13 @@
   function getStack() {
     return window.ProfileStore ? window.ProfileStore.getStack() : [];
   }
+  function getRating(title) {
+    if (window.ProfileStore && window.ProfileStore.getRating) return window.ProfileStore.getRating(title);
+    try {
+      const v = localStorage.getItem("rating:" + title);
+      return v ? parseFloat(v) : 0;
+    } catch (_) { return 0; }
+  }
   function removeFromStack(title) {
     const s = getStack().filter((t) => t !== title);
     if (window.ProfileStore) window.ProfileStore.setStack(s);
@@ -94,22 +101,24 @@
     const shareData = { url, title, text: description || title };
     const tryNative = navigator.share && navigator.canShare && navigator.canShare(shareData);
     if (tryNative) {
-      navigator.share(shareData).then(() => showShareFeedback(shareBtn, true)).catch(() => copyAndFeedback(url, shareBtn));
+      navigator.share(shareData).then(() => showShareFeedback(shareBtn, true, true)).catch(() => copyAndFeedback(url, shareBtn));
     } else {
       copyAndFeedback(url, shareBtn);
     }
   }
 
   function copyAndFeedback(url, btn) {
-    navigator.clipboard.writeText(url).then(() => showShareFeedback(btn, true)).catch(() => showShareFeedback(btn, false));
+    navigator.clipboard.writeText(url).then(() => showShareFeedback(btn, true, false)).catch(() => showShareFeedback(btn, false, false));
   }
 
-  function showShareFeedback(btn, ok) {
+  function showShareFeedback(btn, ok, wasNativeShare) {
     if (ok) haptic();
     const label = btn.getAttribute("aria-label") || "Share";
     const prev = btn.textContent;
-    btn.textContent = ok ? "Copied!" : "Copy failed";
-    btn.setAttribute("aria-label", ok ? "Link copied to clipboard" : label);
+    const successMsg = (wasNativeShare === true) ? "Shared!" : "Link copied!";
+    const successAria = (wasNativeShare === true) ? "Shared successfully" : "Link copied to clipboard";
+    btn.textContent = ok ? successMsg : "Copy failed";
+    btn.setAttribute("aria-label", ok ? successAria : "Copy failed");
     btn.disabled = true;
     setTimeout(() => {
       btn.textContent = prev;
@@ -223,20 +232,46 @@
     return byCategory;
   }
 
+  function sortItems(items, sortBy) {
+    if (!items || items.length === 0) return items;
+    if (sortBy === "rating") {
+      return [...items].sort((a, b) => (getRating(b.title) || 0) - (getRating(a.title) || 0));
+    }
+    if (sortBy === "name") {
+      return [...items].sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+    }
+    return items;
+  }
+
   function render(highlightFilter) {
+    const sortBy = document.getElementById("stack-sort")?.value || "default";
     const byCat = getAllItems();
     const total = byCat.tools.length + byCat.knowledge.length + byCat.podcasts.length + byCat.youtube.length + byCat.training.length + (byCat.dailyWatch?.length || 0) + (byCat.bleedingEdge?.length || 0) + (byCat.niche?.length || 0);
 
     totalCountEl.textContent = total;
 
-    grids.tools.innerHTML = byCat.tools.map((t) => buildStackCard(t, "index", "tools")).join("");
-    grids.knowledge.innerHTML = byCat.knowledge.map((k) => buildStackCard(k, "index", "knowledge")).join("");
-    grids.podcasts.innerHTML = byCat.podcasts.map((p) => buildStackCard(p, "index", "podcasts")).join("");
-    grids.youtube.innerHTML = byCat.youtube.map((y) => buildStackCard(y, "index", "youtube")).join("");
-    grids.training.innerHTML = byCat.training.map((t) => buildStackCard(t, "index", "training")).join("");
-    if (grids.dailyWatch) grids.dailyWatch.innerHTML = (byCat.dailyWatch || []).map((d) => buildStackCard(d, "index", "daily-watch")).join("");
-    if (grids.bleedingEdge) grids.bleedingEdge.innerHTML = (byCat.bleedingEdge || []).map((b) => buildStackCard(b, "index", "bleeding-edge")).join("");
-    if (grids.niche) grids.niche.innerHTML = (byCat.niche || []).map((n) => buildStackCard(n, "niche", findNicheCategory(n.title))).join("");
+    const sortWrap = document.getElementById("stack-sort-wrap");
+    if (sortWrap) sortWrap.style.display = total > 0 ? "block" : "none";
+
+    const sorted = {
+      tools: sortItems(byCat.tools, sortBy),
+      knowledge: sortItems(byCat.knowledge, sortBy),
+      podcasts: sortItems(byCat.podcasts, sortBy),
+      youtube: sortItems(byCat.youtube, sortBy),
+      training: sortItems(byCat.training, sortBy),
+      dailyWatch: sortItems(byCat.dailyWatch || [], sortBy),
+      bleedingEdge: sortItems(byCat.bleedingEdge || [], sortBy),
+      niche: sortItems(byCat.niche || [], sortBy),
+    };
+
+    grids.tools.innerHTML = sorted.tools.map((t) => buildStackCard(t, "index", "tools")).join("");
+    grids.knowledge.innerHTML = sorted.knowledge.map((k) => buildStackCard(k, "index", "knowledge")).join("");
+    grids.podcasts.innerHTML = sorted.podcasts.map((p) => buildStackCard(p, "index", "podcasts")).join("");
+    grids.youtube.innerHTML = sorted.youtube.map((y) => buildStackCard(y, "index", "youtube")).join("");
+    grids.training.innerHTML = sorted.training.map((t) => buildStackCard(t, "index", "training")).join("");
+    if (grids.dailyWatch) grids.dailyWatch.innerHTML = (sorted.dailyWatch || []).map((d) => buildStackCard(d, "index", "daily-watch")).join("");
+    if (grids.bleedingEdge) grids.bleedingEdge.innerHTML = (sorted.bleedingEdge || []).map((b) => buildStackCard(b, "index", "bleeding-edge")).join("");
+    if (grids.niche) grids.niche.innerHTML = (sorted.niche || []).map((n) => buildStackCard(n, "niche", findNicheCategory(n.title))).join("");
 
     const emptyMsg = document.getElementById("stack-empty-msg");
     if (emptyMsg) {
@@ -290,6 +325,9 @@
   const debouncedFilter = debounce((v) => filterCards(v), 80);
   if (searchEl) searchEl.addEventListener("input", (e) => debouncedFilter(e.target.value));
   if (searchEl) searchEl.addEventListener("search", (e) => filterCards(e.target.value));
+
+  const stackSortEl = document.getElementById("stack-sort");
+  if (stackSortEl) stackSortEl.addEventListener("change", () => render());
 
   /* Mobile nav toggle */
   const navToggle = document.getElementById("nav-toggle");
