@@ -120,6 +120,7 @@
     btn.textContent = ok ? successMsg : "Copy failed";
     btn.setAttribute("aria-label", ok ? successAria : "Copy failed");
     btn.disabled = true;
+    if (ok && typeof window.showToast === "function") window.showToast(successMsg);
     setTimeout(() => {
       btn.textContent = prev;
       btn.setAttribute("aria-label", label);
@@ -251,7 +252,9 @@
     totalCountEl.textContent = total;
 
     const sortWrap = document.getElementById("stack-sort-wrap");
-    if (sortWrap) sortWrap.style.display = total > 0 ? "block" : "none";
+    const clearAllBtn = document.getElementById("stack-clear-all-btn");
+    if (sortWrap) sortWrap.style.display = total > 0 ? "flex" : "none";
+    if (clearAllBtn) clearAllBtn.style.display = total > 0 ? "inline-block" : "none";
 
     const sorted = {
       tools: sortItems(byCat.tools, sortBy),
@@ -281,6 +284,11 @@
     initRemoveButtons();
     initShareButtons();
     if (searchEl) filterCards(searchEl.value);
+    const main = document.getElementById("main-content");
+    if (main) {
+      main.classList.remove("main-loading");
+      main.removeAttribute("aria-busy");
+    }
   }
 
   function initRemoveButtons() {
@@ -328,6 +336,19 @@
 
   const stackSortEl = document.getElementById("stack-sort");
   if (stackSortEl) stackSortEl.addEventListener("change", () => render());
+
+  const clearAllBtn = document.getElementById("stack-clear-all-btn");
+  if (clearAllBtn) {
+    clearAllBtn.addEventListener("click", () => {
+      const total = getStack().length;
+      if (total === 0) return;
+      if (!confirm("Remove all " + total + " items from your stack? This cannot be undone.")) return;
+      haptic();
+      if (window.ProfileStore) window.ProfileStore.setStack([]);
+      else localStorage.setItem("myStack", "[]");
+      render();
+    });
+  }
 
   /* Mobile nav toggle */
   const navToggle = document.getElementById("nav-toggle");

@@ -2,7 +2,7 @@
  * AI Knowledge Hub — Service Worker
  * Caches static assets for offline and faster repeat loads
  */
-const CACHE_NAME = "ai-knowledge-hub-v9";
+const CACHE_NAME = "ai-knowledge-hub-v11";
 const ASSETS = [
   "index.html",
   "search.html",
@@ -30,11 +30,14 @@ const ASSETS = [
   "header.js",
   "theme.js",
   "mobile-ux.js",
+  "offline.js",
+  "toast.js",
   "bottom-nav.js",
   "app.js",
   "search-utils.js",
   "search-page.js",
   "stack.js",
+  "want-to-try.js",
   "niche.js",
   "data.js",
   "niche-data.js",

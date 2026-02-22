@@ -52,6 +52,7 @@
         '<a href="tools.html" class="more-menu-link">Tools</a>' +
         '<a href="search.html" class="more-menu-link">Search</a>' +
         '<a href="stack.html" class="more-menu-link">My Stack</a>' +
+        '<a href="want-to-try.html" class="more-menu-link">Want to Try</a>' +
         '<a href="profiles.html" class="more-menu-link">Profiles</a>' +
         '<a href="about.html" class="more-menu-link">About</a>' +
         "</div>";

@@ -98,6 +98,7 @@
     ];
     const youItems = [
       { href: "stack.html", id: "stack", label: "My Stack" },
+      { href: "want-to-try.html", id: "want-to-try", label: "Want to Try" },
       { href: "about.html", id: "about", label: "About" },
     ];
 

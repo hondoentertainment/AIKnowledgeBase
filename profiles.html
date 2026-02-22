@@ -51,6 +51,7 @@
   <script>Header.render({ activeNav: null, searchMode: "expandable" });</script>
   <script src="theme.js"></script>
   <script src="mobile-ux.js"></script>
+  <script src="offline.js"></script>
 
   <main class="main profiles-main" id="main-content" style="max-width: 600px; margin: 0 auto; padding: 2rem 1.25rem;">
     <section class="section">
@@ -292,6 +293,7 @@
             <div class="profile-item-actions">
               ${!isEditing ? (
                 `<button type="button" class="profile-item-rename" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" aria-label="Rename ${escapeAttr(p.name)}">Rename</button>` +
+                `<button type="button" class="profile-item-duplicate" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" aria-label="Duplicate ${escapeAttr(p.name)}">Duplicate</button>` +
                 (p.id !== activeId ? `<button type="button" class="profile-item-switch" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}">Switch</button>` : "") +
                 (profiles.length > 1 ? `
                   <span class="profile-delete-wrap">
@@ -307,6 +309,12 @@
           </div>`;
         }).join("") || '<p class="section-empty">No profiles yet. Create one below.</p>';
 
+        list.querySelectorAll(".profile-item-duplicate").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const newId = window.ProfileStore.duplicateProfile(btn.dataset.id);
+            if (newId) render();
+          });
+        });
         list.querySelectorAll(".profile-item-switch").forEach((btn) => {
           btn.addEventListener("click", () => switchToProfile(btn.dataset.id, btn.dataset.name));
           btn.addEventListener("keydown", (e) => {

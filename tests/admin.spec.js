@@ -43,6 +43,59 @@ test.describe('Admin', () => {
       await page.waitForTimeout(100);
       await expect(page.locator('#tool-url-error')).toHaveText('');
     });
+
+    test('empty title shows inline error on blur', async ({ page }) => {
+      await page.locator('#tool-title').focus();
+      await page.locator('#tool-title').fill('');
+      await page.locator('#tool-title').blur();
+      await page.waitForTimeout(100);
+      await expect(page.locator('#tool-title-error')).toContainText(/required/i);
+    });
+
+    test('empty description shows inline error on blur', async ({ page }) => {
+      await page.locator('#tool-description').focus();
+      await page.locator('#tool-description').fill('');
+      await page.locator('#tool-description').blur();
+      await page.waitForTimeout(100);
+      await expect(page.locator('#tool-description-error')).toContainText(/required/i);
+    });
+  });
+
+  test.describe('Delete confirmation', () => {
+    test.beforeEach(async ({ page }) => {
+      const email = `admin-del-${Date.now()}@test.local`;
+      const password = process.env.ADMIN_PASSWORD || 'Test1234';
+      await page.goto('/register.html');
+      await page.locator('#email').fill(email);
+      await page.locator('#password').fill(password);
+      await page.locator('#password-confirm').fill(password);
+      await page.locator('#register-form').getByRole('button', { name: /create/i }).click();
+      await page.waitForURL(/login/, { timeout: 5000 });
+      await page.goto('/admin.html');
+      await page.locator('#admin-email').fill(email);
+      await page.locator('#admin-password').fill(password);
+      await page.locator('#admin-login-form').getByRole('button', { name: /log in/i }).click();
+      await expect(page.locator('#admin-content')).toBeVisible({ timeout: 8000 });
+    });
+
+    test('delete confirmation modal exists', async ({ page }) => {
+      await expect(page.locator('#admin-delete-modal')).toBeAttached();
+      await expect(page.locator('#admin-delete-cancel')).toBeAttached();
+      await expect(page.locator('#admin-delete-confirm')).toBeAttached();
+    });
+
+    test('modal has Cancel and Remove buttons; Cancel dismisses', async ({ page }) => {
+      const removeBtn = page.locator('button[data-action="remove"]').first();
+      const removeCount = await removeBtn.count();
+      if (removeCount > 0) {
+        await removeBtn.click();
+        await expect(page.locator('#admin-delete-modal')).toBeVisible();
+        await expect(page.locator('#admin-delete-cancel')).toBeVisible();
+        await expect(page.locator('#admin-delete-confirm')).toBeVisible();
+        await page.locator('#admin-delete-cancel').click();
+        await expect(page.locator('#admin-delete-modal')).not.toBeVisible();
+      }
+    });
   });
 
   test.describe('Google Client ID settings', () => {

@@ -89,7 +89,8 @@
       stars.push(`<span class="${cls}" data-star="${i}" tabindex="0" role="button" aria-label="Rate ${i} of 5 stars"><span class="star-half star-left" data-val="${i - 0.5}"></span><span class="star-half star-right" data-val="${i}"></span>${isHalf ? starHalfSvg(gradId) : STAR_SVG}</span>`);
     }
     const label = saved ? saved.toFixed(1).replace(/\.0$/, "") : "";
-    return `<div class="card-rating" data-title="${escapeAttr(title)}" data-rating="${saved}" data-grad-id="${escapeAttr(gradId)}" role="group" aria-label="${saved ? `Rate ${escapeAttr(title)} — currently ${saved} of 5 stars` : `Rate ${escapeAttr(title)}`}">${stars.join("")}<span class="rating-value" aria-hidden="true">${label}</span></div>`;
+    const clearBtn = saved ? `<button type="button" class="rating-clear-btn" data-clear-title="${escapeAttr(title)}" aria-label="Clear rating for ${escapeAttr(title)}">Clear</button>` : "";
+    return `<div class="card-rating" data-title="${escapeAttr(title)}" data-rating="${saved}" data-grad-id="${escapeAttr(gradId)}" role="group" aria-label="${saved ? `Rate ${escapeAttr(title)} — currently ${saved} of 5 stars` : `Rate ${escapeAttr(title)}`}">${stars.join("")}<span class="rating-value" aria-hidden="true">${label}</span>${clearBtn}</div>`;
   }
 
   function buildCard(item, category) {
@@ -184,6 +185,19 @@
         });
       });
       container.addEventListener("mouseleave", clearPreview);
+      const clearBtn = container.querySelector(".rating-clear-btn");
+      if (clearBtn) {
+        clearBtn.addEventListener("click", (e) => {
+          e.preventDefault(); e.stopPropagation(); haptic();
+          setRating(title, 0); clearPreview(); updateDisplay(0);
+          container.classList.add("just-rated"); setTimeout(() => container.classList.remove("just-rated"), 450);
+          announce("Rating cleared");
+          clearBtn.remove();
+        });
+        clearBtn.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); clearBtn.click(); }
+        });
+      }
     });
   }
 
@@ -207,8 +221,7 @@
   function initDirectUseButtons(container) {
     const root = container || document;
     root.querySelectorAll(".direct-use-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation(); haptic();
+      const handleClick = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } haptic();
         const title = btn.dataset.directUseTitle;
         const wasUsing = isDirectUse(title);
         toggleDirectUse(title);
@@ -222,15 +235,16 @@
           if (isDirectUse(title)) { if (!badge) { const b = document.createElement("span"); b.className = "direct-use-badge"; b.title = "I use this tool directly"; b.textContent = "✓ Using"; cover.appendChild(b); } }
           else if (badge) badge.remove();
         }
-      });
+      };
+      btn.addEventListener("click", handleClick);
+      btn.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleClick(); } });
     });
   }
 
   function initWantToTryButtons(container) {
     const root = container || document;
     root.querySelectorAll(".want-to-try-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation(); haptic();
+      const handleClick = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } haptic();
         const title = btn.dataset.wantToTryTitle;
         const wasFlagged = isWantToTry(title);
         toggleWantToTry(title);
@@ -244,7 +258,9 @@
           if (isWantToTry(title)) { if (!badge) { const b = document.createElement("span"); b.className = "want-to-try-badge"; b.title = "Flagged to try"; b.textContent = "🔖"; cover.appendChild(b); } }
           else if (badge) badge.remove();
         }
-      });
+      };
+      btn.addEventListener("click", handleClick);
+      btn.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleClick(); } });
     });
   }
 
@@ -279,6 +295,7 @@
     btn.textContent = ok ? successMsg : "Copy failed";
     btn.setAttribute("aria-label", ok ? successAria : "Copy failed");
     btn.disabled = true;
+    if (ok && typeof window.showToast === "function") window.showToast(successMsg);
     setTimeout(() => { btn.textContent = prev || "Share"; btn.setAttribute("aria-label", label); btn.disabled = false; }, 2000);
   }
 

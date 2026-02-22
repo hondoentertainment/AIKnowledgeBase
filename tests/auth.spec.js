@@ -8,6 +8,21 @@ test.describe('Auth', () => {
       await expect(page.locator('.auth-google-setup')).toContainText(/admin/i);
       await expect(page.locator('.auth-google-setup a[href="admin.html"]')).toBeVisible();
     });
+
+    test('login page shows local/demo mode notice', async ({ page }) => {
+      await page.goto('/login.html');
+      await expect(page.locator('.auth-local-notice')).toContainText(/local|demo/i);
+      await expect(page.locator('.auth-local-notice')).toContainText(/device only|stored on this device/i);
+      await expect(page.locator('.auth-local-notice a[href="auth-setup.html#architecture"]')).toBeVisible();
+    });
+  });
+
+  test.describe('Register page', () => {
+    test('register page shows local/demo mode notice', async ({ page }) => {
+      await page.goto('/register.html');
+      await expect(page.locator('.auth-local-notice')).toContainText(/local|demo/i);
+      await expect(page.locator('.auth-local-notice')).toContainText(/device only|stored on this device/i);
+    });
   });
 
   test.describe('Session expiry', () => {

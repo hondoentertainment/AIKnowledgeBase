@@ -55,6 +55,17 @@
     .admin-field-error { display: block; font-size: 0.85rem; color: #e74c3c; margin-top: 0.25rem; }
     .auth-links-row { margin-top: 1rem; font-size: 0.9rem; }
     .auth-links-row .auth-link { color: var(--accent); font-weight: 500; }
+    .admin-confirm-modal { position: fixed; inset: 0; z-index: 1100; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(0,0,0,0.4); }
+    .admin-confirm-modal[aria-hidden="true"] { display: none; }
+    .admin-confirm-dialog { max-width: 380px; width: 100%; background: var(--bg-elevated); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow-hover); }
+    .admin-confirm-dialog h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+    .admin-confirm-dialog p { margin: 0 0 1.25rem; color: var(--text-muted); font-size: 0.95rem; }
+    .admin-confirm-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+    .admin-confirm-actions button { padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600; border-radius: var(--radius); cursor: pointer; border: none; }
+    .admin-confirm-cancel { background: var(--bg-surface); color: var(--text-muted); }
+    .admin-confirm-cancel:hover { background: var(--border); color: var(--text); }
+    .admin-confirm-remove { background: #dc3545; color: #fff; }
+    .admin-confirm-remove:hover { background: #c82333; }
   </style>
 </head>
 <body>
@@ -65,6 +76,7 @@
   <script>Header.render({ activeNav: null, searchMode: "expandable" });</script>
   <script src="theme.js"></script>
   <script src="mobile-ux.js"></script>
+  <script src="offline.js"></script>
 
   <main id="main-content">
     <div id="admin-login-screen" class="admin-login-screen">
@@ -86,10 +98,12 @@
       <form id="tool-form">
         <p id="tool-form-error" class="auth-error" role="alert" style="display:none;margin-bottom:1rem"></p>
         <label for="tool-title">Title *</label>
-        <input type="text" id="tool-title" required placeholder="e.g. ChatGPT">
+        <input type="text" id="tool-title" required placeholder="e.g. ChatGPT" aria-describedby="tool-title-error" aria-invalid="false">
+        <span id="tool-title-error" class="admin-field-error" role="alert"></span>
 
         <label for="tool-description">Description *</label>
-        <textarea id="tool-description" rows="2" required placeholder="Short summary of the tool"></textarea>
+        <textarea id="tool-description" rows="2" required placeholder="Short summary of the tool" aria-describedby="tool-description-error" aria-invalid="false"></textarea>
+        <span id="tool-description-error" class="admin-field-error" role="alert"></span>
 
         <label for="tool-url">URL</label>
         <input type="url" id="tool-url" placeholder="https://..." aria-describedby="tool-url-error" aria-invalid="false">
@@ -203,6 +217,18 @@
   </nav>
 
   <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
+
+  <!-- Delete confirmation modal -->
+  <div id="admin-delete-modal" class="admin-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="admin-delete-modal-title" aria-describedby="admin-delete-modal-desc" aria-hidden="true">
+    <div class="admin-confirm-dialog">
+      <h3 id="admin-delete-modal-title">Remove tool?</h3>
+      <p id="admin-delete-modal-desc">This cannot be undone. The tool will be removed from your custom tools list.</p>
+      <div class="admin-confirm-actions">
+        <button type="button" id="admin-delete-cancel" class="admin-confirm-cancel">Cancel</button>
+        <button type="button" id="admin-delete-confirm" class="admin-confirm-remove">Remove</button>
+      </div>
+    </div>
+  </div>
 
   <script src="profiles.js"></script>
   <script src="profile-switcher.js"></script>
@@ -359,16 +385,23 @@
       }
 
       function clearFieldErrors() {
-        const urlErr = document.getElementById("tool-url-error");
-        const colorErr = document.getElementById("tool-color-error");
-        const urlInput = document.getElementById("tool-url");
-        const color1 = document.getElementById("tool-color1");
-        const color2 = document.getElementById("tool-color2");
-        if (urlErr) urlErr.textContent = "";
-        if (colorErr) colorErr.textContent = "";
-        if (urlInput) urlInput.setAttribute("aria-invalid", "false");
-        if (color1) color1.setAttribute("aria-invalid", "false");
-        if (color2) color2.setAttribute("aria-invalid", "false");
+        const els = ["tool-url", "tool-color1", "tool-color2", "tool-title", "tool-description"];
+        const errIds = ["tool-url-error", "tool-color-error", "tool-title-error", "tool-description-error"];
+        errIds.forEach((id) => { const e = document.getElementById(id); if (e) e.textContent = ""; });
+        els.forEach((id) => { const e = document.getElementById(id); if (e) e.setAttribute("aria-invalid", "false"); });
+      }
+
+      function showTitleError(msg) {
+        const el = document.getElementById("tool-title-error");
+        const input = document.getElementById("tool-title");
+        if (el) el.textContent = msg || "";
+        if (input) input.setAttribute("aria-invalid", msg ? "true" : "false");
+      }
+      function showDescriptionError(msg) {
+        const el = document.getElementById("tool-description-error");
+        const input = document.getElementById("tool-description");
+        if (el) el.textContent = msg || "";
+        if (input) input.setAttribute("aria-invalid", msg ? "true" : "false");
       }
 
       function showUrlError(msg) {
@@ -399,6 +432,16 @@
         });
       }
 
+      document.getElementById("tool-title")?.addEventListener("blur", function () {
+        var v = this.value.trim();
+        if (!v) showTitleError("Title is required");
+        else showTitleError("");
+      });
+      document.getElementById("tool-description")?.addEventListener("blur", function () {
+        var v = this.value.trim();
+        if (!v) showDescriptionError("Description is required");
+        else showDescriptionError("");
+      });
       document.getElementById("tool-url")?.addEventListener("blur", function () {
         var v = this.value.trim();
         if (!v || v === "#") { showUrlError(""); return; }
@@ -422,15 +465,19 @@
 
       document.getElementById("tool-form").addEventListener("submit", (e) => {
         e.preventDefault();
+        const titleVal = document.getElementById("tool-title").value.trim();
+        const descVal = document.getElementById("tool-description").value.trim();
         const urlVal = document.getElementById("tool-url").value.trim();
         const color1 = document.getElementById("tool-color1").value.trim() || "#10a37f";
         const color2 = document.getElementById("tool-color2").value.trim() || "#1a7f5a";
         const errEl = document.getElementById("tool-form-error");
         if (errEl) errEl.style.display = "none";
+        showTitleError(!titleVal ? "Title is required" : "");
+        showDescriptionError(!descVal ? "Description is required" : "");
         showUrlError(urlVal && !isValidUrl(urlVal) ? "Enter a valid URL." : "");
         if (!isValidHex(color1) || !isValidHex(color2)) showColorError("Use hex format (e.g. #10a37f)");
         else showColorError("");
-        if ((urlVal && !isValidUrl(urlVal)) || !isValidHex(color1) || !isValidHex(color2)) {
+        if (!titleVal || !descVal || (urlVal && !isValidUrl(urlVal)) || !isValidHex(color1) || !isValidHex(color2)) {
           if (errEl) { errEl.textContent = "Please fix the errors above."; errEl.style.display = "block"; }
           return;
         }
@@ -520,15 +567,48 @@
           btn.addEventListener("click", () => {
             const item = (getCustomTools()[btn.dataset.cat] || [])[parseInt(btn.dataset.i, 10)];
             const title = item?.title || "this tool";
-            if (!confirm("Remove \"" + title + "\"? This cannot be undone.")) return;
-            const data = getCustomTools();
             const cat = btn.dataset.cat;
             const i = parseInt(btn.dataset.i, 10);
-            if (editingCat === cat && editingIndex === i) clearEdit();
-            data[cat].splice(i, 1);
-            saveCustomTools(data);
-            renderCustomList();
-            renderExport();
+            const modal = document.getElementById("admin-delete-modal");
+            const modalDesc = document.getElementById("admin-delete-modal-desc");
+            const cancelBtn = document.getElementById("admin-delete-cancel");
+            const confirmBtn = document.getElementById("admin-delete-confirm");
+            if (modal && modalDesc) {
+              modalDesc.textContent = "Remove \"" + title + "\"? This cannot be undone.";
+              modal.setAttribute("aria-hidden", "false");
+              modal.style.display = "flex";
+              let resolve;
+              const promise = new Promise((r) => { resolve = r; });
+              const done = (remove) => {
+                modal.setAttribute("aria-hidden", "true");
+                modal.style.display = "none";
+                resolve(remove);
+              };
+              cancelBtn?.addEventListener("click", () => done(false), { once: true });
+              confirmBtn?.addEventListener("click", () => done(true), { once: true });
+              modal.addEventListener("click", (e) => { if (e.target === modal) done(false); }, { once: true });
+              document.addEventListener("keydown", function esc(e) {
+                if (e.key === "Escape") { done(false); document.removeEventListener("keydown", esc); }
+              }, { once: true });
+              confirmBtn?.focus();
+              promise.then((remove) => {
+                if (!remove) return;
+                if (editingCat === cat && editingIndex === i) clearEdit();
+                const data = getCustomTools();
+                data[cat].splice(i, 1);
+                saveCustomTools(data);
+                renderCustomList();
+                renderExport();
+              });
+            } else {
+              if (!confirm("Remove \"" + title + "\"? This cannot be undone.")) return;
+              if (editingCat === cat && editingIndex === i) clearEdit();
+              const data = getCustomTools();
+              data[cat].splice(i, 1);
+              saveCustomTools(data);
+              renderCustomList();
+              renderExport();
+            }
           });
         });
       }

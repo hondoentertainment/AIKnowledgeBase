@@ -36,17 +36,20 @@
   }
 
   /* ========== Search toggle ========== */
-  searchToggle.addEventListener("click", () => {
-    searchBar.classList.toggle("open");
-    if (searchBar.classList.contains("open")) {
-      searchEl.focus();
-    } else {
-      searchEl.value = "";
-      filterCards("");
-    }
-  });
+  if (searchToggle && searchBar && searchEl) {
+    searchToggle.addEventListener("click", () => {
+      searchBar.classList.toggle("open");
+      if (searchBar.classList.contains("open")) {
+        searchEl.focus();
+      } else {
+        searchEl.value = "";
+        filterCards("");
+      }
+    });
+  }
 
   document.addEventListener("keydown", (e) => {
+    if (!searchBar || !searchEl) return;
     if (e.key === "/" && document.activeElement !== searchEl) {
       e.preventDefault();
       searchBar.classList.add("open");
@@ -269,6 +272,7 @@
   }
 
   function showShareFeedback(btn, ok, wasNativeShare) {
+    if (ok) haptic();
     const label = btn.getAttribute("aria-label") || "Share";
     const prev = btn.textContent;
     const successMsg = (wasNativeShare === true) ? "Shared!" : "Link copied!";
@@ -276,6 +280,7 @@
     btn.textContent = ok ? successMsg : "Copy failed";
     btn.setAttribute("aria-label", ok ? successAria : "Copy failed");
     btn.disabled = true;
+    if (ok && typeof window.showToast === "function") window.showToast(successMsg);
     setTimeout(() => {
       btn.textContent = prev || "Share";
       btn.setAttribute("aria-label", label);
@@ -431,6 +436,14 @@
     ].filter(Boolean);
 
     featuredRow.innerHTML = featured.map((item) => buildFeaturedCard(item)).join("");
+    featuredRow.removeAttribute("aria-busy");
+    featuredRow.setAttribute("aria-label", featured.length ? `Top picks: ${featured.length} items` : "No top picks yet");
+
+    const main = document.getElementById("main-content");
+    if (main) {
+      main.classList.remove("main-loading");
+      main.removeAttribute("aria-busy");
+    }
 
     if (window.CardBuilder?.initInteractions) window.CardBuilder.initInteractions();
     else {
@@ -634,13 +647,19 @@
   function filterCards(query) {
     const q = (query || "").toLowerCase().trim();
     let visible = 0;
-    document.querySelectorAll(".card").forEach((card) => {
-      const title = (card.dataset.title || "").toLowerCase();
-      const desc = (card.dataset.desc || "").toLowerCase();
-      const tags = (card.dataset.tags || "").toLowerCase();
-      const match = !q || title.includes(q) || desc.includes(q) || tags.includes(q);
-      card.classList.toggle("hidden", !match);
-      if (match) visible++;
+    categoryIds.forEach((id) => {
+      const section = document.getElementById(id);
+      if (!section) return;
+      let sectionVisible = 0;
+      section.querySelectorAll(".card").forEach((card) => {
+        const title = (card.dataset.title || "").toLowerCase();
+        const desc = (card.dataset.desc || "").toLowerCase();
+        const tags = (card.dataset.tags || "").toLowerCase();
+        const match = !q || title.includes(q) || desc.includes(q) || tags.includes(q);
+        card.classList.toggle("hidden", !match);
+        if (match) { visible++; sectionVisible++; }
+      });
+      section.classList.toggle("niche-section-hidden", !!q && sectionVisible === 0);
     });
     const noResultsEl = document.getElementById("search-no-results");
     if (noResultsEl) noResultsEl.remove();
@@ -650,8 +669,10 @@
   }
 
   const debouncedFilter = debounce((v) => filterCards(v), 80);
-  searchEl.addEventListener("input", (e) => debouncedFilter(e.target.value));
-  searchEl.addEventListener("search", (e) => filterCards(e.target.value));
+  if (searchEl) {
+    searchEl.addEventListener("input", (e) => debouncedFilter(e.target.value));
+    searchEl.addEventListener("search", (e) => filterCards(e.target.value));
+  }
 
   /* ========== Back to top ========== */
   const backToTop = document.getElementById("back-to-top");

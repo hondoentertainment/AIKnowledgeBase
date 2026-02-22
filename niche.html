@@ -24,6 +24,8 @@
   <script>Header.render({ activeNav: "niche", searchMode: "expandable", searchPlaceholder: "Search niche tools… (press /)" });</script>
   <script src="theme.js"></script>
   <script src="mobile-ux.js"></script>
+  <script src="offline.js"></script>
+  <script src="toast.js"></script>
 
   <!-- Featured banner -->
   <section class="featured" id="featured">
@@ -60,7 +62,7 @@
     </div>
   </nav>
 
-  <main class="main" id="main-content">
+  <main class="main main-loading" id="main-content" aria-busy="true">
     <section id="taxes" class="section">
       <div class="section-header">
         <h2 class="section-title">&#x1F4B8; Taxes <span class="section-count" id="taxes-count"></span></h2>

@@ -20,12 +20,13 @@
   <script>Header.render({ variant: "auth", authTabs: [{ href: "index.html", label: "Home", active: false }, { href: "login.html", label: "Log in", active: false }, { href: "register.html", label: "Sign up", active: true }] });</script>
   <script src="theme.js"></script>
   <script src="mobile-ux.js"></script>
+  <script src="offline.js"></script>
 
   <main id="main-content" class="auth-main">
     <section class="auth-card" aria-labelledby="auth-heading">
       <h1 id="auth-heading" class="auth-title">Create account</h1>
       <p class="auth-intro">Sign up to save your stack and access Admin.</p>
-      <p class="auth-local-notice">Accounts and data are stored on this device only. Use <a href="profiles.html">Profiles</a> to export a backup. Sessions last 7 days — when expiry is near, a notice appears in the header. <a href="auth-setup.html">Auth setup guide</a>.</p>
+      <p class="auth-local-notice"><strong>Local / demo mode:</strong> Accounts and data are stored on this device only. No backend — suitable for personal use. Use <a href="profiles.html">Profiles</a> to export a backup. <a href="auth-setup.html">Setup guide</a> · <a href="auth-setup.html#architecture">Auth architecture</a></p>
 
       <form id="register-form" class="auth-form">
         <label for="email">Email</label>

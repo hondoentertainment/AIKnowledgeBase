@@ -224,5 +224,18 @@
       localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
       window.dispatchEvent(new CustomEvent("profile-changed"));
     },
+    duplicateProfile(id) {
+      const profiles = getProfiles();
+      const src = profiles.find((p) => p.id === id);
+      if (!src) return null;
+      const newId = "p-" + Date.now();
+      const newName = src.name + " (copy)";
+      profiles.push({ id: newId, name: newName });
+      localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+      const srcData = getDataForProfile(id);
+      setDataForProfile(newId, JSON.parse(JSON.stringify(srcData)));
+      window.dispatchEvent(new CustomEvent("profile-changed"));
+      return newId;
+    },
   };
 })();

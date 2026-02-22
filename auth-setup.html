@@ -25,6 +25,7 @@
   <script>Header.render({ activeNav: null, searchMode: "expandable" });</script>
   <script src="theme.js"></script>
   <script src="mobile-ux.js"></script>
+  <script src="offline.js"></script>
 
   <main id="main-content" class="auth-setup-main">
     <h1>Auth Setup Guide</h1>
@@ -54,6 +55,11 @@
       </tbody>
     </table>
     <p>All sessions last 7 days by design. Use <a href="profiles.html">Profiles</a> to export a backup.</p>
+
+    <h2 id="architecture">Local / Demo Mode &amp; Production Plan</h2>
+    <p><strong>Current setup:</strong> Auth uses device-local storage (localStorage). No backend — suitable for personal use and demos. Data is not synced across devices. For production with multi-device sync and persistent accounts, consider migrating to Firebase or another backend.</p>
+    <p><strong>Firebase migration:</strong> Replace <code>auth.js</code> with Firebase Auth + Firestore. Store <code>stack</code>, <code>ratings</code>, <code>directUse</code>, <code>wantToTry</code> per user in Firestore. Add feature-flag to switch between local and Firebase.</p>
+    <p>Full migration details are in <code>docs/AUTH.md</code> in the project source.</p>
 
     <p><a href="login.html">← Back to Log in</a></p>
   </main>

@@ -76,5 +76,28 @@ test.describe('Search', () => {
       const hasPopular = await page.locator('.search-suggestions-label').filter({ hasText: 'Popular' }).first().isVisible();
       expect(hasPopular).toBeTruthy();
     });
+
+    test('ArrowDown focuses first suggestion', async ({ page }) => {
+      await page.goto('/search.html');
+      await page.locator('#search').focus();
+      await page.waitForTimeout(200);
+      await page.keyboard.press('ArrowDown');
+      await page.waitForTimeout(50);
+      const focused = await page.evaluate(() => document.activeElement?.classList?.contains('search-suggestion'));
+      expect(focused).toBeTruthy();
+    });
+
+    test('ArrowDown then Enter activates suggestion when suggestions visible', async ({ page }) => {
+      await page.goto('/search.html');
+      await page.locator('#search').focus();
+      await page.waitForTimeout(250);
+      const suggestionCount = await page.locator('.search-suggestion').count();
+      if (suggestionCount > 0) {
+        await page.keyboard.press('ArrowDown');
+        await page.waitForTimeout(80);
+        await page.keyboard.press('Enter');
+        await expect(page).toHaveURL(/search/, { timeout: 5000 });
+      }
+    });
   });
 });

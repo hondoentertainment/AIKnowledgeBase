@@ -207,6 +207,25 @@
           const val = searchEl.value.trim();
           if (val && window.SearchUtils) window.SearchUtils.addRecentSearch(val);
         }
+        if (suggestionsEl && !suggestionsEl.hidden) {
+          const options = suggestionsEl.querySelectorAll(".search-suggestion");
+          if (options.length === 0) return;
+          const current = document.activeElement;
+          let idx = Array.prototype.indexOf.call(options, current);
+          if (idx < 0) idx = -1;
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            const next = idx < options.length - 1 ? idx + 1 : 0;
+            options[next].focus();
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            const prev = idx <= 0 ? options.length - 1 : idx - 1;
+            options[prev].focus();
+          } else if (e.key === "Enter" && idx >= 0) {
+            e.preventDefault();
+            window.location.href = "search.html?q=" + encodeURIComponent((options[idx].dataset.query || options[idx].getAttribute("data-query") || "").trim());
+          }
+        }
       });
     }
 

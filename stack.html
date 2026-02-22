@@ -21,8 +21,10 @@
   <script>Header.render({ activeNav: "stack", searchMode: "expandable", searchPlaceholder: "Search your stack… (press /)" });</script>
   <script src="theme.js"></script>
   <script src="mobile-ux.js"></script>
+  <script src="offline.js"></script>
+  <script src="toast.js"></script>
 
-  <main class="stack-main" id="main-content">
+  <main class="stack-main main-loading" id="main-content" aria-busy="true">
     <section class="stack-hero">
       <h1 class="stack-hero-title">My Stack</h1>
       <p class="stack-hero-desc">Everything I use for AI, learning, and staying sharp</p>
@@ -43,6 +45,7 @@
             <option value="rating">Rating (high first)</option>
             <option value="name">Name (A–Z)</option>
           </select>
+          <button type="button" id="stack-clear-all-btn" class="stack-clear-all-btn" aria-label="Remove all items from stack">Clear stack</button>
         </div>
       </div>
     </section>
@@ -52,7 +55,9 @@
         <span class="stack-section-icon">&#x1F4BB;</span>
         AI Tools
       </h2>
-      <div class="stack-grid" id="stack-tools-grid"></div>
+      <div class="stack-grid" id="stack-tools-grid">
+        <div class="card-skeleton" aria-hidden="true"></div><div class="card-skeleton" aria-hidden="true"></div><div class="card-skeleton" aria-hidden="true"></div>
+      </div>
     </section>
 
     <section class="stack-section" id="stack-knowledge">

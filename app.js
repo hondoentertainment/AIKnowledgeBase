@@ -275,10 +275,12 @@
     }
     const label = saved ? saved.toFixed(1).replace(/\.0$/, "") : "";
     const ariaLabel = saved ? `Rate ${escapeAttr(title)} — currently ${saved} of 5 stars` : `Rate ${escapeAttr(title)}`;
+    const clearBtn = saved ? `<button type="button" class="rating-clear-btn" data-clear-title="${escapeAttr(title)}" aria-label="Clear rating for ${escapeAttr(title)}">Clear</button>` : "";
     return (
       `<div class="card-rating" data-title="${escapeAttr(title)}" data-rating="${saved}" data-grad-id="${escapeAttr(gradId)}" role="group" aria-label="${ariaLabel}">` +
         stars.join("") +
         `<span class="rating-value" aria-hidden="true">${label}</span>` +
+        clearBtn +
       `</div>`
     );
   }
@@ -406,6 +408,22 @@
       });
 
       container.addEventListener("mouseleave", clearPreview);
+
+      const clearBtn = container.querySelector(".rating-clear-btn");
+      if (clearBtn) {
+        clearBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          haptic();
+          setRating(title, 0);
+          clearPreview();
+          updateDisplay(0);
+          container.classList.add("just-rated");
+          setTimeout(() => container.classList.remove("just-rated"), 450);
+          announce("Rating cleared");
+          if (clearBtn.parentNode) clearBtn.remove();
+        });
+      }
     });
   }
 
@@ -531,6 +549,7 @@
     btn.textContent = ok ? successMsg : "Copy failed";
     btn.setAttribute("aria-label", ok ? successAria : "Copy failed");
     btn.disabled = true;
+    if (ok && typeof window.showToast === "function") window.showToast(successMsg);
     setTimeout(() => {
       btn.textContent = prev || "Share";
       btn.setAttribute("aria-label", label);
@@ -790,10 +809,7 @@
 
   function initDirectUseButtons() {
     document.querySelectorAll(".direct-use-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        haptic();
+      const handleClick = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } haptic();
         const title = btn.dataset.directUseTitle;
         const wasUsing = isDirectUse(title);
         toggleDirectUse(title);
@@ -817,16 +833,15 @@
             badge.remove();
           }
         }
-      });
+      };
+      btn.addEventListener("click", handleClick);
+      btn.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleClick(); } });
     });
   }
 
   function initWantToTryButtons() {
     document.querySelectorAll(".want-to-try-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        haptic();
+      const handleClick = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } haptic();
         const title = btn.dataset.wantToTryTitle;
         const wasFlagged = isWantToTry(title);
         toggleWantToTry(title);
@@ -850,7 +865,9 @@
             badge.remove();
           }
         }
-      });
+      };
+      btn.addEventListener("click", handleClick);
+      btn.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleClick(); } });
     });
   }
 
@@ -1023,8 +1040,32 @@
   function hideSuggestions() {
     if (searchSuggestionsEl) searchSuggestionsEl.hidden = true;
   }
+  function getSuggestionOptions() {
+    return searchSuggestionsEl ? searchSuggestionsEl.querySelectorAll(".search-suggestion") : [];
+  }
+  function handleSuggestionsKeydown(e) {
+    if (!searchSuggestionsEl || searchSuggestionsEl.hidden) return;
+    const options = getSuggestionOptions();
+    if (options.length === 0) return;
+    const current = document.activeElement;
+    let idx = Array.prototype.indexOf.call(options, current);
+    if (idx < 0) idx = -1;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const next = idx < options.length - 1 ? idx + 1 : 0;
+      options[next].focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const prev = idx <= 0 ? options.length - 1 : idx - 1;
+      options[prev].focus();
+    } else if (e.key === "Enter" && idx >= 0) {
+      e.preventDefault();
+      options[idx].click();
+    }
+  }
   if (searchBar && searchEl) {
     searchEl.addEventListener("focus", () => updateSearchSuggestions(searchEl.value));
+    searchEl.addEventListener("keydown", handleSuggestionsKeydown);
     searchBar.addEventListener("focusout", (e) => {
       if (!searchBar.contains(e.relatedTarget)) setTimeout(hideSuggestions, 150);
     });

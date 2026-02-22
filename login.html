@@ -20,12 +20,13 @@
   <script>Header.render({ variant: "auth", authTabs: [{ href: "index.html", label: "Home", active: false }, { href: "login.html", label: "Log in", active: true }] });</script>
   <script src="theme.js"></script>
   <script src="mobile-ux.js"></script>
+  <script src="offline.js"></script>
 
   <main id="main-content" class="auth-main">
     <section class="auth-card" aria-labelledby="auth-heading">
       <h1 id="auth-heading" class="auth-title">Log in</h1>
       <p class="auth-intro" id="auth-intro">Sign in to access Admin and your personalized stack.</p>
-      <p class="auth-local-notice">Accounts and data are stored on this device only. Use <a href="profiles.html">Profiles</a> to export a backup. Sessions last 7 days — a notice appears in the header when your session is close to expiring.</p>
+      <p class="auth-local-notice"><strong>Local / demo mode:</strong> Accounts and data are stored on this device only. No backend — suitable for personal use. Use <a href="profiles.html">Profiles</a> to export a backup. <a href="auth-setup.html">Setup guide</a> · <a href="auth-setup.html#architecture">Auth architecture</a></p>
       <p class="auth-success-msg" id="auth-success-msg" style="display:none">Account created. Log in below.</p>
 
       <form id="login-form" class="auth-form">
