@@ -18,9 +18,13 @@
 .about-hero-title {
   font-size: clamp(2rem, 5vw, 2.8rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   margin: 0 0 0.35rem;
   color: var(--text);
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .about-hero-tagline {
@@ -92,9 +96,9 @@
 }
 
 .about-link:hover {
-  background: var(--accent);
+  background: var(--accent-muted);
   border-color: var(--accent);
-  color: var(--btn-on-accent);
+  color: var(--accent);
 }
 
 /* --- Responsive -------------------------- */
