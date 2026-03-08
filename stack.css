@@ -19,7 +19,7 @@
 .stack-hero-title {
   font-size: clamp(2rem, 5vw, 2.9rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   margin: 0 0 0.35rem;
   color: var(--text);
 }
@@ -167,8 +167,8 @@
 }
 
 .stack-card:hover {
-  transform: translateY(-2px);
-  border-color: #d8d8d8;
+  transform: translateY(-3px);
+  border-color: rgba(99, 102, 241, 0.25);
   box-shadow: var(--shadow-hover);
 }
 
