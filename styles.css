@@ -2622,6 +2622,12 @@ body.more-menu-open {
   padding: 0.2rem 0.35rem;
   cursor: pointer;
   margin-left: 0.25rem;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
 }
 .rating-clear-btn:hover {
   color: var(--text-muted);
@@ -3899,10 +3905,12 @@ body {
 .bottom-nav-item.active {
   color: var(--accent);
   background: var(--accent-muted);
+  box-shadow: 0 0 0 1.5px var(--accent), 0 2px 8px var(--accent-glow);
 }
 
 .bottom-nav-item.active::after {
   background: var(--accent);
+  box-shadow: 0 0 6px var(--accent-glow);
 }
 
 /* --- Footer --------------------------------- */
