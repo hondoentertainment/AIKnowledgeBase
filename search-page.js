@@ -70,34 +70,9 @@
     return d.innerHTML.replace(/"/g, "&quot;");
   }
 
-  function gradientCSS(colorPair) {
-    if (colorPair && colorPair.length === 2) {
-      return `linear-gradient(135deg, ${colorPair[0]} 0%, ${colorPair[1]} 100%)`;
-    }
-    return "linear-gradient(135deg, #30363d 0%, #21262d 100%)";
-  }
-
   function buildResultCard(item) {
-    if (window.CardBuilder && typeof window.CardBuilder.buildCard === "function") {
-      const cat = item.category || "tools";
-      return window.CardBuilder.buildCard(item, cat);
-    }
-    const url = item.url || "#";
-    const icon = item.icon || "";
-    const grad = gradientCSS(item.color);
-    return `
-      <a href="${escapeHtml(url)}" class="card search-result-card" data-title="${escapeAttr(item.title)}" target="_blank" rel="noopener">
-        <div class="card-cover" style="background:${grad}">
-          <span class="card-cover-icon">${escapeHtml(icon)}</span>
-        </div>
-        <div class="card-body">
-          <span class="card-title">${escapeHtml(item.title)}</span>
-          <p class="card-desc">${escapeHtml(item.description || "")}</p>
-          <a href="${escapeHtml(item.categoryPage)}" class="search-result-category" data-category="${escapeHtml(item.category)}">
-            ${escapeHtml(item.categoryLabel)}
-          </a>
-        </div>
-      </a>`;
+    const cat = item.category || "tools";
+    return window.CardBuilder.buildCard(item, cat);
   }
 
   function renderResults(query) {

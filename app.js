@@ -678,6 +678,7 @@
         console.error("AI Knowledge Hub: siteData not loaded");
         if (mainEl) {
           mainEl.classList.remove("main-loading");
+          mainEl.setAttribute("aria-busy", "false");
           mainEl.innerHTML = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">⚠️</span><p>Unable to load content. Please refresh the page.</p></div>';
         }
         return;
@@ -686,6 +687,7 @@
       console.error("AI Knowledge Hub: render error", err);
       if (mainEl) {
         mainEl.classList.remove("main-loading");
+        mainEl.setAttribute("aria-busy", "false");
         mainEl.innerHTML = '<div class="section-empty"><span class="section-empty-icon" aria-hidden="true">⚠️</span><p>Something went wrong. Please refresh the page.</p></div>';
       }
       return;
@@ -726,7 +728,7 @@
 
       const hubGrid = document.getElementById("category-hub-grid");
       if (hubGrid) {
-        hubGrid.removeAttribute("aria-busy");
+        hubGrid.setAttribute("aria-busy", "false");
       }
       CATEGORY_CONFIG.forEach((cfg) => {
         const hubEl = document.getElementById(cfg.hubCountId);
@@ -757,7 +759,7 @@
         .map(({ item }) => item);
 
       if (featuredRow) {
-        featuredRow.removeAttribute("aria-busy");
+        featuredRow.setAttribute("aria-busy", "false");
         const loadingEl = document.getElementById("featured-loading");
         if (loadingEl) loadingEl.remove();
         if (featured.length > 0) {
@@ -793,7 +795,7 @@
     const main = document.getElementById("main-content");
     if (main) {
       main.classList.remove("main-loading");
-      main.removeAttribute("aria-busy");
+      main.setAttribute("aria-busy", "false");
     }
 
     if (window.CardBuilder?.initInteractions) window.CardBuilder.initInteractions();
