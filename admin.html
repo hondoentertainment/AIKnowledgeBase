@@ -306,6 +306,7 @@
         if (logoutWrap) logoutWrap.style.display = "inline-flex";
         const session = window.Auth && window.Auth.getSession();
         if (userEmailEl && session) userEmailEl.textContent = session.email;
+        clearEdit();
         loadForm();
         renderCustomList();
         renderExport();
@@ -546,6 +547,7 @@
       });
 
       document.getElementById("reset-form").addEventListener("click", function () {
+        clearEdit();
         loadForm();
         formDirty = false;
         hideSuccessMessage();
@@ -553,6 +555,7 @@
       });
       document.getElementById("cancel-edit").addEventListener("click", function () {
         clearEdit();
+        loadForm();
         formDirty = false;
         hideSuccessMessage();
         document.getElementById("tool-title")?.focus();

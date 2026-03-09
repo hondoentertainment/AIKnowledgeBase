@@ -777,17 +777,28 @@
         const countEl = document.getElementById(cfg.countId);
         const sortEl = document.getElementById(cfg.id + "-sort");
         let items = data[cfg.dataKey] || [];
+        /* Restore sort selection from session storage */
+        const sortStorageKey = "sort:" + cfg.id;
+        const savedSort = sessionStorage.getItem(sortStorageKey);
+        if (sortEl && savedSort && sortEl.value !== savedSort) {
+          sortEl.value = savedSort;
+        }
         const sortBy = sortEl?.value || "default";
         if (sortBy === "rating") {
           items = [...items].sort((a, b) => (getRating(b.title) || 0) - (getRating(a.title) || 0));
+        } else if (sortBy === "name") {
+          items = [...items].sort((a, b) => (a.title || "").localeCompare(b.title || "", undefined, { sensitivity: "base" }));
         } else if (sortBy === "level") {
-          items = [...items].sort((a, b) => (b.level || 0) - (a.level || 0));
+          items = [...items].sort((a, b) => (a.level || 0) - (b.level || 0));
         }
         if (countEl) countEl.textContent = items.length;
         if (grid) grid.innerHTML = items.length ? items.map((i) => buildCard(i, cfg.id)).join("") : cfg.emptyHtml;
         if (sortEl && !sortEl.dataset.sortWired) {
           sortEl.dataset.sortWired = "1";
-          sortEl.addEventListener("change", () => render());
+          sortEl.addEventListener("change", () => {
+            sessionStorage.setItem(sortStorageKey, sortEl.value);
+            render();
+          });
         }
       }
     }
