@@ -33,12 +33,18 @@
     let pulled = 0;
     let indicator = null;
 
+    let refreshing = false;
+
     function getIndicator() {
       if (indicator) return indicator;
       indicator = document.createElement("div");
       indicator.className = "pull-to-refresh-indicator";
       indicator.setAttribute("aria-hidden", "true");
-      indicator.innerHTML = '<span class="pull-to-refresh-text">Pull to refresh</span>';
+      indicator.setAttribute("role", "status");
+      indicator.innerHTML =
+        '<span class="pull-to-refresh-arrow" aria-hidden="true">\u2193</span>' +
+        '<span class="pull-to-refresh-spinner" aria-hidden="true"></span>' +
+        '<span class="pull-to-refresh-text"></span>';
       document.body.appendChild(indicator);
       return indicator;
     }
@@ -46,15 +52,31 @@
     function showIndicator(progress) {
       const ind = getIndicator();
       ind.classList.toggle("at-threshold", progress >= 1);
+      ind.classList.remove("refreshing");
       ind.style.opacity = Math.min(1, progress * 2);
-      ind.style.transform = `translateY(${Math.min(80, pulled)}px)`;
+      ind.style.transform = "translateY(" + Math.min(80, pulled) + "px)";
+      // Rotate arrow based on pull progress
+      const arrow = ind.querySelector(".pull-to-refresh-arrow");
+      if (arrow && progress < 1) {
+        arrow.style.transform = "rotate(" + Math.min(180, progress * 180) + "deg)";
+      }
+    }
+
+    function showRefreshing() {
+      const ind = getIndicator();
+      ind.classList.remove("at-threshold");
+      ind.classList.add("refreshing");
+      ind.style.opacity = "1";
+      ind.style.transform = "translateY(48px)";
+      ind.setAttribute("aria-hidden", "false");
     }
 
     function hideIndicator() {
       if (indicator) {
         indicator.style.opacity = "0";
         indicator.style.transform = "translateY(-40px)";
-        indicator.classList.remove("at-threshold");
+        indicator.classList.remove("at-threshold", "refreshing");
+        indicator.setAttribute("aria-hidden", "true");
       }
       pulled = 0;
     }
@@ -65,6 +87,7 @@
     document.addEventListener(
       "touchstart",
       (e) => {
+        if (refreshing) return;
         if (window.scrollY <= 5) {
           startY = e.touches[0].clientY;
           pulled = 0;
@@ -77,7 +100,7 @@
     document.addEventListener(
       "touchmove",
       (e) => {
-        if (startY <= 0 || window.scrollY > 5) return;
+        if (refreshing || startY <= 0 || window.scrollY > 5) return;
         const y = e.touches[0].clientY;
         pulled = Math.min(120, Math.max(0, (y - startY) * 0.5));
         if (pulled >= THRESHOLD && !didHaptic) {
@@ -90,10 +113,14 @@
     );
 
     document.addEventListener("touchend", () => {
-      if (startY <= 0) return;
+      if (refreshing || startY <= 0) return;
       if (pulled >= THRESHOLD) {
-        hideIndicator();
-        window.location.reload();
+        refreshing = true;
+        showRefreshing();
+        // Brief delay so user sees the refreshing state before reload
+        setTimeout(function () {
+          window.location.reload();
+        }, 400);
       } else {
         hideIndicator();
       }
