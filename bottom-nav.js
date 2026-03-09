@@ -114,6 +114,33 @@
     }
   }
 
+  /* --- URL-based active state detection --- */
+  function setActiveNavFromURL() {
+    var bottomNav = document.querySelector(".bottom-nav");
+    if (!bottomNav) return;
+
+    var currentPage = window.location.pathname.split("/").pop() || "index.html";
+    // Normalize: treat empty path or "/" as index.html
+    if (!currentPage || currentPage === "") currentPage = "index.html";
+
+    var navItems = bottomNav.querySelectorAll(".bottom-nav-item[href]");
+    navItems.forEach(function (item) {
+      var href = item.getAttribute("href");
+      if (!href) return;
+      var itemPage = href.split("/").pop();
+
+      if (itemPage === currentPage) {
+        item.classList.add("active");
+        item.setAttribute("aria-current", "page");
+      } else {
+        item.classList.remove("active");
+        item.removeAttribute("aria-current");
+      }
+    });
+  }
+
+  setActiveNavFromURL();
+
   var bottomNav = document.querySelector(".bottom-nav");
   if (bottomNav) {
     bottomNav.addEventListener("click", function (e) {
