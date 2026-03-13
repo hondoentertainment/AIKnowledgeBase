@@ -17,6 +17,17 @@ test.describe('Search', () => {
       expect(hasResults || hasEmptyHint).toBeTruthy();
     });
 
+    test('Analytics API is available on search page', async ({ page }) => {
+      await page.goto('/search.html');
+      const hasAnalytics = await page.evaluate(() => (
+        typeof window.Analytics === 'object'
+        && typeof window.Analytics.track === 'function'
+        && typeof window.Analytics.isEnabled === 'function'
+        && typeof window.Analytics.setEnabled === 'function'
+      ));
+      expect(hasAnalytics).toBeTruthy();
+    });
+
     test('CardBuilder and interactive cards available on search page', async ({ page }) => {
       await page.goto('/search.html');
       const hasCardBuilder = await page.evaluate(() => typeof window.CardBuilder === 'object' && typeof window.CardBuilder.buildCard === 'function');
@@ -66,6 +77,58 @@ test.describe('Search', () => {
       await page.goto('/search.html');
       await page.keyboard.press('/');
       await expect(page.locator('#search')).toBeFocused();
+    });
+  });
+
+
+  test.describe('Search card interactions', () => {
+    test('stack toggle persists after reload', async ({ page }) => {
+      await page.goto('/search.html?q=ai');
+      await page.waitForLoadState('networkidle');
+
+      const firstCard = page.locator('#search-grouped .card').first();
+      await expect(firstCard).toBeVisible();
+
+      const title = await firstCard.getAttribute('data-title');
+      const stackBtn = firstCard.locator('.stack-btn');
+      await stackBtn.click();
+      await expect(stackBtn).toHaveClass(/in-stack/);
+
+      const stackContainsTitle = await page.evaluate((cardTitle) => {
+        const raw = localStorage.getItem('myStack');
+        const stack = raw ? JSON.parse(raw) : [];
+        return stack.includes(cardTitle);
+      }, title);
+      expect(stackContainsTitle).toBeTruthy();
+
+      await page.reload();
+      await page.waitForLoadState('networkidle');
+      const reloadedCard = page.locator('#search-grouped .card').first();
+      await expect(reloadedCard).toHaveAttribute('data-title', title);
+      await expect(reloadedCard.locator('.stack-btn')).toHaveClass(/in-stack/);
+    });
+
+    test('star rating persists after reload', async ({ page }) => {
+      await page.goto('/search.html?q=ai');
+      await page.waitForLoadState('networkidle');
+
+      const firstCard = page.locator('#search-grouped .card').first();
+      await expect(firstCard).toBeVisible();
+
+      const title = await firstCard.getAttribute('data-title');
+      const starRightHalf = firstCard.locator('.card-rating .star[data-star="3"] .star-half.star-right');
+      await starRightHalf.click();
+
+      await expect(firstCard.locator('.card-rating')).toHaveAttribute('data-rating', '3');
+
+      const savedRating = await page.evaluate((cardTitle) => localStorage.getItem(`rating:${cardTitle}`), title);
+      expect(savedRating).toBe('3');
+
+      await page.reload();
+      await page.waitForLoadState('networkidle');
+      const reloadedCard = page.locator('#search-grouped .card').first();
+      await expect(reloadedCard).toHaveAttribute('data-title', title);
+      await expect(reloadedCard.locator('.card-rating')).toHaveAttribute('data-rating', '3');
     });
   });
 

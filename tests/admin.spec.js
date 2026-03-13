@@ -52,6 +52,19 @@ test.describe('Admin', () => {
       await expect(page.locator('#tool-title-error')).toContainText(/required/i);
     });
 
+
+    test('beforeunload blocks navigation when form is dirty', async ({ page }) => {
+      await page.locator('#tool-title').fill('Unsaved Draft Title');
+
+      const beforeUnloadTriggered = await page.evaluate(() => {
+        const event = new Event('beforeunload', { cancelable: true });
+        window.dispatchEvent(event);
+        return event.defaultPrevented;
+      });
+
+      expect(beforeUnloadTriggered).toBeTruthy();
+    });
+
     test('empty description shows inline error on blur', async ({ page }) => {
       await page.locator('#tool-description').focus();
       await page.locator('#tool-description').fill('');
@@ -99,6 +112,49 @@ test.describe('Admin', () => {
   });
 
   test.describe('Google Client ID settings', () => {
+    test('Google Client ID saves to localStorage from Admin settings', async ({ page }) => {
+      const email = `admin-gcid-save-${Date.now()}@test.local`;
+      const password = process.env.ADMIN_PASSWORD || 'Test1234';
+      const clientId = '1234567890-test.apps.googleusercontent.com';
+      await page.goto('/register.html');
+      await page.locator('#email').fill(email);
+      await page.locator('#password').fill(password);
+      await page.locator('#password-confirm').fill(password);
+      await page.locator('#register-form').getByRole('button', { name: /create/i }).click();
+      await page.goto('/admin.html');
+      await page.locator('#admin-email').fill(email);
+      await page.locator('#admin-password').fill(password);
+      await page.locator('#admin-login-form').getByRole('button', { name: /log in/i }).click();
+      await expect(page.locator('#admin-content')).toBeVisible({ timeout: 5000 });
+
+      await page.locator('#google-client-id').fill(clientId);
+      await page.locator('#save-google-client-id').click();
+      await expect(page.locator('#google-client-id-feedback')).toContainText(/saved/i);
+
+      const savedValue = await page.evaluate(() => localStorage.getItem('googleClientId'));
+      expect(savedValue).toBe(clientId);
+    });
+
+    test('Admin has analytics privacy controls', async ({ page }) => {
+      const email = `admin-analytics-${Date.now()}@test.local`;
+      const password = process.env.ADMIN_PASSWORD || 'Test1234';
+      await page.goto('/register.html');
+      await page.locator('#email').fill(email);
+      await page.locator('#password').fill(password);
+      await page.locator('#password-confirm').fill(password);
+      await page.locator('#register-form').getByRole('button', { name: /create/i }).click();
+      await page.goto('/admin.html');
+      await page.locator('#admin-email').fill(email);
+      await page.locator('#admin-password').fill(password);
+      await page.locator('#admin-login-form').getByRole('button', { name: /log in/i }).click();
+      await expect(page.locator('#admin-content')).toBeVisible({ timeout: 5000 });
+
+      await expect(page.locator('#analytics-enabled')).toBeVisible();
+      await expect(page.locator('#analytics-save')).toBeVisible();
+      await expect(page.locator('#analytics-export')).toBeVisible();
+      await expect(page.locator('#analytics-clear')).toBeVisible();
+    });
+
     test('Admin has Google Client ID settings section', async ({ page }) => {
       const email = `admin-gcid-${Date.now()}@test.local`;
       const password = process.env.ADMIN_PASSWORD || 'Test1234';

@@ -169,6 +169,7 @@
             const val = parseFloat(half.dataset.val);
             const newVal = getRating(title) === val ? 0 : val;
             setRating(title, newVal); clearPreview(); updateDisplay(newVal);
+            window.Analytics?.track?.("rating_set", { title, value: newVal });
             container.classList.add("just-rated"); setTimeout(() => container.classList.remove("just-rated"), 450);
             announce(newVal ? "Rated " + newVal + " of 5" : "Rating cleared");
           });
@@ -179,9 +180,9 @@
           const current = getRating(title);
           const starArr = Array.from(starEls);
           const idx = starArr.indexOf(starEl);
-          if (e.key === "ArrowRight") { const next = Math.min(5, current + 0.5); setRating(title, next); updateDisplay(next); if (idx < starArr.length - 1) starArr[idx + 1].focus(); announce("Rated " + next + " of 5"); }
-          else if (e.key === "ArrowLeft") { const next = Math.max(0, current - 0.5); setRating(title, next); updateDisplay(next); if (idx > 0) starArr[idx - 1].focus(); announce(next ? "Rated " + next + " of 5" : "Rating cleared"); }
-          else if (e.key === "Enter" || e.key === " ") { const starIdx = parseInt(starEl.dataset.star, 10); const val = current === starIdx ? 0 : starIdx; setRating(title, val); updateDisplay(val); container.classList.add("just-rated"); setTimeout(() => container.classList.remove("just-rated"), 450); announce(val ? "Rated " + val + " of 5" : "Rating cleared"); }
+          if (e.key === "ArrowRight") { const next = Math.min(5, current + 0.5); setRating(title, next); updateDisplay(next); window.Analytics?.track?.("rating_set", { title, value: next, source: "keyboard" }); if (idx < starArr.length - 1) starArr[idx + 1].focus(); announce("Rated " + next + " of 5"); }
+          else if (e.key === "ArrowLeft") { const next = Math.max(0, current - 0.5); setRating(title, next); updateDisplay(next); window.Analytics?.track?.("rating_set", { title, value: next, source: "keyboard" }); if (idx > 0) starArr[idx - 1].focus(); announce(next ? "Rated " + next + " of 5" : "Rating cleared"); }
+          else if (e.key === "Enter" || e.key === " ") { const starIdx = parseInt(starEl.dataset.star, 10); const val = current === starIdx ? 0 : starIdx; setRating(title, val); updateDisplay(val); window.Analytics?.track?.("rating_set", { title, value: val, source: "keyboard" }); container.classList.add("just-rated"); setTimeout(() => container.classList.remove("just-rated"), 450); announce(val ? "Rated " + val + " of 5" : "Rating cleared"); }
         });
       });
       container.addEventListener("mouseleave", clearPreview);
@@ -210,6 +211,7 @@
         const wasInStack = isInStack(title);
         haptic(); toggleStack(title);
         const nowInStack = isInStack(title);
+        window.Analytics?.track?.("stack_toggled", { title, inStack: nowInStack });
         if (nowInStack && !wasInStack) window.MobileUX?.haptic?.success?.();
         btn.classList.toggle("in-stack", nowInStack);
         btn.textContent = nowInStack ? "✓ In Stack" : "+ Add to Stack";
@@ -225,6 +227,7 @@
         const title = btn.dataset.directUseTitle;
         const wasUsing = isDirectUse(title);
         toggleDirectUse(title);
+        window.Analytics?.track?.("direct_use_toggled", { title, using: isDirectUse(title) });
         if (isDirectUse(title) && !wasUsing) window.MobileUX?.haptic?.success?.();
         btn.classList.toggle("using", isDirectUse(title));
         btn.textContent = isDirectUse(title) ? "✓ Using" : "I Use This";
@@ -248,6 +251,7 @@
         const title = btn.dataset.wantToTryTitle;
         const wasFlagged = isWantToTry(title);
         toggleWantToTry(title);
+        window.Analytics?.track?.("want_to_try_toggled", { title, flagged: isWantToTry(title) });
         if (isWantToTry(title) && !wasFlagged) window.MobileUX?.haptic?.success?.();
         btn.classList.toggle("flagged", isWantToTry(title));
         btn.textContent = isWantToTry(title) ? "🔖 Flagged" : "Want to Try";
@@ -273,6 +277,7 @@
         if (!sharePage || !shareCategory || !shareTitle) return;
         const url = getShareUrl(sharePage, shareCategory, shareTitle);
         const shareData = { url, title: shareTitle, text: shareDesc || shareTitle };
+        window.Analytics?.track?.("share_clicked", { title: shareTitle, category: shareCategory });
         if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
           navigator.share(shareData).then(() => showShareFeedback(btn, true, true)).catch(() => copyAndFeedback(url, btn));
         } else {

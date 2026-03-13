@@ -148,6 +148,11 @@
       const count = document.querySelectorAll("#search-grouped .card").length;
       if (searchResultsEl) searchResultsEl.textContent = count ? `${count} results` : "";
       if (liveRegion) liveRegion.setAttribute("aria-live", "polite");
+      window.Analytics?.track?.("search_performed", {
+        queryLength: val.length,
+        hasQuery: !!val,
+        resultCount: count,
+      });
     }
 
     if (q && groupedEl) {
@@ -181,6 +186,7 @@
         if (e.key === "Enter") {
           const val = searchEl.value.trim();
           if (val && window.SearchUtils) window.SearchUtils.addRecentSearch(val);
+          if (val) window.Analytics?.track?.("search_enter_pressed", { queryLength: val.length });
         }
         if (suggestionsEl && !suggestionsEl.hidden) {
           const options = suggestionsEl.querySelectorAll(".search-suggestion");

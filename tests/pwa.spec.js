@@ -37,4 +37,30 @@ test.describe('PWA', () => {
     expect(json?.name).toBe('AI Knowledge Hub');
     expect(json?.short_name).toBeDefined();
   });
+
+  test('service worker caches include key app assets', async ({ page }) => {
+    const swSource = await page.request.get('/sw.js');
+    expect(swSource.ok()).toBeTruthy();
+    const text = await swSource.text();
+    expect(text).toContain('profile-switcher.js');
+    expect(text).toContain('pwa-install.js');
+    expect(text).toContain('manifest.json');
+  });
+
+  test('PWAInstall exposes deferred prompt controls', async ({ page }) => {
+    await page.goto('/');
+    const apiShape = await page.evaluate(() => ({
+      hasObject: typeof window.PWAInstall === 'object',
+      hasInstall: typeof window.PWAInstall?.install === 'function',
+      hasCanPrompt: typeof window.PWAInstall?.canPrompt === 'function',
+      hasShow: typeof window.PWAInstall?.show === 'function',
+      hasHide: typeof window.PWAInstall?.hide === 'function',
+    }));
+
+    expect(apiShape.hasObject).toBeTruthy();
+    expect(apiShape.hasInstall).toBeTruthy();
+    expect(apiShape.hasCanPrompt).toBeTruthy();
+    expect(apiShape.hasShow).toBeTruthy();
+    expect(apiShape.hasHide).toBeTruthy();
+  });
 });
