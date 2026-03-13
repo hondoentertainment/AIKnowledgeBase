@@ -26,6 +26,21 @@ test.describe('Auth', () => {
   });
 
   test.describe('Session expiry', () => {
+    test('session expiry message appears when less than 2 days remain', async ({ page }) => {
+      const expiresAt = Date.now() + 36 * 60 * 60 * 1000; // 1.5 days
+      await page.addInitScript((session) => {
+        localStorage.setItem('authSession', JSON.stringify(session));
+      }, {
+        userId: 'session-test-user',
+        email: 'session@test.local',
+        role: 'admin',
+        expiresAt,
+      });
+
+      await page.goto('/');
+      await expect(page.locator('#session-expiry-note')).toContainText(/session expires in/i);
+    });
+
     test('session expiry note element exists when logged in', async ({ page }) => {
       const email = `auth-test-${Date.now()}@test.local`;
       const password = 'Test1234';

@@ -39,6 +39,7 @@ const ASSETS = [
   "toast.js",
   "bottom-nav.js",
   "app.js",
+  "analytics.js",
   "search-utils.js",
   "search-page.js",
   "stack.js",

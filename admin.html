@@ -176,6 +176,19 @@
           <button type="button" id="save-google-client-id" class="admin-copy-btn">Save</button>
         </div>
         <span id="google-client-id-feedback" class="admin-copy-feedback" aria-live="polite"></span>
+
+        <h3 style="margin-top:1.2rem">Privacy-friendly Analytics</h3>
+        <p class="intro">Control local analytics used to improve UX. Data stays on this device unless you export it.</p>
+        <div class="admin-form-row" style="align-items:center">
+          <label for="analytics-enabled" style="margin:0">Enable analytics</label>
+          <input type="checkbox" id="analytics-enabled" aria-label="Enable analytics">
+          <button type="button" id="analytics-save" class="admin-copy-btn">Save</button>
+        </div>
+        <div class="admin-form-row">
+          <button type="button" id="analytics-export" class="admin-copy-btn">Export analytics JSON</button>
+          <button type="button" id="analytics-clear" class="admin-copy-btn">Clear analytics</button>
+        </div>
+        <span id="analytics-feedback" class="admin-copy-feedback" aria-live="polite"></span>
       </div>
 
       <div class="admin-export">
@@ -237,6 +250,7 @@
 
   <script src="profiles.js"></script>
   <script src="profile-switcher.js"></script>
+  <script src="analytics.js"></script>
   <script src="auth.js"></script>
   <script src="bottom-nav.js"></script>
   <script>
@@ -311,6 +325,7 @@
         renderCustomList();
         renderExport();
         loadGoogleClientId();
+        loadAnalyticsSettings();
         const firstInput = adminContent.querySelector("#tool-title");
         if (firstInput) firstInput.focus();
       }
@@ -318,6 +333,19 @@
       function loadGoogleClientId() {
         const el = document.getElementById("google-client-id");
         if (el && window.Auth) el.value = window.Auth.getGoogleClientId() || "";
+      }
+
+      function setAnalyticsFeedback(message) {
+        const feedback = document.getElementById("analytics-feedback");
+        if (!feedback) return;
+        feedback.textContent = message || "";
+        if (message) setTimeout(() => { if (feedback.textContent === message) feedback.textContent = ""; }, 2500);
+      }
+
+      function loadAnalyticsSettings() {
+        const checkbox = document.getElementById("analytics-enabled");
+        if (!checkbox) return;
+        checkbox.checked = window.Analytics?.isEnabled ? window.Analytics.isEnabled() : true;
       }
 
       document.getElementById("save-google-client-id")?.addEventListener("click", function () {
@@ -544,6 +572,41 @@
           successEl.focus();
           setTimeout(function () { successEl.style.display = "none"; successEl.textContent = ""; }, 5000);
         }
+      });
+
+      document.getElementById("analytics-save")?.addEventListener("click", function () {
+        const checkbox = document.getElementById("analytics-enabled");
+        const enabled = !!checkbox?.checked;
+        if (window.Analytics?.setEnabled) {
+          window.Analytics.setEnabled(enabled);
+          setAnalyticsFeedback(enabled ? "Analytics enabled." : "Analytics disabled.");
+        } else {
+          setAnalyticsFeedback("Analytics module not available.");
+        }
+      });
+
+      document.getElementById("analytics-clear")?.addEventListener("click", function () {
+        if (window.Analytics?.clear) {
+          window.Analytics.clear();
+          setAnalyticsFeedback("Analytics cleared.");
+        } else {
+          setAnalyticsFeedback("Analytics module not available.");
+        }
+      });
+
+      document.getElementById("analytics-export")?.addEventListener("click", function () {
+        if (!window.Analytics?.getEvents) {
+          setAnalyticsFeedback("Analytics module not available.");
+          return;
+        }
+        const events = window.Analytics.getEvents();
+        const blob = new Blob([JSON.stringify(events, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "ai-knowledge-hub-analytics-" + new Date().toISOString().slice(0, 10) + ".json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        setAnalyticsFeedback("Analytics exported.");
       });
 
       document.getElementById("reset-form").addEventListener("click", function () {
