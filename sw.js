@@ -2,7 +2,7 @@
  * AI Knowledge Hub — Service Worker
  * Caches static assets for offline and faster repeat loads
  */
-const CACHE_NAME = "ai-knowledge-hub-v14";
+const CACHE_NAME = "ai-knowledge-hub-v15";
 const ASSETS = [
   /* HTML pages */
   "index.html",
@@ -25,6 +25,7 @@ const ASSETS = [
   "auth-setup.html",
   "niche.html",
   "want-to-try.html",
+  "dashboard.html",
   /* Stylesheets */
   "styles.css",
   "stack.css",
@@ -54,6 +55,15 @@ const ASSETS = [
   "card-builder.js",
   "extend-data.js",
   "extend-niche.js",
+  "command-palette.js",
+  "onboarding.js",
+  "recommendations.js",
+  "quick-preview.js",
+  "keyboard-shortcuts.js",
+  "advanced-filters.js",
+  "animations.js",
+  "comparison.js",
+  "gamification.js",
 ];
 
 self.addEventListener("install", (e) => {
