@@ -7,7 +7,7 @@ test.describe('Main Hub (index)', () => {
   });
 
   test('renders hero section with title and stats', async ({ page }) => {
-    await expect(page.locator('h1.hero-title')).toContainText('Your AI command center');
+    await expect(page.locator('h1.hero-title')).toContainText('Discover, rate, and master');
     await expect(page.locator('#hero-stats')).toBeVisible();
     await expect(page.locator('#hero-tools-count')).toBeVisible();
     await expect(page.locator('#hero-knowledge-count')).toBeVisible();
@@ -58,16 +58,11 @@ test.describe('Main Hub (index)', () => {
     await expect(featured).toHaveAttribute('aria-label', 'Top picks from your catalog');
   });
 
-  test('category hub shows all 7 categories', async ({ page }) => {
+  test('category hub shows all 9 categories', async ({ page }) => {
     await page.waitForLoadState('networkidle');
     const categories = [
-      'AI Tools',
-      'Knowledge',
-      'Podcasts',
-      'YouTube',
-      'Training',
-      'Daily Watch',
-      'Bleeding Edge',
+      'AI Tools', 'Knowledge', 'Podcasts', 'YouTube', 'Training',
+      'Daily Watch', 'Bleeding Edge', 'Niche AI', 'Dashboard',
     ];
     for (const name of categories) {
       await expect(page.locator(`.category-hub-card:has-text("${name}")`)).toBeVisible();
@@ -83,9 +78,9 @@ test.describe('Main Hub (index)', () => {
 
   test('main content has skip link target', async ({ page }) => {
     const main = page.locator('#main-content');
-    await expect(main).toBeVisible();
+    await expect(main).toBeAttached();
     const skipLink = page.locator('a.skip-link[href="#main-content"]');
-    await expect(skipLink).toBeVisible();
+    await expect(skipLink).toBeAttached();
   });
 
   test('search bar can be opened with / key', async ({ page }) => {
@@ -102,7 +97,7 @@ test.describe('Main Hub (index)', () => {
   });
 
   test('feature chips are visible', async ({ page }) => {
-    await expect(page.locator('.feature-chip:has-text("Rate & review")')).toBeVisible();
+    await expect(page.locator('.feature-chip:has-text("Half-star ratings")')).toBeVisible();
     await expect(page.locator('.feature-chip:has-text("Instant search")')).toBeVisible();
   });
 

@@ -45,7 +45,7 @@
         <a href="tools.html" class="hero-cta-btn primary">Explore Tools</a>
         <a href="stack.html" class="hero-cta-btn secondary">My Stack</a>
       </div>
-      <p class="hero-shortcut-hint" aria-hidden="true">Press <kbd>/</kbd> anywhere to search</p>
+      <p class="hero-shortcut-hint" aria-hidden="true">Press <kbd>/</kbd> to search · <kbd>Ctrl+K</kbd> command palette · <kbd>?</kbd> shortcuts</p>
       <div class="hero-stats" id="hero-stats" aria-live="polite" aria-atomic="true" role="status">
         <span class="hero-stat"><strong id="hero-tools-count">0</strong> tools</span>
         <span class="hero-stat-sep">·</span>
@@ -108,6 +108,14 @@
     </div>
   </section>
 
+  <!-- Personalized Recommendations -->
+  <section class="recs-section" id="recs-section" aria-label="Recommended for you" style="display:none">
+    <div class="recs-inner">
+      <h2 class="recs-heading">Recommended for You</h2>
+      <div class="recs-row" id="recs-row"></div>
+    </div>
+  </section>
+
   <main class="main main-loading" id="main-content" aria-busy="true">
     <section class="category-hub" aria-label="Browse by category">
       <h2 class="category-hub-heading">Browse by category</h2>
@@ -119,6 +127,8 @@
         <a href="training.html" class="category-hub-card"><span class="category-hub-icon">🎓</span><span class="category-hub-label">Training</span><span class="category-hub-count category-hub-count-loading" id="hub-training-count">—</span></a>
         <a href="daily-watch.html" class="category-hub-card"><span class="category-hub-icon">📰</span><span class="category-hub-label">Daily Watch</span><span class="category-hub-count category-hub-count-loading" id="hub-daily-watch-count">—</span></a>
         <a href="bleeding-edge.html" class="category-hub-card"><span class="category-hub-icon">⚡</span><span class="category-hub-label">Bleeding Edge</span><span class="category-hub-count category-hub-count-loading" id="hub-bleeding-edge-count">—</span></a>
+        <a href="niche.html" class="category-hub-card"><span class="category-hub-icon">🎯</span><span class="category-hub-label">Niche AI</span><span class="category-hub-count">19</span></a>
+        <a href="dashboard.html" class="category-hub-card"><span class="category-hub-icon">📊</span><span class="category-hub-label">Dashboard</span><span class="category-hub-count">New</span></a>
       </div>
     </section>
   </main>
@@ -184,13 +194,45 @@
   <script src="analytics.js"></script>
   <script src="card-builder.js"></script>
   <script src="app.js"></script>
+  <script src="recommendations.js"></script>
+  <script src="gamification.js"></script>
+  <script src="command-palette.js"></script>
+  <script src="keyboard-shortcuts.js"></script>
+  <script src="quick-preview.js"></script>
+  <script src="animations.js"></script>
+  <script src="comparison.js"></script>
+  <script src="notes.js"></script>
+  <script src="activity-feed.js"></script>
+  <script src="onboarding.js"></script>
   <script src="profile-switcher.js"></script>
   <script src="bottom-nav.js"></script>
   <script src="pwa-install.js"></script>
+  <script src="sw-update.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js").catch(() => {});
     }
+    // Render personalized recommendations on home page
+    setTimeout(function() {
+      if (window.Recommendations) {
+        var recs = window.Recommendations.recommend(6);
+        if (recs.length > 0) {
+          var section = document.getElementById("recs-section");
+          var row = document.getElementById("recs-row");
+          if (section && row) {
+            section.style.display = "";
+            row.innerHTML = recs.map(function(item) {
+              var reason = window.Recommendations.getReason(item);
+              var grad = item.color && item.color.length === 2 ? "linear-gradient(135deg," + item.color[0] + " 0%," + item.color[1] + " 100%)" : "";
+              return '<a href="' + (item.url || "#") + '" class="rec-card" target="_blank" rel="noopener">' +
+                '<div class="rec-card-icon" style="background:' + grad + '">' + (item.icon || "") + '</div>' +
+                '<div class="rec-card-body"><strong>' + item.title + '</strong><span class="rec-card-reason">' + reason + '</span></div>' +
+              '</a>';
+            }).join("");
+          }
+        }
+      }
+    }, 600);
   </script>
 </body>
 </html>

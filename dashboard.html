@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Dashboard | AI Knowledge Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f1117" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <span id="rating-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></span>
+
+  <div id="header-root"></div>
+  <script src="header.js"></script>
+  <script>Header.render({ searchMode: "expandable" });</script>
+  <script src="theme.js"></script>
+  <script src="mobile-ux.js"></script>
+  <script src="offline.js"></script>
+  <script src="toast.js"></script>
+
+  <main class="main" id="main-content">
+    <section class="dash-hero">
+      <h1 class="dash-title">Your Dashboard</h1>
+      <p class="dash-subtitle">Personal analytics and insights about your AI exploration journey</p>
+    </section>
+
+    <!-- Stats Overview -->
+    <section class="dash-section" aria-label="Overview stats">
+      <div class="dash-stats-grid" id="dash-stats">
+        <div class="dash-stat-card">
+          <span class="dash-stat-icon">⭐</span>
+          <span class="dash-stat-value" id="dash-rated-count">0</span>
+          <span class="dash-stat-label">Items Rated</span>
+        </div>
+        <div class="dash-stat-card">
+          <span class="dash-stat-icon">📚</span>
+          <span class="dash-stat-value" id="dash-stack-count">0</span>
+          <span class="dash-stat-label">In Stack</span>
+        </div>
+        <div class="dash-stat-card">
+          <span class="dash-stat-icon">✓</span>
+          <span class="dash-stat-value" id="dash-using-count">0</span>
+          <span class="dash-stat-label">Using</span>
+        </div>
+        <div class="dash-stat-card">
+          <span class="dash-stat-icon">🔖</span>
+          <span class="dash-stat-value" id="dash-try-count">0</span>
+          <span class="dash-stat-label">Want to Try</span>
+        </div>
+        <div class="dash-stat-card">
+          <span class="dash-stat-icon">📊</span>
+          <span class="dash-stat-value" id="dash-avg-rating">0</span>
+          <span class="dash-stat-label">Avg Rating</span>
+        </div>
+        <div class="dash-stat-card">
+          <span class="dash-stat-icon">🏆</span>
+          <span class="dash-stat-value" id="dash-achievements">0</span>
+          <span class="dash-stat-label">Achievements</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Achievements -->
+    <section class="dash-section" aria-label="Achievements">
+      <h2 class="dash-section-title">Achievements</h2>
+      <div class="dash-progress-bar">
+        <div class="dash-progress-fill" id="dash-progress-fill" style="width:0%"></div>
+      </div>
+      <p class="dash-progress-text" id="dash-progress-text">0 of 0 unlocked</p>
+      <div class="dash-achievements-grid" id="dash-achievements-grid"></div>
+    </section>
+
+    <!-- Top Interests -->
+    <section class="dash-section" aria-label="Your interests">
+      <h2 class="dash-section-title">Your Top Interests</h2>
+      <div class="dash-interests" id="dash-interests">
+        <p class="dash-empty">Rate some tools to see your interest profile!</p>
+      </div>
+    </section>
+
+    <!-- Recommendations -->
+    <section class="dash-section" aria-label="Recommendations">
+      <h2 class="dash-section-title">Recommended for You</h2>
+      <div class="dash-recs" id="dash-recs">
+        <p class="dash-empty">Rate tools to get personalized recommendations!</p>
+      </div>
+    </section>
+
+    <!-- Rating Distribution -->
+    <section class="dash-section" aria-label="Rating breakdown">
+      <h2 class="dash-section-title">Rating Distribution</h2>
+      <div class="dash-chart" id="dash-chart"></div>
+    </section>
+
+    <!-- Category Breakdown -->
+    <section class="dash-section" aria-label="Category breakdown">
+      <h2 class="dash-section-title">Category Breakdown</h2>
+      <div class="dash-categories" id="dash-categories"></div>
+    </section>
+
+    <!-- Activity Feed -->
+    <section class="dash-section" aria-label="Recent activity">
+      <h2 class="dash-section-title">Recent Activity</h2>
+      <div id="dash-activity-feed"></div>
+    </section>
+  </main>
+
+  <button type="button" id="back-to-top" class="back-to-top hidden" aria-label="Back to top">↑</button>
+
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <div class="bottom-nav-inner">
+      <a href="index.html" class="bottom-nav-item">
+        <span class="bottom-nav-icon" aria-hidden="true">🏠</span>
+        <span class="bottom-nav-label">Home</span>
+      </a>
+      <a href="tools.html" class="bottom-nav-item">
+        <span class="bottom-nav-icon" aria-hidden="true">🔧</span>
+        <span class="bottom-nav-label">Tools</span>
+      </a>
+      <button type="button" class="bottom-nav-item" id="bottom-search-btn" aria-label="Search">
+        <span class="bottom-nav-icon" aria-hidden="true">🔍</span>
+        <span class="bottom-nav-label">Search</span>
+      </button>
+      <a href="stack.html" class="bottom-nav-item">
+        <span class="bottom-nav-icon" aria-hidden="true">📚</span>
+        <span class="bottom-nav-label">My Stack</span>
+      </a>
+      <button type="button" class="bottom-nav-item" id="bottom-more-btn" aria-label="More pages">
+        <span class="bottom-nav-icon" aria-hidden="true">☰</span>
+        <span class="bottom-nav-label">More</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
+
+  <footer class="footer">
+    <span class="footer-logo">&#x2B22;</span>
+    <p>AI Knowledge Hub &mdash; 2026</p>
+    <div class="footer-links">
+      <a href="stack.html" class="footer-link">My Stack</a>
+      <span class="footer-link-sep">·</span>
+      <a href="about.html" class="footer-link">About</a>
+      <span class="footer-link-sep">·</span>
+      <a href="profiles.html" class="footer-link">Profiles</a>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script src="profiles.js"></script>
+  <script src="data.js"></script>
+  <script src="search-utils.js"></script>
+  <script src="analytics.js"></script>
+  <script src="card-builder.js"></script>
+  <script src="recommendations.js"></script>
+  <script src="gamification.js"></script>
+  <script src="command-palette.js"></script>
+  <script src="keyboard-shortcuts.js"></script>
+  <script src="animations.js"></script>
+  <script src="notes.js"></script>
+  <script src="activity-feed.js"></script>
+  <script src="profile-switcher.js"></script>
+  <script src="bottom-nav.js"></script>
+  <script src="sw-update.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  </script>
+  <script>
+  (function() {
+    function init() {
+      // Stats
+      let ratedCount = 0, totalRating = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("rating:")) {
+          const val = parseFloat(localStorage.getItem(key));
+          if (val > 0) { ratedCount++; totalRating += val; }
+        }
+      }
+      const stack = (function() { try { return JSON.parse(localStorage.getItem("myStack") || "[]"); } catch(_) { return []; } })();
+      const directUse = (function() { try { return JSON.parse(localStorage.getItem("directUse") || "[]"); } catch(_) { return []; } })();
+      const wantToTry = (function() { try { return JSON.parse(localStorage.getItem("wantToTry") || "[]"); } catch(_) { return []; } })();
+
+      document.getElementById("dash-rated-count").textContent = ratedCount;
+      document.getElementById("dash-stack-count").textContent = stack.length;
+      document.getElementById("dash-using-count").textContent = directUse.length;
+      document.getElementById("dash-try-count").textContent = wantToTry.length;
+      document.getElementById("dash-avg-rating").textContent = ratedCount > 0 ? (totalRating / ratedCount).toFixed(1) : "—";
+
+      // Achievements
+      if (window.Gamification) {
+        const progress = window.Gamification.getProgress();
+        document.getElementById("dash-achievements").textContent = progress.unlocked + "/" + progress.total;
+        document.getElementById("dash-progress-fill").style.width = progress.percent + "%";
+        document.getElementById("dash-progress-text").textContent = progress.unlocked + " of " + progress.total + " unlocked (" + progress.percent + "%)";
+        const grid = document.getElementById("dash-achievements-grid");
+        grid.innerHTML = progress.achievements.map(function(a) {
+          return '<div class="dash-achievement ' + (a.unlocked ? "unlocked" : "locked") + '">' +
+            '<span class="dash-achievement-icon">' + a.icon + '</span>' +
+            '<span class="dash-achievement-title">' + a.title + '</span>' +
+            '<span class="dash-achievement-desc">' + a.desc + '</span>' +
+          '</div>';
+        }).join("");
+      }
+
+      // Top interests
+      if (window.Recommendations) {
+        const topTags = window.Recommendations.getTopRatedTags();
+        const interestsEl = document.getElementById("dash-interests");
+        if (topTags.length > 0) {
+          interestsEl.innerHTML = topTags.map(function(tag) {
+            return '<span class="dash-interest-tag">' + tag + '</span>';
+          }).join("");
+        }
+
+        // Recommendations
+        const recs = window.Recommendations.recommend(6);
+        const recsEl = document.getElementById("dash-recs");
+        if (recs.length > 0) {
+          recsEl.innerHTML = recs.map(function(item) {
+            var reason = window.Recommendations.getReason(item);
+            var grad = item.color && item.color.length === 2 ? "linear-gradient(135deg," + item.color[0] + " 0%," + item.color[1] + " 100%)" : "";
+            return '<a href="' + (item.url || "#") + '" class="dash-rec-card" target="_blank" rel="noopener">' +
+              '<div class="dash-rec-icon" style="background:' + grad + '">' + (item.icon || "📄") + '</div>' +
+              '<div class="dash-rec-info"><strong>' + item.title + '</strong><span class="dash-rec-reason">' + reason + '</span></div>' +
+            '</a>';
+          }).join("");
+        }
+      }
+
+      // Rating distribution
+      var dist = [0, 0, 0, 0, 0, 0]; // 0.5, 1, 1.5-2, 2.5-3, 3.5-4, 4.5-5
+      var labels = ["0.5-1", "1.5-2", "2.5-3", "3.5-4", "4.5-5"];
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key && key.startsWith("rating:")) {
+          var val = parseFloat(localStorage.getItem(key));
+          if (val > 0) {
+            if (val <= 1) dist[0]++;
+            else if (val <= 2) dist[1]++;
+            else if (val <= 3) dist[2]++;
+            else if (val <= 4) dist[3]++;
+            else dist[4]++;
+          }
+        }
+      }
+      var maxDist = Math.max.apply(null, dist.slice(0, 5)) || 1;
+      var chartEl = document.getElementById("dash-chart");
+      chartEl.innerHTML = labels.map(function(label, idx) {
+        var pct = Math.round((dist[idx] / maxDist) * 100);
+        return '<div class="dash-bar-row"><span class="dash-bar-label">' + label + ' ★</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:' + pct + '%"></div></div><span class="dash-bar-count">' + dist[idx] + '</span></div>';
+      }).join("");
+
+      // Category breakdown
+      if (window.siteData) {
+        var cats = ["tools", "knowledge", "podcasts", "youtube", "training", "daily-watch", "bleeding-edge"];
+        var catIcons = { tools: "🔧", knowledge: "📖", podcasts: "🎙️", youtube: "▶️", training: "🎓", "daily-watch": "📰", "bleeding-edge": "⚡" };
+        var catEl = document.getElementById("dash-categories");
+        catEl.innerHTML = cats.map(function(cat) {
+          var items = window.siteData[cat] || [];
+          var rated = 0;
+          items.forEach(function(it) {
+            var r = localStorage.getItem("rating:" + it.title);
+            if (r && parseFloat(r) > 0) rated++;
+          });
+          var pct = items.length > 0 ? Math.round((rated / items.length) * 100) : 0;
+          return '<div class="dash-cat-row">' +
+            '<span class="dash-cat-icon">' + (catIcons[cat] || "📄") + '</span>' +
+            '<span class="dash-cat-name">' + cat.replace(/-/g, " ") + '</span>' +
+            '<div class="dash-cat-bar"><div class="dash-cat-fill" style="width:' + pct + '%"></div></div>' +
+            '<span class="dash-cat-pct">' + rated + '/' + items.length + ' (' + pct + '%)</span>' +
+          '</div>';
+        }).join("");
+      }
+
+      // Activity feed
+      if (window.ActivityFeed) {
+        window.ActivityFeed.render("dash-activity-feed");
+      }
+    }
+
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function() { setTimeout(init, 300); });
+    else setTimeout(init, 300);
+  })();
+  </script>
+</body>
+</html>
