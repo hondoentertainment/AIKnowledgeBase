@@ -32,6 +32,11 @@
       </button>
       <div class="af-active-filters" id="af-active"></div>
       <button type="button" class="af-clear" style="display:none">Clear all</button>
+      <button type="button" class="af-save-preset" title="Save current filters as a preset">💾 Save Preset</button>
+      <div class="af-preset-dropdown-wrap" style="position:relative;display:inline-block">
+        <button type="button" class="af-load-preset">📂 Load Preset ▾</button>
+        <div class="af-preset-menu" style="display:none"></div>
+      </div>
     `;
 
     const panel = document.createElement("div");
@@ -68,8 +73,12 @@
       </div>
     `;
 
+    const presetChipsBar = document.createElement("div");
+    presetChipsBar.className = "af-preset-chips";
+
     section.after(filterBar);
-    filterBar.after(panel);
+    filterBar.after(presetChipsBar);
+    presetChipsBar.after(panel);
 
     // State
     const activeFilters = { level: [], status: [], tags: [] };
@@ -92,6 +101,138 @@
       panel.querySelectorAll(".af-chip").forEach(c => c.classList.remove("active"));
       applyFilters();
     });
+
+    // ── Filter Presets ──────────────────────────────────────
+    const MAX_PRESETS = 10;
+    const PRESET_KEY = "filterPresets";
+    const savePresetBtn = filterBar.querySelector(".af-save-preset");
+    const loadPresetBtn = filterBar.querySelector(".af-load-preset");
+    const presetMenu = filterBar.querySelector(".af-preset-menu");
+
+    function getPresets() {
+      try { return JSON.parse(localStorage.getItem(PRESET_KEY) || "[]"); } catch (_) { return []; }
+    }
+
+    function savePresets(presets) {
+      localStorage.setItem(PRESET_KEY, JSON.stringify(presets));
+    }
+
+    function presetsForCategory() {
+      return getPresets().filter(p => p.category === pageCategory);
+    }
+
+    function renderPresetChips() {
+      const presets = presetsForCategory();
+      presetChipsBar.innerHTML = presets.length === 0 ? "" : presets.map((p, i) =>
+        `<span class="af-preset-chip" data-preset-idx="${i}">
+          ${escapeHtml(p.name)}
+          <button type="button" class="af-preset-chip-x" data-preset-name="${escapeHtml(p.name)}" aria-label="Delete preset ${escapeHtml(p.name)}">&times;</button>
+        </span>`
+      ).join("");
+
+      presetChipsBar.querySelectorAll(".af-preset-chip").forEach(chip => {
+        chip.addEventListener("click", (e) => {
+          if (e.target.classList.contains("af-preset-chip-x")) return;
+          const name = chip.textContent.trim().replace(/\u00d7$/, "").trim();
+          const preset = presetsForCategory().find(p => p.name === name);
+          if (preset) loadPreset(preset);
+        });
+      });
+
+      presetChipsBar.querySelectorAll(".af-preset-chip-x").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const name = btn.dataset.presetName;
+          const allPresets = getPresets().filter(p => !(p.category === pageCategory && p.name === name));
+          savePresets(allPresets);
+          renderPresetChips();
+          renderPresetMenu();
+        });
+      });
+    }
+
+    function renderPresetMenu() {
+      const presets = presetsForCategory();
+      if (presets.length === 0) {
+        presetMenu.innerHTML = `<div class="af-preset-menu-empty">No saved presets</div>`;
+      } else {
+        presetMenu.innerHTML = presets.map(p =>
+          `<button type="button" class="af-preset-menu-item" data-preset-name="${escapeHtml(p.name)}">${escapeHtml(p.name)}</button>`
+        ).join("");
+        presetMenu.querySelectorAll(".af-preset-menu-item").forEach(item => {
+          item.addEventListener("click", () => {
+            const preset = presetsForCategory().find(p => p.name === item.dataset.presetName);
+            if (preset) loadPreset(preset);
+            presetMenu.style.display = "none";
+          });
+        });
+      }
+    }
+
+    function loadPreset(preset) {
+      activeFilters.level = [...(preset.filters.level || [])];
+      activeFilters.status = [...(preset.filters.status || [])];
+      activeFilters.tags = [...(preset.filters.tags || [])];
+      // Sync chip UI
+      panel.querySelectorAll(".af-chip").forEach(c => {
+        const group = c.closest("[data-filter]").dataset.filter;
+        const val = c.dataset.value;
+        c.classList.toggle("active", activeFilters[group].includes(val));
+      });
+      applyFilters();
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    savePresetBtn.addEventListener("click", () => {
+      const totalActive = activeFilters.level.length + activeFilters.status.length + activeFilters.tags.length;
+      if (totalActive === 0) {
+        alert("Select at least one filter before saving a preset.");
+        return;
+      }
+      const name = prompt("Preset name:");
+      if (!name || !name.trim()) return;
+      const allPresets = getPresets();
+      const categoryPresets = allPresets.filter(p => p.category === pageCategory);
+      // Replace if same name exists
+      const existingIdx = allPresets.findIndex(p => p.category === pageCategory && p.name === name.trim());
+      if (existingIdx >= 0) {
+        allPresets[existingIdx].filters = { level: [...activeFilters.level], status: [...activeFilters.status], tags: [...activeFilters.tags] };
+      } else {
+        if (categoryPresets.length >= MAX_PRESETS) {
+          alert("Maximum " + MAX_PRESETS + " presets reached. Delete one first.");
+          return;
+        }
+        allPresets.push({
+          name: name.trim(),
+          category: pageCategory,
+          filters: { level: [...activeFilters.level], status: [...activeFilters.status], tags: [...activeFilters.tags] }
+        });
+      }
+      savePresets(allPresets);
+      renderPresetChips();
+      renderPresetMenu();
+    });
+
+    loadPresetBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const visible = presetMenu.style.display !== "none";
+      presetMenu.style.display = visible ? "none" : "block";
+      if (!visible) renderPresetMenu();
+    });
+
+    // Close preset menu when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".af-preset-dropdown-wrap")) {
+        presetMenu.style.display = "none";
+      }
+    });
+
+    renderPresetChips();
 
     panel.addEventListener("click", (e) => {
       const chip = e.target.closest(".af-chip");

@@ -4638,3 +4638,186 @@ body.page-entered { opacity: 1; transition: opacity 0.3s ease; }
 .dash-cat-bar { flex: 1; height: 10px; background: var(--bg-surface); border-radius: 5px; overflow: hidden; }
 .dash-cat-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #fbbf24); border-radius: 5px; transition: width 0.6s ease; }
 .dash-cat-pct { font-size: 0.78rem; color: var(--text-dim); min-width: 80px; text-align: right; }
+
+/* ============================================
+   HOME PAGE RECOMMENDATIONS
+   ============================================ */
+.recs-section {
+  max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem 0;
+}
+.recs-heading {
+  font-family: "Crimson Pro", serif; font-size: 1.4rem;
+  margin: 0 0 1rem; color: var(--text);
+}
+.recs-row {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
+}
+.rec-card {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem; background: var(--bg-elevated);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  transition: all 0.15s; text-decoration: none;
+}
+.rec-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow); }
+.rec-card-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.rec-card-body { min-width: 0; }
+.rec-card-body strong { display: block; font-size: 0.9rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rec-card-reason { display: block; font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ============================================
+   NOTES / ANNOTATIONS
+   ============================================ */
+.note-btn {
+  padding: 0.3rem 0.65rem; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--bg-surface);
+  font-size: 0.78rem; color: var(--text-muted); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  transition: all 0.15s;
+}
+.note-btn:hover { border-color: var(--accent); color: var(--accent); }
+.note-btn.has-note { border-color: var(--accent); color: var(--accent); background: var(--accent-muted); }
+.note-area {
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+  padding: 0 0.75rem;
+}
+.note-area.open { max-height: 200px; padding: 0.5rem 0.75rem; }
+.note-textarea {
+  width: 100%; min-height: 60px; padding: 0.5rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-surface); color: var(--text);
+  font-family: inherit; font-size: 0.85rem; resize: vertical;
+}
+.note-textarea:focus { border-color: var(--accent); outline: none; }
+.note-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.3rem; }
+.note-char-count { font-size: 0.72rem; color: var(--text-dim); }
+.note-char-count.at-limit { color: #ef4444; font-weight: 600; }
+.note-clear-btn { border: none; background: none; color: var(--text-dim); font-size: 0.75rem; cursor: pointer; padding: 0; }
+.note-clear-btn:hover { color: #ef4444; }
+.note-indicator {
+  position: absolute; top: 6px; right: 6px;
+  font-size: 0.65rem; background: var(--accent);
+  color: var(--btn-on-accent); padding: 1px 5px;
+  border-radius: 8px; pointer-events: none;
+}
+
+/* ============================================
+   ACTIVITY FEED
+   ============================================ */
+.af-timeline { }
+.af-event {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.6rem 0; border-bottom: 1px solid var(--border-light);
+}
+.af-event:last-child { border-bottom: none; }
+.af-event-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bg-surface); display: flex; align-items: center;
+  justify-content: center; font-size: 0.9rem; flex-shrink: 0;
+}
+.af-event-body { min-width: 0; flex: 1; }
+.af-event-text { font-size: 0.88rem; color: var(--text); display: block; }
+.af-event-text strong { font-weight: 600; }
+.af-event-time { font-size: 0.75rem; color: var(--text-dim); }
+.af-empty { font-size: 0.88rem; color: var(--text-dim); font-style: italic; padding: 1rem 0; }
+
+/* ============================================
+   DRAG & DROP (STACK)
+   ============================================ */
+.stack-card[draggable="true"] { cursor: grab; }
+.stack-card[draggable="true"]:active { cursor: grabbing; }
+.stack-card.dragging { opacity: 0.5; transform: scale(0.97); }
+.drag-indicator {
+  height: 3px; background: #3b82f6; border-radius: 2px;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+  margin: -1.5px 0; transition: opacity 0.15s;
+}
+
+/* ============================================
+   SHAREABLE LISTS (injected styles supplement)
+   ============================================ */
+.shared-banner {
+  background: var(--accent-muted); border: 1px solid var(--accent);
+  border-radius: var(--radius); padding: 1rem 1.5rem;
+  margin-bottom: 1rem; display: flex; align-items: center;
+  justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;
+}
+.shared-banner-text { font-size: 0.92rem; color: var(--text); }
+.shared-banner-btn {
+  padding: 0.5rem 1.2rem; border-radius: var(--radius);
+  background: var(--accent); color: var(--btn-on-accent);
+  border: none; font-weight: 500; cursor: pointer;
+  transition: background 0.15s;
+}
+.shared-banner-btn:hover { background: var(--accent-hover); }
+
+/* ============================================
+   FILTER PRESETS
+   ============================================ */
+.af-save-preset, .af-load-preset {
+  padding: 0.4rem 0.8rem; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--bg-surface);
+  font-size: 0.8rem; color: var(--text-muted); cursor: pointer;
+  transition: all 0.15s;
+}
+.af-save-preset:hover, .af-load-preset:hover { border-color: var(--accent); color: var(--accent); }
+.af-preset-menu {
+  position: absolute; top: 100%; left: 0; z-index: 50;
+  min-width: 180px; background: var(--bg-elevated);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 0.25rem 0;
+  margin-top: 4px;
+}
+.af-preset-menu-item {
+  display: block; width: 100%; padding: 0.5rem 1rem;
+  border: none; background: none; text-align: left;
+  font-size: 0.85rem; color: var(--text); cursor: pointer;
+}
+.af-preset-menu-item:hover { background: var(--accent-muted); }
+.af-preset-menu-empty { padding: 0.5rem 1rem; font-size: 0.82rem; color: var(--text-dim); font-style: italic; }
+.af-preset-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.25rem; }
+.af-preset-chip {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 4px 12px; background: var(--accent-light);
+  border: 1px solid var(--accent); border-radius: 14px;
+  font-size: 0.8rem; color: var(--accent); cursor: pointer;
+  transition: all 0.15s;
+}
+.af-preset-chip:hover { background: var(--accent-muted); }
+.af-preset-chip-x { border: none; background: none; color: var(--accent); cursor: pointer; font-size: 1rem; padding: 0; line-height: 1; }
+
+/* ============================================
+   COMPARISON EXPORT BUTTONS
+   ============================================ */
+.cmp-modal-actions {
+  display: flex; gap: 0.5rem; margin-left: auto; margin-right: 1rem;
+}
+.cmp-export-btn {
+  padding: 0.4rem 0.8rem; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--bg-surface);
+  font-size: 0.78rem; color: var(--text-muted); cursor: pointer;
+  transition: all 0.15s; white-space: nowrap;
+}
+.cmp-export-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ============================================
+   SW UPDATE BANNER
+   ============================================ */
+.sw-update-banner {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  z-index: 9990; padding: 0.75rem 1.5rem;
+  background: var(--bg-elevated); border: 1px solid var(--accent);
+  border-radius: var(--radius-lg); box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  display: flex; align-items: center; gap: 1rem;
+  font-size: 0.9rem; color: var(--text);
+  animation: cpSlideIn 0.3s ease;
+}
+.sw-update-banner button {
+  padding: 0.4rem 1rem; border-radius: var(--radius);
+  background: var(--accent); color: var(--btn-on-accent);
+  border: none; font-weight: 500; cursor: pointer;
+}

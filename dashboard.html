@@ -105,6 +105,12 @@
       <h2 class="dash-section-title">Category Breakdown</h2>
       <div class="dash-categories" id="dash-categories"></div>
     </section>
+
+    <!-- Activity Feed -->
+    <section class="dash-section" aria-label="Recent activity">
+      <h2 class="dash-section-title">Recent Activity</h2>
+      <div id="dash-activity-feed"></div>
+    </section>
   </main>
 
   <button type="button" id="back-to-top" class="back-to-top hidden" aria-label="Back to top">↑</button>
@@ -159,8 +165,11 @@
   <script src="command-palette.js"></script>
   <script src="keyboard-shortcuts.js"></script>
   <script src="animations.js"></script>
+  <script src="notes.js"></script>
+  <script src="activity-feed.js"></script>
   <script src="profile-switcher.js"></script>
   <script src="bottom-nav.js"></script>
+  <script src="sw-update.js"></script>
   <script>
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
   </script>
@@ -270,6 +279,11 @@
             '<span class="dash-cat-pct">' + rated + '/' + items.length + ' (' + pct + '%)</span>' +
           '</div>';
         }).join("");
+      }
+
+      // Activity feed
+      if (window.ActivityFeed) {
+        window.ActivityFeed.render("dash-activity-feed");
       }
     }
 

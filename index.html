@@ -108,6 +108,14 @@
     </div>
   </section>
 
+  <!-- Personalized Recommendations -->
+  <section class="recs-section" id="recs-section" aria-label="Recommended for you" style="display:none">
+    <div class="recs-inner">
+      <h2 class="recs-heading">Recommended for You</h2>
+      <div class="recs-row" id="recs-row"></div>
+    </div>
+  </section>
+
   <main class="main main-loading" id="main-content" aria-busy="true">
     <section class="category-hub" aria-label="Browse by category">
       <h2 class="category-hub-heading">Browse by category</h2>
@@ -193,14 +201,38 @@
   <script src="quick-preview.js"></script>
   <script src="animations.js"></script>
   <script src="comparison.js"></script>
+  <script src="notes.js"></script>
+  <script src="activity-feed.js"></script>
   <script src="onboarding.js"></script>
   <script src="profile-switcher.js"></script>
   <script src="bottom-nav.js"></script>
   <script src="pwa-install.js"></script>
+  <script src="sw-update.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js").catch(() => {});
     }
+    // Render personalized recommendations on home page
+    setTimeout(function() {
+      if (window.Recommendations) {
+        var recs = window.Recommendations.recommend(6);
+        if (recs.length > 0) {
+          var section = document.getElementById("recs-section");
+          var row = document.getElementById("recs-row");
+          if (section && row) {
+            section.style.display = "";
+            row.innerHTML = recs.map(function(item) {
+              var reason = window.Recommendations.getReason(item);
+              var grad = item.color && item.color.length === 2 ? "linear-gradient(135deg," + item.color[0] + " 0%," + item.color[1] + " 100%)" : "";
+              return '<a href="' + (item.url || "#") + '" class="rec-card" target="_blank" rel="noopener">' +
+                '<div class="rec-card-icon" style="background:' + grad + '">' + (item.icon || "") + '</div>' +
+                '<div class="rec-card-body"><strong>' + item.title + '</strong><span class="rec-card-reason">' + reason + '</span></div>' +
+              '</a>';
+            }).join("");
+          }
+        }
+      }
+    }, 600);
   </script>
 </body>
 </html>

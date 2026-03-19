@@ -12,6 +12,73 @@
   function levelLabel(lvl) { if (lvl <= 2) return "Beginner"; if (lvl <= 4) return "Intermediate"; if (lvl <= 6) return "Advanced"; if (lvl <= 8) return "Expert"; return "World-Class"; }
   function gradientCSS(cp) { return cp && cp.length === 2 ? `linear-gradient(135deg, ${cp[0]} 0%, ${cp[1]} 100%)` : "linear-gradient(135deg, #30363d 0%, #21262d 100%)"; }
 
+  function starsText(rating) {
+    if (!rating) return "Not rated";
+    const full = Math.floor(rating);
+    const half = rating % 1 >= 0.5 ? 1 : 0;
+    return rating + "/5 " + "\u2605".repeat(full) + (half ? "\u2606" : "");
+  }
+
+  function generateMarkdown() {
+    const items = compareList.map(t => findItem(t)).filter(Boolean);
+    if (items.length < 2) return "";
+    const names = items.map(it => it.title);
+    const rows = [];
+    rows.push("## Tool Comparison");
+    rows.push("| | " + names.join(" | ") + " |");
+    rows.push("|---" + "|---".repeat(names.length) + "|");
+    rows.push("| Category | " + items.map(it => it._cat || "").join(" | ") + " |");
+    rows.push("| Level | " + items.map(it => it.level ? it.level + "/10 (" + levelLabel(it.level) + ")" : "N/A").join(" | ") + " |");
+    rows.push("| Your Rating | " + items.map(it => starsText(getRating(it.title))).join(" | ") + " |");
+    rows.push("| Tags | " + items.map(it => (it.tags || []).join(", ")).join(" | ") + " |");
+    rows.push("| Description | " + items.map(it => it.description || "").join(" | ") + " |");
+    rows.push("| Frequency | " + items.map(it => it.freq || "N/A").join(" | ") + " |");
+    return rows.join("\n");
+  }
+
+  function generateShareLink() {
+    const names = compareList.map(t => encodeURIComponent(t)).join(",");
+    const url = new URL(window.location.href);
+    url.search = "";
+    url.searchParams.set("compare", compareList.join(","));
+    return url.toString();
+  }
+
+  function copyToClipboard(text, btnEl) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btnEl.textContent;
+      btnEl.textContent = "Copied!";
+      setTimeout(() => { btnEl.textContent = orig; }, 1500);
+    }).catch(() => {
+      // Fallback
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      const orig = btnEl.textContent;
+      btnEl.textContent = "Copied!";
+      setTimeout(() => { btnEl.textContent = orig; }, 1500);
+    });
+  }
+
+  function loadFromURLParams() {
+    const params = new URLSearchParams(window.location.search);
+    const compareParam = params.get("compare");
+    if (!compareParam) return;
+    const titles = compareParam.split(",").map(t => t.trim()).filter(Boolean);
+    if (titles.length < 2) return;
+    titles.slice(0, MAX_COMPARE).forEach(title => {
+      if (findItem(title)) add(title);
+    });
+    if (compareList.length >= 2) {
+      setTimeout(showComparison, 300);
+    }
+  }
+
   function findItem(title) {
     if (!window.siteData) return null;
     const cats = ["tools", "knowledge", "podcasts", "youtube", "training", "daily-watch", "bleeding-edge"];
@@ -109,6 +176,10 @@
       <div class="cmp-modal-panel">
         <div class="cmp-modal-header">
           <h2>Compare Tools</h2>
+          <div class="cmp-modal-actions">
+            <button type="button" class="cmp-export-btn cmp-copy-md" title="Copy as Markdown">📋 Copy as Markdown</button>
+            <button type="button" class="cmp-export-btn cmp-share-link" title="Copy share link">🔗 Share Link</button>
+          </div>
           <button type="button" class="cmp-modal-close" aria-label="Close">&times;</button>
         </div>
         <div class="cmp-modal-body">
@@ -137,6 +208,16 @@
 
     modal.querySelector(".cmp-modal-backdrop").addEventListener("click", closeComparison);
     modal.querySelector(".cmp-modal-close").addEventListener("click", closeComparison);
+
+    modal.querySelector(".cmp-copy-md").addEventListener("click", function () {
+      copyToClipboard(generateMarkdown(), this);
+    });
+    modal.querySelector(".cmp-share-link").addEventListener("click", function () {
+      copyToClipboard(generateShareLink(), this);
+    });
+
+    // Track comparison usage for achievements
+    localStorage.setItem("used_compare", "true");
   }
 
   function closeComparison() {
@@ -176,10 +257,12 @@
   });
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => setTimeout(injectCompareButtons, 800));
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => { injectCompareButtons(); loadFromURLParams(); }, 800);
+    });
   } else {
-    setTimeout(injectCompareButtons, 800);
+    setTimeout(() => { injectCompareButtons(); loadFromURLParams(); }, 800);
   }
 
-  window.Comparison = { add, remove, toggle, show: showComparison };
+  window.Comparison = { add, remove, toggle, show: showComparison, generateMarkdown, generateShareLink };
 })();

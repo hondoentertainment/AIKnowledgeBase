@@ -45,6 +45,8 @@ test.describe('PWA', () => {
     expect(text).toContain('profile-switcher.js');
     expect(text).toContain('pwa-install.js');
     expect(text).toContain('manifest.json');
+    expect(text).toContain('command-palette.js');
+    expect(text).toContain('gamification.js');
   });
 
   test('PWAInstall exposes deferred prompt controls', async ({ page }) => {
