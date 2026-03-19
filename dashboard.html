@@ -27,6 +27,11 @@
   <script src="toast.js"></script>
 
   <main class="main" id="main-content">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="index.html" class="breadcrumb-link">Home</a>
+      <span class="breadcrumb-sep" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Dashboard</span>
+    </nav>
     <section class="dash-hero">
       <h1 class="dash-title">Your Dashboard</h1>
       <p class="dash-subtitle">Personal analytics and insights about your AI exploration journey</p>
@@ -35,31 +40,31 @@
     <!-- Stats Overview -->
     <section class="dash-section" aria-label="Overview stats">
       <div class="dash-stats-grid" id="dash-stats">
-        <div class="dash-stat-card">
+        <a href="tools.html" class="dash-stat-card dash-stat-link" aria-label="View rated items">
           <span class="dash-stat-icon">⭐</span>
           <span class="dash-stat-value" id="dash-rated-count">0</span>
           <span class="dash-stat-label">Items Rated</span>
-        </div>
-        <div class="dash-stat-card">
+        </a>
+        <a href="stack.html" class="dash-stat-card dash-stat-link" aria-label="View your stack">
           <span class="dash-stat-icon">📚</span>
           <span class="dash-stat-value" id="dash-stack-count">0</span>
           <span class="dash-stat-label">In Stack</span>
-        </div>
-        <div class="dash-stat-card">
+        </a>
+        <a href="tools.html" class="dash-stat-card dash-stat-link" aria-label="View tools you use">
           <span class="dash-stat-icon">✓</span>
           <span class="dash-stat-value" id="dash-using-count">0</span>
           <span class="dash-stat-label">Using</span>
-        </div>
-        <div class="dash-stat-card">
+        </a>
+        <a href="want-to-try.html" class="dash-stat-card dash-stat-link" aria-label="View want to try list">
           <span class="dash-stat-icon">🔖</span>
           <span class="dash-stat-value" id="dash-try-count">0</span>
           <span class="dash-stat-label">Want to Try</span>
-        </div>
-        <div class="dash-stat-card">
+        </a>
+        <a href="tools.html" class="dash-stat-card dash-stat-link" aria-label="Browse tools to rate">
           <span class="dash-stat-icon">📊</span>
           <span class="dash-stat-value" id="dash-avg-rating">0</span>
           <span class="dash-stat-label">Avg Rating</span>
-        </div>
+        </a>
         <div class="dash-stat-card">
           <span class="dash-stat-icon">🏆</span>
           <span class="dash-stat-value" id="dash-achievements">0</span>
@@ -82,7 +87,10 @@
     <section class="dash-section" aria-label="Your interests">
       <h2 class="dash-section-title">Your Top Interests</h2>
       <div class="dash-interests" id="dash-interests">
-        <p class="dash-empty">Rate some tools to see your interest profile!</p>
+        <div class="dash-empty-cta">
+          <p class="dash-empty">Rate some tools to see your interest profile!</p>
+          <a href="tools.html" class="dash-empty-btn">Browse & Rate Tools</a>
+        </div>
       </div>
     </section>
 
@@ -90,7 +98,10 @@
     <section class="dash-section" aria-label="Recommendations">
       <h2 class="dash-section-title">Recommended for You</h2>
       <div class="dash-recs" id="dash-recs">
-        <p class="dash-empty">Rate tools to get personalized recommendations!</p>
+        <div class="dash-empty-cta">
+          <p class="dash-empty">Rate tools to get personalized recommendations!</p>
+          <a href="tools.html" class="dash-empty-btn">Start Rating Tools</a>
+        </div>
       </div>
     </section>
 

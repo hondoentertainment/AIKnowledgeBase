@@ -4752,6 +4752,164 @@ body.page-entered { opacity: 1; transition: opacity 0.3s ease; }
 .rec-card-reason { display: block; font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ============================================
+   BREADCRUMB NAVIGATION
+   ============================================ */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.5rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-size: 0.8rem;
+}
+.breadcrumb-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.breadcrumb-link:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+.breadcrumb-sep {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+.breadcrumb-current {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ============================================
+   DASHBOARD CLICKABLE STAT CARDS
+   ============================================ */
+a.dash-stat-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+a.dash-stat-link:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+a.dash-stat-link:hover .dash-stat-label {
+  color: var(--accent);
+}
+
+/* ============================================
+   DASHBOARD EMPTY STATE CTAs
+   ============================================ */
+.dash-empty-cta {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+.dash-empty-btn {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+.dash-empty-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+/* ============================================
+   STACK/WANT-TO-TRY EMPTY STATE CTAs
+   ============================================ */
+.stack-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: center;
+}
+.stack-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1.1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+.stack-empty-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+.stack-empty-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.stack-empty-btn.primary:hover {
+  opacity: 0.9;
+  color: #fff;
+}
+
+/* ============================================
+   SEARCH BROWSE GRID (empty state)
+   ============================================ */
+.search-empty-text {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin: 0 0 1.5rem;
+}
+.search-browse-links {
+  margin-top: 1.5rem;
+}
+.search-browse-label {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+}
+.search-browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.6rem;
+}
+.search-browse-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.search-browse-card:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+.search-browse-icon {
+  font-size: 1.2rem;
+}
+
+/* ============================================
    FEATURE CHIPS AS LINKS
    ============================================ */
 a.feature-chip {
