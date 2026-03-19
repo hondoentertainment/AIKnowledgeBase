@@ -6,7 +6,7 @@
   <title>Search | AI Knowledge Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
@@ -28,8 +28,52 @@
   <script src="toast.js"></script>
 
   <main class="main" id="main-content">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="index.html" class="breadcrumb-link">Home</a>
+      <span class="breadcrumb-sep" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Search</span>
+    </nav>
     <div id="search-results-container" class="search-results-page">
-      <p id="search-empty" class="search-empty-hint" aria-live="polite">Enter a search term above.</p>
+      <div id="search-empty" class="search-empty-hint" aria-live="polite">
+        <p class="search-empty-text">Enter a search term above to find tools, articles, podcasts, and more.</p>
+        <div class="search-browse-links">
+          <p class="search-browse-label">Or browse by category:</p>
+          <div class="search-browse-grid">
+            <a href="tools.html" class="search-browse-card">
+              <span class="search-browse-icon">🔧</span>
+              <span>AI Tools</span>
+            </a>
+            <a href="knowledge.html" class="search-browse-card">
+              <span class="search-browse-icon">📖</span>
+              <span>Knowledge</span>
+            </a>
+            <a href="podcasts.html" class="search-browse-card">
+              <span class="search-browse-icon">🎙️</span>
+              <span>Podcasts</span>
+            </a>
+            <a href="youtube.html" class="search-browse-card">
+              <span class="search-browse-icon">▶️</span>
+              <span>YouTube</span>
+            </a>
+            <a href="training.html" class="search-browse-card">
+              <span class="search-browse-icon">🎓</span>
+              <span>Training</span>
+            </a>
+            <a href="bleeding-edge.html" class="search-browse-card">
+              <span class="search-browse-icon">⚡</span>
+              <span>Bleeding Edge</span>
+            </a>
+            <a href="daily-watch.html" class="search-browse-card">
+              <span class="search-browse-icon">📰</span>
+              <span>Daily Watch</span>
+            </a>
+            <a href="niche.html" class="search-browse-card">
+              <span class="search-browse-icon">🎯</span>
+              <span>Niche AI</span>
+            </a>
+          </div>
+        </div>
+      </div>
       <div id="search-grouped"></div>
     </div>
   </main>

@@ -6,7 +6,7 @@
   <title>My Stack | AI Knowledge Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="stack.css">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,13 +25,23 @@
   <script src="toast.js"></script>
 
   <main class="stack-main main-loading" id="main-content" aria-busy="true">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="index.html" class="breadcrumb-link">Home</a>
+      <span class="breadcrumb-sep" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">My Stack</span>
+    </nav>
     <section class="stack-hero">
       <h1 class="stack-hero-title">My Stack</h1>
       <p class="stack-hero-desc">Everything I use for AI, learning, and staying sharp</p>
-      <p id="stack-empty-msg" class="stack-empty-msg" style="display:none">
+      <div id="stack-empty-msg" class="stack-empty-msg" style="display:none">
         <span class="stack-empty-icon" aria-hidden="true">📚</span>
-        Your stack is empty. Visit the <a href="index.html">main hub</a> and click <strong>"Add to Stack"</strong> on tools you want to save.
-      </p>
+        <p>Your stack is empty. Browse tools and click <strong>"Add to Stack"</strong> to start building your personal AI toolkit.</p>
+        <div class="stack-empty-actions">
+          <a href="tools.html" class="stack-empty-btn primary">Browse AI Tools</a>
+          <a href="knowledge.html" class="stack-empty-btn">Explore Knowledge</a>
+          <a href="podcasts.html" class="stack-empty-btn">Discover Podcasts</a>
+        </div>
+      </div>
       <div class="stack-stats-wrap">
         <div class="stack-stats">
           <span class="stack-stat"><strong id="total-count">0</strong> total</span>

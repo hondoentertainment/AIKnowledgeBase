@@ -6,7 +6,7 @@
   <title>AI Knowledge Hub — Discover, Rate & Master the Best AI Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
@@ -63,34 +63,34 @@
   <!-- Feature highlights -->
   <section class="features-strip" aria-label="Key features">
     <div class="features-strip-inner">
-      <span class="feature-chip">
+      <a href="tools.html" class="feature-chip">
         <span class="feature-chip-icon">⭐</span>
         Half-star ratings
-      </span>
-      <span class="feature-chip">
+      </a>
+      <a href="stack.html" class="feature-chip">
         <span class="feature-chip-icon">📚</span>
         Personal stack
-      </span>
-      <span class="feature-chip">
+      </a>
+      <a href="search.html" class="feature-chip">
         <span class="feature-chip-icon">🔍</span>
         Instant search <kbd>/</kbd>
-      </span>
-      <span class="feature-chip">
+      </a>
+      <a href="training.html" class="feature-chip">
         <span class="feature-chip-icon">📊</span>
         Difficulty levels
-      </span>
-      <span class="feature-chip">
+      </a>
+      <a href="dashboard.html" class="feature-chip">
         <span class="feature-chip-icon">✓</span>
         Track what you use
-      </span>
-      <span class="feature-chip">
+      </a>
+      <a href="want-to-try.html" class="feature-chip">
         <span class="feature-chip-icon">🔖</span>
         Want to try
-      </span>
-      <span class="feature-chip">
+      </a>
+      <a href="about.html" class="feature-chip">
         <span class="feature-chip-icon">🔗</span>
         Share anything
-      </span>
+      </a>
     </div>
   </section>
 
@@ -113,6 +113,15 @@
     <div class="recs-inner">
       <h2 class="recs-heading">Recommended for You</h2>
       <div class="recs-row" id="recs-row"></div>
+    </div>
+  </section>
+
+  <!-- Recommended Next Steps -->
+  <section class="next-steps-section" id="next-steps-section" aria-label="Recommended next steps">
+    <div class="next-steps-inner">
+      <h2 class="next-steps-heading">Your Next Steps</h2>
+      <p class="next-steps-subtitle">Personalized actions to get the most out of your AI Knowledge Hub</p>
+      <div class="next-steps-grid" id="next-steps-grid"></div>
     </div>
   </section>
 
@@ -233,6 +242,83 @@
         }
       }
     }, 600);
+  </script>
+  <script>
+  // Recommended Next Steps — dynamic, personalized actions
+  (function() {
+    function renderNextSteps() {
+      var grid = document.getElementById("next-steps-grid");
+      if (!grid) return;
+
+      var stack = [];
+      var directUse = [];
+      var wantToTry = [];
+      var ratedCount = 0;
+      try { stack = JSON.parse(localStorage.getItem("myStack") || "[]"); } catch(e) {}
+      try { directUse = JSON.parse(localStorage.getItem("directUse") || "[]"); } catch(e) {}
+      try { wantToTry = JSON.parse(localStorage.getItem("wantToTry") || "[]"); } catch(e) {}
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key && key.startsWith("rating:")) {
+          var val = parseFloat(localStorage.getItem(key));
+          if (val > 0) ratedCount++;
+        }
+      }
+
+      var steps = [];
+
+      // Always-available exploration steps
+      if (ratedCount < 5) {
+        steps.push({ icon: "⭐", title: "Rate your first tools", desc: "Rate 5 AI tools to unlock personalized recommendations and achievements.", href: "tools.html", priority: 1 });
+      }
+      if (stack.length === 0) {
+        steps.push({ icon: "📚", title: "Build your stack", desc: "Save your favorite tools to create a personal AI toolkit you can reference anytime.", href: "stack.html", priority: 2 });
+      }
+      if (wantToTry.length === 0) {
+        steps.push({ icon: "🔖", title: "Bookmark tools to try", desc: "Flag interesting tools you want to explore later so you never lose track.", href: "tools.html", priority: 3 });
+      }
+      if (directUse.length === 0) {
+        steps.push({ icon: "✓", title: "Mark tools you use", desc: "Track which AI tools you actively use to build your usage profile.", href: "tools.html", priority: 4 });
+      }
+
+      // Discovery steps
+      steps.push({ icon: "🎙️", title: "Explore AI podcasts", desc: "Discover top AI podcasts to stay informed on the latest trends and insights.", href: "podcasts.html", priority: 5 });
+      steps.push({ icon: "▶️", title: "Watch AI content", desc: "Browse curated YouTube channels covering AI tutorials, news, and deep dives.", href: "youtube.html", priority: 6 });
+      steps.push({ icon: "🎓", title: "Start a training course", desc: "Level up your AI skills with handpicked training resources for all levels.", href: "training.html", priority: 7 });
+      steps.push({ icon: "⚡", title: "See what's bleeding edge", desc: "Stay ahead with the latest cutting-edge AI tools and technologies.", href: "bleeding-edge.html", priority: 8 });
+      steps.push({ icon: "📰", title: "Check daily watch", desc: "See today's trending AI news, launches, and must-read content.", href: "daily-watch.html", priority: 9 });
+      steps.push({ icon: "🎯", title: "Explore niche AI tools", desc: "Discover specialized AI tools for taxes, health, legal, travel, and 16 more niches.", href: "niche.html", priority: 10 });
+
+      // Advanced steps for returning users
+      if (ratedCount >= 5) {
+        steps.push({ icon: "📊", title: "View your dashboard", desc: "See your analytics, achievements, rating distribution, and personalized insights.", href: "dashboard.html", priority: 0 });
+      }
+      if (stack.length > 0) {
+        steps.push({ icon: "🔍", title: "Search your collection", desc: "Quickly find any tool, article, or resource across all categories.", href: "search.html", priority: 1 });
+      }
+
+      // Sort by priority and show top 6
+      steps.sort(function(a, b) { return a.priority - b.priority; });
+      steps = steps.slice(0, 6);
+
+      grid.innerHTML = steps.map(function(step) {
+        return '<a href="' + step.href + '" class="next-step-card">' +
+          '<span class="next-step-icon">' + step.icon + '</span>' +
+          '<div class="next-step-body">' +
+            '<strong class="next-step-title">' + step.title + '</strong>' +
+            '<span class="next-step-desc">' + step.desc + '</span>' +
+          '</div>' +
+          '<span class="next-step-arrow" aria-hidden="true">&rarr;</span>' +
+        '</a>';
+      }).join("");
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function() { setTimeout(renderNextSteps, 400); });
+    } else {
+      setTimeout(renderNextSteps, 400);
+    }
+  })();
   </script>
 </body>
 </html>

@@ -47,19 +47,38 @@
     return window.ProfileStore ? window.ProfileStore.getWantToTry() : [];
   }
 
+  function getSortValue() {
+    const sel = document.getElementById("want-sort");
+    return sel ? sel.value : "default";
+  }
+
+  function sortItems(items, sortBy) {
+    if (sortBy === "name") {
+      return items.slice().sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+    }
+    if (sortBy === "category") {
+      return items.slice().sort((a, b) => (a.categoryLabel || "").localeCompare(b.categoryLabel || "") || (a.title || "").localeCompare(b.title || ""));
+    }
+    return items;
+  }
+
   function render() {
     const grid = document.getElementById("want-to-try-grid");
     const totalEl = document.getElementById("total-count");
     const emptyMsg = document.getElementById("want-empty-msg");
+    const sortWrap = document.getElementById("want-sort-wrap");
     const main = document.getElementById("main-content");
     if (!grid) return;
 
     const wantSet = new Set(getWantToTry());
     const allItems = getAllItems();
-    const wantItems = allItems.filter((item) => wantSet.has(item.title));
+    let wantItems = allItems.filter((item) => wantSet.has(item.title));
 
     if (totalEl) totalEl.textContent = wantItems.length;
     if (emptyMsg) emptyMsg.style.display = wantItems.length === 0 ? "block" : "none";
+    if (sortWrap) sortWrap.style.display = wantItems.length > 0 ? "" : "none";
+
+    wantItems = sortItems(wantItems, getSortValue());
 
     if (wantItems.length === 0) {
       grid.innerHTML = "";
@@ -94,6 +113,25 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     onScroll();
+  }
+
+  // Sort change handler
+  const sortSelect = document.getElementById("want-sort");
+  if (sortSelect) sortSelect.addEventListener("change", () => render());
+
+  // Clear all handler
+  const clearBtn = document.getElementById("want-clear-all-btn");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      if (!confirm("Remove all items from your Want to Try list?")) return;
+      if (window.ProfileStore) {
+        window.ProfileStore.setWantToTry([]);
+      } else {
+        localStorage.setItem("wantToTry", "[]");
+      }
+      render();
+      if (window.showToast) window.showToast("Want to Try list cleared");
+    });
   }
 
   render();
