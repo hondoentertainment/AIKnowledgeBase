@@ -8,14 +8,14 @@
   max-width: 700px;
   margin: 0 auto;
 }
-.collections-title {
+.collections-hero-title {
   font-family: "Inter", system-ui, sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
   color: var(--text);
   margin: 0 0 0.4rem;
 }
-.collections-subtitle {
+.collections-hero-subtitle {
   font-size: 0.92rem;
   color: var(--text-dim);
   margin: 0;
@@ -166,7 +166,8 @@
   flex-shrink: 0;
 }
 
-.collection-item-name {
+.collection-item-name,
+.collection-item-title {
   flex: 1;
   font-size: 0.85rem;
   font-weight: 500;
@@ -198,10 +199,13 @@
   border-color: var(--accent);
   color: var(--accent);
 }
-.collection-item-actions button.active {
+.collection-item-actions button.active,
+.collection-item-actions button:disabled {
   background: var(--accent-muted);
   border-color: var(--accent);
   color: var(--accent);
+  cursor: default;
+  opacity: 0.8;
 }
 
 .collection-actions {
@@ -223,13 +227,17 @@
   opacity: 0.9;
   box-shadow: var(--shadow);
 }
+.collection-save-all-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
 
 @media (max-width: 600px) {
   .collections-grid {
     grid-template-columns: 1fr;
     padding: 0.75rem 1rem 2rem;
   }
-  .collections-title {
+  .collections-hero-title {
     font-size: 1.4rem;
   }
 }
