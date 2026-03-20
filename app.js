@@ -777,6 +777,12 @@
         const countEl = document.getElementById(cfg.countId);
         const sortEl = document.getElementById(cfg.id + "-sort");
         let items = data[cfg.dataKey] || [];
+        /* Apply active filters (from Filters module) before sorting */
+        var totalBeforeFilter = items.length;
+        if (window.Filters && window.Filters.applyFilters) {
+          var filterState = window.Filters.getActiveFilters();
+          items = window.Filters.applyFilters(items, filterState);
+        }
         /* Restore sort selection from session storage */
         const sortStorageKey = "sort:" + cfg.id;
         const savedSort = sessionStorage.getItem(sortStorageKey);
@@ -905,6 +911,7 @@
   render();
 
   window.addEventListener("profile-changed", () => render());
+  document.addEventListener("filters-changed", () => render());
 
   if (document.body.dataset.page === "search" && !window.CardBuilder) {
     window.CardBuilder = {

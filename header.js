@@ -92,6 +92,7 @@
     ];
     const discoverItems = [
       { href: "search.html", id: "search", label: "Search" },
+      { href: "collections.html", id: "collections", label: "Collections" },
       { href: "daily-watch.html", id: "daily-watch", label: "Daily Watch" },
       { href: "bleeding-edge.html", id: "bleeding-edge", label: "Bleeding Edge" },
       { href: "niche.html", id: "niche", label: "Niche AI" },

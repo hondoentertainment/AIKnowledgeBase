@@ -1,0 +1,248 @@
+/* ============================================
+   AI Knowledge Hub — Filter Bar Styles
+   Uses existing CSS variables for theme compat
+   ============================================ */
+
+/* --- Filter bar container --- */
+.filter-bar {
+  margin-bottom: 1rem;
+}
+
+/* --- Toggle button (mobile-first, always visible) --- */
+.filter-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  position: relative;
+  min-height: var(--touch-target);
+}
+
+.filter-toggle-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.filter-toggle-btn .filter-icon {
+  flex-shrink: 0;
+}
+
+/* Active indicator dot */
+.filter-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: 0.25rem;
+  animation: filter-pulse 2s infinite;
+}
+
+.filter-toggle-btn.filter-active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-muted);
+}
+
+@keyframes filter-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* --- Filter bar content --- */
+.filter-bar-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.3s ease;
+  overflow: hidden;
+  max-height: 500px;
+  opacity: 1;
+}
+
+.filter-bar-content.filter-collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+/* --- Filter groups --- */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-group-tags {
+  flex: 1 1 100%;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* --- Filter select dropdowns --- */
+.filter-select {
+  padding: 0.4rem 2rem 0.4rem 0.6rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  min-height: var(--touch-target);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23475569' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-select:hover {
+  border-color: var(--accent);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* Dark mode select chevron */
+[data-theme="dark"] .filter-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* --- Tag pills --- */
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-height: 30px;
+}
+
+.filter-tag:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-muted);
+}
+
+.filter-tag-selected {
+  color: var(--btn-on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.filter-tag-selected:hover {
+  color: var(--btn-on-accent);
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+/* --- Clear all button --- */
+.filter-clear-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--danger, #dc2626);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  min-height: var(--touch-target);
+  align-self: flex-end;
+}
+
+.filter-clear-btn:hover {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: var(--danger, #dc2626);
+}
+
+/* --- Result count --- */
+.filter-result-count {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  padding: 0.25rem 0;
+  font-weight: 500;
+}
+
+/* --- Desktop: hide toggle, show content --- */
+@media (min-width: 768px) {
+  .filter-toggle-btn {
+    display: none;
+  }
+
+  .filter-bar-content,
+  .filter-bar-content.filter-collapsed {
+    max-height: none;
+    opacity: 1;
+    padding: 0.75rem 0;
+    pointer-events: auto;
+    overflow: visible;
+  }
+
+  .filter-group-tags {
+    flex: 0 1 auto;
+  }
+}
+
+/* --- Mobile: collapsible --- */
+@media (max-width: 767px) {
+  .filter-toggle-btn {
+    display: inline-flex;
+    margin-bottom: 0.25rem;
+  }
+
+  .filter-bar-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
+  .filter-clear-btn {
+    align-self: flex-start;
+  }
+}

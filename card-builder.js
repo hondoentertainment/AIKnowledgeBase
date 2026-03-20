@@ -93,6 +93,16 @@
     return `<div class="card-rating" data-title="${escapeAttr(title)}" data-rating="${saved}" data-grad-id="${escapeAttr(gradId)}" role="group" aria-label="${saved ? `Rate ${escapeAttr(title)} — currently ${saved} of 5 stars` : `Rate ${escapeAttr(title)}`}">${stars.join("")}<span class="rating-value" aria-hidden="true">${label}</span>${clearBtn}</div>`;
   }
 
+  function buildCardBadges(item) {
+    const badges = [];
+    const rating = getRating(item.title);
+    const inStack = isInStack(item.title);
+    if (!rating) badges.push('<span class="card-status-badge card-badge-new" title="Not yet rated">New</span>');
+    if (rating >= 4.5) badges.push('<span class="card-status-badge card-badge-top-rated" title="Top Rated"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg> Top Rated</span>');
+    if (inStack) badges.push('<span class="card-status-badge card-badge-in-stack" title="In your stack"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></span>');
+    return badges.length ? `<div class="card-status-badges">${badges.join("")}</div>` : "";
+  }
+
   function buildCard(item, category) {
     const url = item.url || "#";
     const icon = item.icon || "";
@@ -116,12 +126,14 @@
     const shareBtn = `<button type="button" class="share-btn" data-share-page="${escapeAttr(sharePage)}" data-share-category="${escapeAttr(shareCat)}" data-share-title="${escapeAttr(item.title)}" data-share-desc="${escapeAttr(item.description || "")}" aria-label="Share ${escapeAttr(item.title)}">Share</button>`;
     const visitUrl = url && url !== "#" ? url : null;
     const visitBtn = visitUrl ? `<a href="${escapeHtml(visitUrl)}" class="visit-btn" target="_blank" rel="noopener" aria-label="Visit ${escapeAttr(item.title)}">Visit</a>` : "";
+    const previewBtn = `<button type="button" class="preview-btn" data-preview-title="${escapeAttr(item.title)}" data-preview-category="${escapeAttr(cat)}" aria-label="Quick preview ${escapeAttr(item.title)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>`;
     const categoryLink = item.categoryPage && item.categoryLabel
       ? `<a href="${escapeHtml(item.categoryPage)}" class="card-category-link" aria-label="View in ${escapeAttr(item.categoryLabel)}">In ${escapeHtml(item.categoryLabel)}</a>`
       : "";
     const trustSignals = deriveTrustSignals(item);
     const trustSignalsHtml = trustSignals.length ? `<div class="card-trust-signals" aria-label="Trust signals">${trustSignals.map((s) => `<span class="trust-badge ${s.cls}" title="${escapeAttr(s.title)}">${escapeHtml(s.label)}</span>`).join("")}</div>` : "";
-    return `<div class="card" data-title="${escapeAttr(item.title)}" data-desc="${escapeAttr(item.description)}" data-tags="${escapeAttr((item.tags || []).join(" "))}"><a href="${escapeHtml(url)}" class="card-link" target="_blank" rel="noopener"><div class="card-cover" style="background:${grad}">${freqBadge}${levelBadge}${directUseBadge}${wantToTryBadge}<span class="card-cover-icon">${icon}</span></div></a><div class="card-body"><a href="${escapeHtml(url)}" class="card-title" target="_blank" rel="noopener">${escapeHtml(item.title)}</a><p class="card-desc">${escapeHtml(item.description)}</p>${trustSignalsHtml}${buildStarsHTML(item.title)}<div class="card-actions">${visitBtn}${categoryLink}${wantToTryBtn}${directUseBtn}${stackBtn}${shareBtn}</div>${tags ? `<div class="card-tags">${tags}</div>` : ""}</div></div>`;
+    const statusBadges = buildCardBadges(item);
+    return `<div class="card" data-title="${escapeAttr(item.title)}" data-desc="${escapeAttr(item.description)}" data-tags="${escapeAttr((item.tags || []).join(" "))}"><a href="${escapeHtml(url)}" class="card-link" target="_blank" rel="noopener"><div class="card-cover" style="background:${grad}">${freqBadge}${levelBadge}${directUseBadge}${wantToTryBadge}<span class="card-cover-icon">${icon}</span></div></a>${statusBadges}<div class="card-body"><a href="${escapeHtml(url)}" class="card-title" target="_blank" rel="noopener">${escapeHtml(item.title)}</a><p class="card-desc">${escapeHtml(item.description)}</p>${trustSignalsHtml}${buildStarsHTML(item.title)}<div class="card-actions">${visitBtn}${previewBtn}${categoryLink}${wantToTryBtn}${directUseBtn}${stackBtn}${shareBtn}</div>${tags ? `<div class="card-tags">${tags}</div>` : ""}</div></div>`;
   }
 
   function initStarInteractions(container) {
@@ -304,16 +316,44 @@
     setTimeout(() => { btn.textContent = prev || "Share"; btn.setAttribute("aria-label", label); btn.disabled = false; }, 2000);
   }
 
+  function initPreviewButtons(container) {
+    const root = container || document;
+    root.querySelectorAll(".preview-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const title = btn.dataset.previewTitle;
+        const category = btn.dataset.previewCategory;
+        if (window.QuickPreview) window.QuickPreview.open(title, category);
+      });
+    });
+  }
+
   function initInteractions(container) {
     initStarInteractions(container);
     initStackButtons(container);
     initDirectUseButtons(container);
     initWantToTryButtons(container);
     initShareButtons(container);
+    initPreviewButtons(container);
   }
 
   window.CardBuilder = {
     buildCard,
     initInteractions,
+    getRating,
+    setRating,
+    isInStack,
+    toggleStack,
+    isDirectUse,
+    toggleDirectUse,
+    isWantToTry,
+    toggleWantToTry,
+    buildStarsHTML,
+    initStarInteractions,
+    levelLabel,
+    levelClass,
+    gradientCSS: gradientCSS,
+    escapeHtml,
+    escapeAttr,
   };
 })();

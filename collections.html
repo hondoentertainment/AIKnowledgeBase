@@ -3,83 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Podcasts | AI Knowledge Hub</title>
+  <title>Curated Collections | AI Knowledge Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="filters.css">
+  <link rel="stylesheet" href="collections.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0f1117" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta property="og:title" content="Podcasts | AI Knowledge Hub">
-  <meta property="og:description" content="Curated AI podcasts. Rate and discover.">
+  <meta property="og:title" content="Curated Collections | AI Knowledge Hub">
+  <meta property="og:description" content="Handpicked sets of AI tools and resources for every need.">
   <meta property="og:type" content="website">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%236366f1'/%3E%3Cpath d='M90 52l18 36 40 7-29 29 7 40-36-18-36 18 7-40-29-29 40-7z' fill='white'/%3E%3C/svg%3E">
 </head>
-<body data-category="podcasts">
+<body data-category="collections">
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <span id="rating-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></span>
 
   <div id="header-root"></div>
   <script src="header.js"></script>
-  <script>Header.render({ activeNav: "podcasts", searchMode: "expandable" });</script>
+  <script>Header.render({ activeNav: "collections", searchMode: "expandable" });</script>
   <script src="theme.js"></script>
   <script src="mobile-ux.js"></script>
   <script src="offline.js"></script>
   <script src="toast.js"></script>
 
-  <main class="main main-loading" id="main-content" aria-busy="true">
+  <main class="main" id="main-content">
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <a href="index.html" class="breadcrumb-link">Home</a>
       <span class="breadcrumb-sep" aria-hidden="true">/</span>
-      <span class="breadcrumb-current" aria-current="page">Podcasts</span>
+      <span class="breadcrumb-current" aria-current="page">Collections</span>
     </nav>
-    <section id="podcasts" class="section">
-      <div class="section-header">
-        <h2 class="section-title">Podcasts <span class="section-count" id="podcasts-count"></span></h2>
-        <div class="section-sort-wrap">
-          <label for="podcasts-sort" class="sr-only">Sort by</label>
-          <select id="podcasts-sort" class="section-sort" aria-label="Sort podcasts by">
-            <option value="default">Default order</option>
-            <option value="rating">Rating (high first)</option>
-            <option value="name">Name (A–Z)</option>
-            <option value="level">Level (beginner first)</option>
-          </select>
-        </div>
-      </div>
-      <div id="filter-bar"></div>
-      <div class="card-grid" id="podcasts-grid">
-        <div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div>
-      </div>
+
+    <section class="collections-hero">
+      <h1 class="collections-hero-title">Curated Collections</h1>
+      <p class="collections-hero-subtitle">Handpicked sets of AI tools and resources for every need</p>
+    </section>
+
+    <section class="collections-section" aria-label="Curated collections">
+      <div class="collections-grid" id="collections-grid"></div>
     </section>
   </main>
 
-  <button type="button" id="back-to-top" class="back-to-top hidden" aria-label="Back to top">↑</button>
+  <button type="button" id="back-to-top" class="back-to-top hidden" aria-label="Back to top">&#8593;</button>
 
   <!-- Mobile bottom navigation -->
   <nav class="bottom-nav" aria-label="Mobile navigation">
     <div class="bottom-nav-inner">
       <a href="index.html" class="bottom-nav-item">
-        <span class="bottom-nav-icon" aria-hidden="true">🏠</span>
+        <span class="bottom-nav-icon" aria-hidden="true">&#127968;</span>
         <span class="bottom-nav-label">Home</span>
       </a>
       <a href="tools.html" class="bottom-nav-item">
-        <span class="bottom-nav-icon" aria-hidden="true">🔧</span>
+        <span class="bottom-nav-icon" aria-hidden="true">&#128295;</span>
         <span class="bottom-nav-label">Tools</span>
       </a>
       <button type="button" class="bottom-nav-item" id="bottom-search-btn" aria-label="Search">
-        <span class="bottom-nav-icon" aria-hidden="true">🔍</span>
+        <span class="bottom-nav-icon" aria-hidden="true">&#128269;</span>
         <span class="bottom-nav-label">Search</span>
       </button>
       <a href="stack.html" class="bottom-nav-item">
-        <span class="bottom-nav-icon" aria-hidden="true">📚</span>
+        <span class="bottom-nav-icon" aria-hidden="true">&#128218;</span>
         <span class="bottom-nav-label">My Stack</span>
       </a>
       <button type="button" class="bottom-nav-item" id="bottom-more-btn" aria-label="More pages">
-        <span class="bottom-nav-icon" aria-hidden="true">☰</span>
+        <span class="bottom-nav-icon" aria-hidden="true">&#9776;</span>
         <span class="bottom-nav-label">More</span>
       </button>
     </div>
@@ -92,9 +83,9 @@
     <p>AI Knowledge Hub &mdash; 2026</p>
     <div class="footer-links">
       <a href="stack.html" class="footer-link">My Stack</a>
-      <span class="footer-link-sep">·</span>
+      <span class="footer-link-sep">&middot;</span>
       <a href="about.html" class="footer-link">About</a>
-      <span class="footer-link-sep">·</span>
+      <span class="footer-link-sep">&middot;</span>
       <a href="profiles.html" class="footer-link">Profiles</a>
     </div>
   </footer>
@@ -105,9 +96,7 @@
   <script src="search-utils.js"></script>
   <script src="analytics.js"></script>
   <script src="card-builder.js"></script>
-  <script src="filters.js"></script>
   <script src="app.js"></script>
-  <script>if(window.Filters) Filters.init('filter-bar', 'podcasts');</script>
   <script src="recommendations.js"></script>
   <script src="gamification.js"></script>
   <script src="command-palette.js"></script>
@@ -119,8 +108,9 @@
   <script src="activity-feed.js"></script>
   <script src="advanced-filters.js"></script>
   <script src="profile-switcher.js"></script>
+  <script src="collections.js"></script>
   <script src="bottom-nav.js"></script>
   <script src="sw-update.js"></script>
-  <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>
+  <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function() {});</script>
 </body>
 </html>

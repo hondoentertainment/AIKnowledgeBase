@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="filters.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0f1117" media="(prefers-color-scheme: dark)">
@@ -49,6 +50,7 @@
           </select>
         </div>
       </div>
+      <div id="filter-bar"></div>
       <div class="card-grid" id="training-grid">
         <div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div><div class="card-skeleton"></div>
       </div>
@@ -103,7 +105,9 @@
   <script src="search-utils.js"></script>
   <script src="analytics.js"></script>
   <script src="card-builder.js"></script>
+  <script src="filters.js"></script>
   <script src="app.js"></script>
+  <script>if(window.Filters) Filters.init('filter-bar', 'training');</script>
   <script src="recommendations.js"></script>
   <script src="gamification.js"></script>
   <script src="command-palette.js"></script>

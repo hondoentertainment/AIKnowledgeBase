@@ -1,0 +1,235 @@
+/* ============================================
+   AI Knowledge Hub — Collections Page Styles
+   ============================================ */
+
+.collections-hero {
+  text-align: center;
+  padding: 2rem 1.5rem 1rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.collections-title {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 0.4rem;
+}
+.collections-subtitle {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 2rem;
+}
+
+.collection-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.collection-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+
+.collection-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  font: inherit;
+  transition: background 0.15s;
+}
+.collection-card-header:hover {
+  background: var(--bg-surface);
+}
+.collection-card-header[aria-expanded="true"] .collection-chevron {
+  transform: rotate(90deg);
+}
+
+.collection-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.collection-info {
+  flex: 1;
+  min-width: 0;
+}
+.collection-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.collection-desc {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 0.15rem 0 0;
+  line-height: 1.4;
+}
+.collection-count {
+  display: inline-block;
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-muted);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+}
+
+.collection-chevron {
+  font-size: 1.3rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.collection-explored-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+/* --- Expanded detail --- */
+.collection-detail {
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 1.1rem 1rem;
+  animation: col-expand 0.2s ease;
+}
+@keyframes col-expand {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 600px; }
+}
+
+.collection-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.collection-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.collection-item:hover {
+  border-color: var(--border);
+}
+
+.collection-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.collection-item-name {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collection-item-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+.collection-item-actions button {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.collection-item-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.collection-item-actions button.active {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.collection-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.collection-save-all-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.collection-save-all-btn:hover {
+  opacity: 0.9;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 600px) {
+  .collections-grid {
+    grid-template-columns: 1fr;
+    padding: 0.75rem 1rem 2rem;
+  }
+  .collections-title {
+    font-size: 1.4rem;
+  }
+}
