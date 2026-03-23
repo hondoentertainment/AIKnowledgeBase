@@ -72,6 +72,8 @@ const nicheData = {
     { title: "Quizlet AI", description: "AI-generated flashcards, quizzes, and study guides from your materials.", url: "https://quizlet.com", tags: ["Flashcards", "Study", "Quizzes"], icon: "\u{1F4D6}", color: ["#4255ff", "#2e3856"], level: 1 },
     { title: "Notion AI", description: "Summarize notes, generate study guides, and clarify concepts in your workspace.", url: "https://www.notion.so", tags: ["Notes", "Summaries", "Study"], icon: "\u{1F4DD}", color: ["#000000", "#37352f"], level: 2 },
     { title: "Khan Academy in ChatGPT", description: "Generate standards-aligned math problems and practice in ChatGPT.", url: "https://chat.openai.com", tags: ["Math", "K-12", "Standards"], icon: "\u{1F4DA}", color: ["#10a37f", "#1a7f5a"], level: 1 },
+    { title: "OpenAI Academy", description: "Free workshops and certifications from prompt engineering to advanced AI integration.", url: "https://academy.openai.com", tags: ["Free", "Certification", "OpenAI"], icon: "\u{1F393}", color: ["#10a37f", "#0d8c6b"], level: 2 },
+    { title: "Google Learn About", description: "Google's AI learning companion that explains topics with visual aids and interactive follow-ups.", url: "https://learning.google.com", tags: ["Learning", "Visual", "Google"], icon: "\u{1F4A1}", color: ["#4285f4", "#1a73e8"], level: 1 },
   ],
   finance: [
     { title: "Monarch Money", description: "AI learns spending habits and organizes transactions. Net worth tracking.", url: "https://www.monarchmoney.com", tags: ["Budget", "Tracking", "Net Worth"], icon: "\u{1F4B8}", color: ["#7c3aed", "#5b21b6"], level: 2 },
@@ -135,5 +137,18 @@ const nicheData = {
     { title: "Copy.ai", description: "Social content, ad copy, sales emails. Fast generation.", url: "https://www.copy.ai", tags: ["Social", "Ads", "Sales"], icon: "\u{1F4E2}", color: ["#6366f1", "#4f46e5"], level: 2 },
     { title: "Canva AI", description: "Magic Design, text-to-image, background removal. Marketing visuals.", url: "https://www.canva.com", tags: ["Design", "Social", "Visuals"], icon: "\u{1F3A8}", color: ["#00c4cc", "#0099a0"], level: 1 },
     { title: "Hootsuite AI", description: "AI content ideas, best time to post, sentiment analysis.", url: "https://www.hootsuite.com", tags: ["Social", "Scheduling", "Analytics"], icon: "\u{1F4E1}", color: ["#ff7a59", "#e85d3a"], level: 2 },
+  ],
+  parenting: [
+    { title: "ChatGPT Parenting", description: "Get advice on child development, activities, bedtime routines, and age-appropriate explanations.", url: "https://chat.openai.com", tags: ["Advice", "Activities", "Development"], icon: "\u{1F476}", color: ["#10a37f", "#1a7f5a"], level: 1 },
+    { title: "Huckleberry", description: "AI sleep coach for babies and toddlers. Tracks sleep, feeds, and predicts optimal nap times.", url: "https://huckleberrycare.com", tags: ["Sleep", "Tracking", "Baby"], icon: "\u{1F319}", color: ["#7c3aed", "#5b21b6"], level: 1 },
+    { title: "Kinedu", description: "AI-powered developmental milestones tracker with 2,000+ activity ideas for ages 0-6.", url: "https://www.kinedu.com", tags: ["Development", "Activities", "Milestones"], icon: "\u{1F9D2}", color: ["#f59e0b", "#d97706"], level: 1 },
+    { title: "Duolingo ABC", description: "AI-powered learn-to-read app for kids ages 3-8 with phonics and sight words.", url: "https://www.duolingo.com/abc", tags: ["Reading", "Kids", "Education"], icon: "\u{1F4DA}", color: ["#58cc02", "#1cb0f6"], level: 1 },
+  ],
+  music: [
+    { title: "Suno", description: "Generate full songs with vocals, lyrics, and instrumentals from text prompts.", url: "https://suno.com", tags: ["Generation", "Songs", "Vocals"], icon: "\u{1F3B5}", color: ["#f97316", "#ea580c"], level: 1 },
+    { title: "Udio", description: "AI music creation tool generating studio-quality tracks in any genre or style.", url: "https://www.udio.com", tags: ["Generation", "Genres", "Studio"], icon: "\u{1F3BA}", color: ["#6366f1", "#4f46e5"], level: 1 },
+    { title: "BandLab", description: "Free music creation platform with AI mastering, virtual instruments, and collaboration.", url: "https://www.bandlab.com", tags: ["Creation", "Collaboration", "Free"], icon: "\u{1F3B8}", color: ["#e11d48", "#be123c"], level: 2 },
+    { title: "LANDR", description: "AI mastering, distribution, and promotion for independent musicians.", url: "https://www.landr.com", tags: ["Mastering", "Distribution", "Indie"], icon: "\u{1F3A7}", color: ["#000000", "#333333"], level: 3 },
+    { title: "Moises", description: "AI for musicians: stem separation, smart metronome, chord detection, pitch changer.", url: "https://moises.ai", tags: ["Stems", "Practice", "Chords"], icon: "\u{1F3BC}", color: ["#6366f1", "#4f46e5"], level: 2 },
   ],
 };
