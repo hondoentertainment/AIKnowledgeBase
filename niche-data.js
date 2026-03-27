@@ -151,4 +151,16 @@ const nicheData = {
     { title: "LANDR", description: "AI mastering, distribution, and promotion for independent musicians.", url: "https://www.landr.com", tags: ["Mastering", "Distribution", "Indie"], icon: "\u{1F3A7}", color: ["#000000", "#333333"], level: 3 },
     { title: "Moises", description: "AI for musicians: stem separation, smart metronome, chord detection, pitch changer.", url: "https://moises.ai", tags: ["Stems", "Practice", "Chords"], icon: "\u{1F3BC}", color: ["#6366f1", "#4f46e5"], level: 2 },
   ],
+  accessibility: [
+    { title: "Be My Eyes (GPT-4o)", description: "AI visual assistant for blind and low-vision users with real-time scene description and object identification.", url: "https://www.bemyeyes.com", tags: ["Vision", "Accessibility", "AI Assistant"], icon: "\u{1F441}\u{FE0F}", color: ["#ef4444", "#dc2626"], level: 1 },
+    { title: "Otter.ai Live Captions", description: "Real-time AI captioning for meetings, lectures, and conversations with speaker identification.", url: "https://otter.ai", tags: ["Captions", "Meetings", "Real-Time"], icon: "\u{1F4AC}", color: ["#3b82f6", "#2563eb"], level: 1 },
+    { title: "Microsoft Seeing AI", description: "Free iOS app that narrates the world for blind users — reads text, identifies people, and describes scenes.", url: "https://www.seeingai.com", tags: ["Vision", "Narration", "Free"], icon: "\u{1F440}", color: ["#0078d4", "#005a9e"], level: 1 },
+    { title: "Speechify", description: "AI text-to-speech reader that converts any text to natural-sounding audio for accessibility and learning.", url: "https://speechify.com", tags: ["TTS", "Reading", "Learning"], icon: "\u{1F50A}", color: ["#6366f1", "#4f46e5"], level: 1 },
+  ],
+  sustainability: [
+    { title: "Climate TRACE", description: "AI-powered global greenhouse gas emissions tracker using satellite imagery and remote sensing.", url: "https://climatetrace.org", tags: ["Climate", "Emissions", "Satellite"], icon: "\u{1F30D}", color: ["#22c55e", "#16a34a"], level: 2 },
+    { title: "Watt Time", description: "AI that predicts grid carbon intensity so devices can shift energy use to cleaner periods.", url: "https://watttime.org", tags: ["Energy", "Carbon", "Grid"], icon: "\u{26A1}", color: ["#059669", "#047857"], level: 3 },
+    { title: "Pachama", description: "AI and satellite monitoring for forest carbon credits verification and nature-based climate solutions.", url: "https://pachama.com", tags: ["Forest", "Carbon Credits", "Monitoring"], icon: "\u{1F333}", color: ["#16a34a", "#15803d"], level: 4 },
+    { title: "Google Project Green Light", description: "AI optimizes traffic light timing at intersections to reduce emissions and fuel consumption.", url: "https://sustainability.google/green-light/", tags: ["Traffic", "Emissions", "Google"], icon: "\u{1F6A6}", color: ["#4285f4", "#34a853"], level: 2 },
+  ],
 };
