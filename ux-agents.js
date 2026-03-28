@@ -269,53 +269,80 @@ function runPerformanceAgent() {
   heading("Performance Agent — Asset Budget Check");
   let issues = 0;
 
+  // Non-shipped files excluded from code budget (dev tools, data payloads, config)
+  const NON_SHIPPED_JS = new Set([
+    "ux-agents.js",
+    "playwright.config.js",
+    "data.js",
+    "niche-data.js",
+    "data.example.js",
+  ]);
+
   const budgets = {
-    js: { limit: 500 * 1024, label: "Total JS" },
+    jsCode: { limit: 350 * 1024, label: "Shipped JS (code)" },
+    jsData: { limit: 250 * 1024, label: "Data payloads" },
     css: { limit: 150 * 1024, label: "Total CSS" },
     dataJs: { limit: 250 * 1024, label: "data.js" },
   };
 
   // Measure JS files
-  subheading("JavaScript Files");
+  subheading("JavaScript Files (shipped code)");
   const jsFiles = fs
     .readdirSync(__dirname)
-    .filter((f) => f.endsWith(".js") && f !== "ux-agents.js")
+    .filter((f) => f.endsWith(".js"))
     .filter((f) => !f.startsWith("playwright"));
 
-  let totalJs = 0;
-  const jsDetails = [];
+  let totalJsCode = 0;
+  let totalJsData = 0;
+  const jsCodeDetails = [];
+  const jsDataDetails = [];
   for (const f of jsFiles) {
     const size = fileSize(path.join(__dirname, f));
-    totalJs += size;
-    jsDetails.push({ name: f, size });
+    if (NON_SHIPPED_JS.has(f)) {
+      if (f === "data.js" || f === "niche-data.js") {
+        totalJsData += size;
+        jsDataDetails.push({ name: f, size });
+      }
+      // Dev tools excluded entirely
+    } else {
+      totalJsCode += size;
+      jsCodeDetails.push({ name: f, size });
+    }
   }
 
-  // Also check tests/ directory
+  // Test files are not shipped — report separately
   const testsDir = path.join(__dirname, "tests");
   if (fs.existsSync(testsDir)) {
     const testFiles = fs.readdirSync(testsDir).filter((f) => f.endsWith(".js"));
     for (const f of testFiles) {
       const size = fileSize(path.join(testsDir, f));
-      // Don't count test files in budget, just report
-      if (VERBOSE) jsDetails.push({ name: `tests/${f}`, size });
+      if (VERBOSE) log(`    (test) ${("tests/" + f).padEnd(30)} ${formatBytes(size)}`);
     }
   }
 
-  jsDetails.sort((a, b) => b.size - a.size);
-  for (const d of jsDetails.slice(0, 10)) {
-    const marker = d.size > 100 * 1024 ? "⚠ " : "  ";
+  jsCodeDetails.sort((a, b) => b.size - a.size);
+  for (const d of jsCodeDetails.slice(0, 10)) {
+    const marker = d.size > 50 * 1024 ? "⚠ " : "  ";
     log(`${marker} ${d.name.padEnd(30)} ${formatBytes(d.size)}`);
   }
-  if (jsDetails.length > 10) {
-    log(`    ... and ${jsDetails.length - 10} more files`);
+  if (jsCodeDetails.length > 10) {
+    log(`    ... and ${jsCodeDetails.length - 10} more files`);
   }
 
-  log(`\n  Total JS: ${formatBytes(totalJs)}`);
-  if (totalJs > budgets.js.limit) {
-    fail(`JS budget exceeded: ${formatBytes(totalJs)} > ${formatBytes(budgets.js.limit)}`);
+  log(`\n  Shipped JS code: ${formatBytes(totalJsCode)}`);
+  if (totalJsCode > budgets.jsCode.limit) {
+    fail(`JS code budget exceeded: ${formatBytes(totalJsCode)} > ${formatBytes(budgets.jsCode.limit)}`);
     issues++;
   } else {
-    pass(`JS within budget: ${formatBytes(totalJs)} < ${formatBytes(budgets.js.limit)}`);
+    pass(`JS code within budget: ${formatBytes(totalJsCode)} < ${formatBytes(budgets.jsCode.limit)}`);
+  }
+
+  log(`  Data payloads: ${formatBytes(totalJsData)}`);
+  if (totalJsData > budgets.jsData.limit) {
+    fail(`Data budget exceeded: ${formatBytes(totalJsData)} > ${formatBytes(budgets.jsData.limit)}`);
+    issues++;
+  } else {
+    pass(`Data within budget: ${formatBytes(totalJsData)} < ${formatBytes(budgets.jsData.limit)}`);
   }
 
   // Measure CSS files
@@ -360,6 +387,9 @@ function runPerformanceAgent() {
   log(`    ${htmlFiles.length} HTML pages`);
 
   // Script loading analysis
+  // Scripts that must remain synchronous (called immediately by inline scripts)
+  const SYNC_ALLOWED = new Set(["header.js", "theme.js"]);
+
   subheading("Script Loading");
   let renderBlocking = 0;
   for (const f of htmlFiles) {
@@ -367,8 +397,12 @@ function runPerformanceAgent() {
     const scripts = [...html.matchAll(/<script\b([^>]*)src="([^"]+)"([^>]*)>/g)];
     for (const s of scripts) {
       const attrs = s[1] + s[3];
+      const src = s[2];
+      const basename = src.split("/").pop();
+      if (SYNC_ALLOWED.has(basename)) continue; // Must stay sync
+      if (src.startsWith("http")) continue; // External scripts managed separately
       if (!attrs.includes("defer") && !attrs.includes("async") && !attrs.includes("type=\"module\"")) {
-        if (VERBOSE) warn(`${f}: Render-blocking script: ${s[2]}`);
+        if (VERBOSE) warn(`${f}: Render-blocking script: ${src}`);
         renderBlocking++;
       }
     }
@@ -378,7 +412,7 @@ function runPerformanceAgent() {
     warn(`${renderBlocking} render-blocking scripts across all pages (consider defer/async)`);
     issues++;
   } else {
-    pass("No render-blocking scripts");
+    pass("No unnecessary render-blocking scripts");
   }
 
   return issues;

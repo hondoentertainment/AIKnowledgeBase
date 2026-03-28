@@ -78,7 +78,7 @@ const nicheData = {
   finance: [
     { title: "Monarch Money", description: "AI learns spending habits and organizes transactions. Net worth tracking.", url: "https://www.monarchmoney.com", tags: ["Budget", "Tracking", "Net Worth"], icon: "\u{1F4B8}", color: ["#7c3aed", "#5b21b6"], level: 2 },
     { title: "YNAB", description: "AI-powered budgeting with envelope system and expense forecasting.", url: "https://www.youneedabudget.com", tags: ["Budget", "Goals", "Zero-Based"], icon: "\u{1F4CA}", color: ["#0d9488", "#0f766e"], level: 2 },
-    { title: "Origin", description: "AI budgeting, portfolio tracking, tax filing. Forbes Best Budgeting App 2024.", url: "https://useorigin.com", tags: ["Budget", "Investing", "Tax"], icon: "\u{1F4B0}", color: ["#0ea5e9", "#0284c7"], level: 2 },
+    { title: "Origin", description: "AI budgeting, portfolio tracking, and tax filing. Forbes Best Budgeting App winner.", url: "https://useorigin.com", tags: ["Budget", "Investing", "Tax"], icon: "\u{1F4B0}", color: ["#0ea5e9", "#0284c7"], level: 2 },
     { title: "Wealthfront", description: "AI-managed investing. Tax-loss harvesting and personalized allocation.", url: "https://www.wealthfront.com", tags: ["Investing", "Robo-Advisor", "Tax"], icon: "\u{1F4B9}", color: ["#00c805", "#00a805"], level: 2 },
     { title: "Betterment", description: "AI investing with goal-based portfolios and automated rebalancing.", url: "https://www.betterment.com", tags: ["Investing", "Goals", "Automation"], icon: "\u{1F4B5}", color: ["#00b894", "#00a884"], level: 2 },
   ],
