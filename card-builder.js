@@ -78,6 +78,21 @@
     return u.toString();
   }
 
+  function deriveFreshnessBadge(item) {
+    if (!item.dateAdded) return "";
+    var now = new Date();
+    var added = new Date(item.dateAdded);
+    var days = Math.floor((now - added) / (1000 * 60 * 60 * 24));
+    if (days <= 7) return '<span class="freshness-badge freshness-new" title="Added within the last week">New</span>';
+    if (days <= 30) return '<span class="freshness-badge freshness-recent" title="Added within the last month">Recent</span>';
+    if (item.lastVerified) {
+      var verified = new Date(item.lastVerified);
+      var vDays = Math.floor((now - verified) / (1000 * 60 * 60 * 24));
+      if (vDays > 90) return '<span class="freshness-badge freshness-stale" title="Not verified in 90+ days">Needs Review</span>';
+    }
+    return "";
+  }
+
   function buildStarsHTML(title) {
     const saved = getRating(title);
     const gradId = ratingGradId();
@@ -121,7 +136,8 @@
       : "";
     const trustSignals = deriveTrustSignals(item);
     const trustSignalsHtml = trustSignals.length ? `<div class="card-trust-signals" aria-label="Trust signals">${trustSignals.map((s) => `<span class="trust-badge ${s.cls}" title="${escapeAttr(s.title)}">${escapeHtml(s.label)}</span>`).join("")}</div>` : "";
-    return `<div class="card" data-title="${escapeAttr(item.title)}" data-desc="${escapeAttr(item.description)}" data-tags="${escapeAttr((item.tags || []).join(" "))}"><a href="${escapeHtml(url)}" class="card-link" target="_blank" rel="noopener"><div class="card-cover" style="background:${grad}">${freqBadge}${levelBadge}${directUseBadge}${wantToTryBadge}<span class="card-cover-icon">${icon}</span></div></a><div class="card-body"><a href="${escapeHtml(url)}" class="card-title" target="_blank" rel="noopener">${escapeHtml(item.title)}</a><p class="card-desc">${escapeHtml(item.description)}</p>${trustSignalsHtml}${buildStarsHTML(item.title)}<div class="card-actions">${visitBtn}${categoryLink}${wantToTryBtn}${directUseBtn}${stackBtn}${shareBtn}</div>${tags ? `<div class="card-tags">${tags}</div>` : ""}</div></div>`;
+    const freshnessBadge = deriveFreshnessBadge(item);
+    return `<div class="card" data-title="${escapeAttr(item.title)}" data-desc="${escapeAttr(item.description)}" data-tags="${escapeAttr((item.tags || []).join(" "))}"><a href="${escapeHtml(url)}" class="card-link" target="_blank" rel="noopener"><div class="card-cover" style="background:${grad}">${freqBadge}${levelBadge}${directUseBadge}${wantToTryBadge}<span class="card-cover-icon">${icon}</span></div></a><div class="card-body"><a href="${escapeHtml(url)}" class="card-title" target="_blank" rel="noopener">${escapeHtml(item.title)}</a><p class="card-desc">${escapeHtml(item.description)}</p>${freshnessBadge}${trustSignalsHtml}${buildStarsHTML(item.title)}<div class="card-actions">${visitBtn}${categoryLink}${wantToTryBtn}${directUseBtn}${stackBtn}${shareBtn}</div>${tags ? `<div class="card-tags">${tags}</div>` : ""}</div></div>`;
   }
 
   function initStarInteractions(container) {

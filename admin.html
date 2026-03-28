@@ -78,8 +78,8 @@
   <script src="header.js"></script>
   <script>Header.render({ activeNav: null, searchMode: "expandable" });</script>
   <script src="theme.js"></script>
-  <script src="mobile-ux.js"></script>
-  <script src="offline.js"></script>
+  <script src="mobile-ux.js" defer></script>
+  <script src="offline.js" defer></script>
 
   <main id="main-content">
     <div id="admin-login-screen" class="admin-login-screen">
@@ -95,7 +95,7 @@
     </div>
 
     <div id="admin-content" class="admin-form" style="display:none">
-      <h1 id="tool-form-heading">Add tool</h1>
+      <h2 id="tool-form-heading">Add tool</h2>
       <p class="intro">New tools appear immediately and are stored in your browser. Use "Export for data.js" to make them permanent.</p>
 
       <form id="tool-form">
@@ -248,18 +248,18 @@
     </div>
   </div>
 
-  <script src="profiles.js"></script>
-  <script src="profile-switcher.js"></script>
-  <script src="analytics.js"></script>
-  <script src="auth.js"></script>
-  <script src="bottom-nav.js"></script>
-  <script>
-    (function () {
+  <script src="profiles.js" defer></script>
+  <script src="profile-switcher.js" defer></script>
+  <script src="analytics.js" defer></script>
+  <script src="auth.js" defer></script>
+  <script src="bottom-nav.js" defer></script>
+  <script>document.addEventListener("DOMContentLoaded", function() {
+(function () {
       if (window.Auth?.isLoggedIn() && !window.Auth?.isAdmin()) {
         window.location.href = "profiles.html";
       }
     })();
-  </script>
+});</script>
   <script>
     (function () {
       const navToggle = document.getElementById("nav-toggle");
@@ -305,8 +305,8 @@
       }
     })();
   </script>
-  <script>
-    (function () {
+  <script>document.addEventListener("DOMContentLoaded", function() {
+(function () {
       const loginScreen = document.getElementById("admin-login-screen");
       const adminContent = document.getElementById("admin-content");
       const navLogin = document.getElementById("nav-login");
@@ -835,6 +835,6 @@
         return String(s || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n");
       }
     })();
-  </script>
+});</script>
 </body>
 </html>

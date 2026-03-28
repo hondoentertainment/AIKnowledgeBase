@@ -19,8 +19,8 @@
   <script src="header.js"></script>
   <script>Header.render({ variant: "auth", authTabs: [{ href: "index.html", label: "Home", active: false }, { href: "login.html", label: "Log in", active: true }] });</script>
   <script src="theme.js"></script>
-  <script src="mobile-ux.js"></script>
-  <script src="offline.js"></script>
+  <script src="mobile-ux.js" defer></script>
+  <script src="offline.js" defer></script>
 
   <main id="main-content" class="auth-main">
     <section class="auth-card" aria-labelledby="auth-heading">
@@ -102,11 +102,11 @@
     </div>
   </footer>
 
-  <script src="bottom-nav.js"></script>
-  <script src="auth.js"></script>
+  <script src="bottom-nav.js" defer></script>
+  <script src="auth.js" defer></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script>
-    (function () {
+  <script>document.addEventListener("DOMContentLoaded", function() {
+(function () {
       const params = new URLSearchParams(window.location.search);
       if (params.get("registered") === "1") {
         const successEl = document.getElementById("auth-success-msg");
@@ -224,7 +224,7 @@
       setTimeout(initializeGoogleLogin, 0);
       window.addEventListener("load", initializeGoogleLogin);
     })();
-  </script>
-  <script src="bottom-nav.js"></script>
+});</script>
+  <script src="bottom-nav.js" defer></script>
 </body>
 </html>

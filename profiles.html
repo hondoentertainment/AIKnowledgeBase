@@ -50,8 +50,8 @@
   <script src="header.js"></script>
   <script>Header.render({ activeNav: null, searchMode: "expandable" });</script>
   <script src="theme.js"></script>
-  <script src="mobile-ux.js"></script>
-  <script src="offline.js"></script>
+  <script src="mobile-ux.js" defer></script>
+  <script src="offline.js" defer></script>
 
   <main class="main profiles-main" id="main-content" style="max-width: 600px; margin: 0 auto; padding: 2rem 1.25rem;">
     <section class="section">
@@ -212,21 +212,21 @@
     </div>
   </footer>
 
-  <script src="auth.js"></script>
-  <script src="profiles.js"></script>
-  <script src="recommendations.js"></script>
-  <script src="gamification.js"></script>
-  <script src="command-palette.js"></script>
-  <script src="keyboard-shortcuts.js"></script>
-  <script src="quick-preview.js"></script>
-  <script src="animations.js"></script>
-  <script src="comparison.js"></script>
-  <script src="notes.js"></script>
-  <script src="activity-feed.js"></script>
-  <script src="profile-switcher.js"></script>
-  <script src="bottom-nav.js"></script>
-  <script>
-    (function () {
+  <script src="auth.js" defer></script>
+  <script src="profiles.js" defer></script>
+  <script src="recommendations.js" defer></script>
+  <script src="gamification.js" defer></script>
+  <script src="command-palette.js" defer></script>
+  <script src="keyboard-shortcuts.js" defer></script>
+  <script src="quick-preview.js" defer></script>
+  <script src="animations.js" defer></script>
+  <script src="comparison.js" defer></script>
+  <script src="notes.js" defer></script>
+  <script src="activity-feed.js" defer></script>
+  <script src="profile-switcher.js" defer></script>
+  <script src="bottom-nav.js" defer></script>
+  <script>document.addEventListener("DOMContentLoaded", function() {
+(function () {
       const navLogin = document.getElementById("nav-login");
       const authWrap = document.getElementById("auth-user-wrap");
       const authEmail = document.getElementById("auth-user-email");
@@ -257,9 +257,9 @@
         if (settingsLogout) settingsLogout.addEventListener("click", () => window.Auth.logout());
       }
     })();
-  </script>
-  <script>
-    (function () {
+});</script>
+  <script>document.addEventListener("DOMContentLoaded", function() {
+(function () {
       const navToggle = document.getElementById("nav-toggle");
       const navTabs = document.querySelector(".nav-tabs");
       navToggle?.addEventListener("click", () => navTabs?.classList.toggle("open"));
@@ -645,6 +645,6 @@
         });
       })();
     })();
-  </script>
+});</script>
 </body>
 </html>

@@ -21,6 +21,11 @@ To use these skills in Cursor:
 | testing-agent | Creates and runs unit, integration, E2E tests |
 | deployment-agent | Handles CI/CD, release workflows, rollout |
 | user-review-agent | Analyzes post-launch feedback and metrics |
+| ux-audit-agent | Evaluates pages against UX heuristics, scores issues |
+| content-freshness-agent | Detects stale data, schema violations, duplicates |
+| accessibility-agent | Checks WCAG 2.1 AA compliance, ARIA, keyboard nav |
+| performance-agent | Monitors Core Web Vitals and asset size budgets |
+| content-update-agent | Researches, validates, and inserts new content daily |
 
 ## Example: Feature Evaluation Agent
 
