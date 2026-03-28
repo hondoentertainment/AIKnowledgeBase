@@ -25,6 +25,7 @@ To use these skills in Cursor:
 | content-freshness-agent | Detects stale data, schema violations, duplicates |
 | accessibility-agent | Checks WCAG 2.1 AA compliance, ARIA, keyboard nav |
 | performance-agent | Monitors Core Web Vitals and asset size budgets |
+| content-update-agent | Researches, validates, and inserts new content daily |
 
 ## Example: Feature Evaluation Agent
 

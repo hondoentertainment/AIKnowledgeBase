@@ -1,0 +1,104 @@
+name: Daily Content Update
+
+on:
+  schedule:
+    # Run daily at 08:00 UTC (3:00 AM EST)
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Update mode'
+        required: false
+        default: 'report'
+        type: choice
+        options:
+          - report
+          - scan
+          - freshen
+          - verify
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  daily-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 1: Scan current data for gaps and staleness
+      - name: Scan content
+        run: node daily-update-agent.js scan
+
+      # Step 2: Run freshness metadata update
+      - name: Update freshness metadata
+        if: ${{ github.event.inputs.mode == 'freshen' || github.event.inputs.mode == '' }}
+        run: node daily-update-agent.js freshen
+
+      # Step 3: Run UX agents to check data quality
+      - name: Run UX quality checks
+        run: node ux-agents.js all
+
+      # Step 4: Generate update report
+      - name: Generate research prompts
+        run: node daily-update-agent.js prompts > update-report.txt 2>&1
+
+      # Step 5: Upload report as artifact
+      - name: Upload update report
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-update-report-${{ github.run_number }}
+          path: update-report.txt
+          retention-days: 30
+
+      # Step 6: Check if there are changes to commit
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet data.js niche-data.js || echo "has_changes=true" >> "$GITHUB_OUTPUT"
+
+      # Step 7: Commit and create PR if there are changes
+      - name: Create update PR
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "AI Knowledge Hub Bot"
+          git config user.email "bot@aiknowledgehub.dev"
+          BRANCH="auto/daily-update-$(date +%Y-%m-%d)"
+          git checkout -b "$BRANCH"
+          git add data.js niche-data.js
+          git commit -m "chore: daily content freshness update $(date +%Y-%m-%d)"
+          git push origin "$BRANCH"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Optional: URL verification (runs weekly, slower)
+  weekly-verify:
+    if: github.event.schedule == '0 8 * * 1'  # Only on Mondays
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Verify URLs
+        run: node daily-update-agent.js verify
+        timeout-minutes: 30
+      - name: Upload verification report
+        uses: actions/upload-artifact@v4
+        with:
+          name: url-verify-${{ github.run_number }}
+          path: update-reports/
+          retention-days: 30

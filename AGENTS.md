@@ -45,6 +45,7 @@ A structured pipeline of specialized agents for evaluating, designing, building,
 | **Testing Agent** | Pre-release, quality gates | "Add tests for…" / "Run test suite" |
 | **Deployment Agent** | Release, CI/CD setup | "Deploy to…" / "Set up deployment" |
 | **User Review Agent** | Post-launch analysis | "Analyze user feedback for…" |
+| **Content Update Agent** | Daily/weekly content refresh | "Update content" / "Add new tools" / "Refresh data" |
 
 ## Agent Details
 
@@ -82,6 +83,23 @@ Handles CI/CD, release workflows, environment config, and rollout strategies.
 **Skill**: `user-review-agent`
 
 Analyzes post-launch feedback, usage metrics, and recommends iterations based on real usage.
+
+### 8. Content Update Agent
+**Skill**: `content-update-agent`
+
+Researches, validates, and adds new AI tools, resources, and content to the knowledge base. Handles the full daily update cycle: scan data for gaps, generate research prompts, validate new entries, deduplicate, inject freshness metadata, and produce commit-ready changes.
+
+**Commands:**
+```bash
+node daily-update-agent.js scan      # Analyze current data, report gaps
+node daily-update-agent.js prompts   # Generate research prompts for new content
+node daily-update-agent.js add FILE  # Merge validated entries from JSON
+node daily-update-agent.js verify    # Check all URLs for broken links
+node daily-update-agent.js freshen   # Add dateAdded/lastVerified metadata
+node daily-update-agent.js report    # Full daily report (scan + prompts)
+```
+
+**Automated via:** `.github/workflows/daily-update.yml` (runs daily at 08:00 UTC)
 
 ---
 

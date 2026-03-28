@@ -1966,6 +1966,37 @@ a { color: inherit; text-decoration: none; }
   background: rgba(0, 138, 110, 0.09);
 }
 
+.freshness-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  white-space: nowrap;
+  margin-bottom: 0.25rem;
+}
+
+.freshness-new {
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.3);
+  background: rgba(5, 150, 105, 0.1);
+}
+
+.freshness-recent {
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.freshness-stale {
+  color: #d97706;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  background: rgba(217, 119, 6, 0.08);
+}
+
 .card-tags {
   display: flex;
   flex-wrap: wrap;

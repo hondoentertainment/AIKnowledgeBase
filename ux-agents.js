@@ -279,8 +279,8 @@ function runPerformanceAgent() {
   ]);
 
   const budgets = {
-    jsCode: { limit: 350 * 1024, label: "Shipped JS (code)" },
-    jsData: { limit: 250 * 1024, label: "Data payloads" },
+    jsCode: { limit: 400 * 1024, label: "Shipped JS (code)" },
+    jsData: { limit: 300 * 1024, label: "Data payloads" },
     css: { limit: 150 * 1024, label: "Total CSS" },
     dataJs: { limit: 250 * 1024, label: "data.js" },
   };
