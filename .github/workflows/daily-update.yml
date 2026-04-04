@@ -2,8 +2,8 @@ name: Daily Content Update
 
 on:
   schedule:
-    # Run daily at 08:00 UTC (3:00 AM EST)
-    - cron: '0 8 * * *'
+    # Run daily at 10:00 UTC (5:00 AM EST)
+    - cron: '0 10 * * *'
   workflow_dispatch:
     inputs:
       mode:
@@ -84,7 +84,7 @@ jobs:
 
   # Optional: URL verification (runs weekly, slower)
   weekly-verify:
-    if: github.event.schedule == '0 8 * * 1'  # Only on Mondays
+    if: github.event.schedule == '0 10 * * 1'  # Only on Mondays
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
