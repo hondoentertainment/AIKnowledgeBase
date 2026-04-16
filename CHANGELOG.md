@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- April 16, 2026 content refresh:
+  - Tools: MiniMax MMX-CLI (multimodal CLI for agents)
+  - Bleeding edge: Cursor 3 agent-first interface, Claude Mythos Preview, Project Glasswing, MMX-CLI
+  - Knowledge: Project Glasswing announcement, Schneier analysis, Sora discontinuation notice, Cursor 3 release notes, MMX-CLI docs
+  - Daily watch: Anthropic Red Team blog, The Decoder
 - `docs/AGENTS.md` — Shareable agent pipeline documentation
 - `docs/skills/README.md` — Agent skills reference
 - `CONTRIBUTING.md` — Contribution guidelines
@@ -18,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Sora entry: marked as sunsetting (app closes April 26, 2026; API September 24, 2026)
+- Cursor entry: updated to describe the Cursor 3 agent-first interface
+- Claude entry: noted the $30B revenue run rate and Mythos gating
 - `vercel.json` — Removed SPA rewrite so static HTML routes (tools.html, search.html, etc.) resolve correctly on Vercel
 
 ### Fixed
