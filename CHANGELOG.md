@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- April 21, 2026 content refresh:
+  - Knowledge: Sora Wind-down Migration Resources (5 days to shutdown), Claude Code Hooks Documentation, DeepSeek V4 Model Card, Qwen 3 Documentation
+  - Bleeding edge: DeepSeek V4 (Live) — 1T param MoE, native multimodal, Apache 2.0
 - April 16, 2026 content refresh:
   - Tools: MiniMax MMX-CLI (multimodal CLI for agents)
   - Bleeding edge: Cursor 3 agent-first interface, Claude Mythos Preview, Project Glasswing, MMX-CLI
@@ -23,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Sora entry: updated description to note 5-day countdown to shutdown with export instructions and alternative recommendations
 - Sora entry: marked as sunsetting (app closes April 26, 2026; API September 24, 2026)
 - Cursor entry: updated to describe the Cursor 3 agent-first interface
 - Claude entry: noted the $30B revenue run rate and Mythos gating
