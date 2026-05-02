@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- May 2, 2026 content refresh:
+  - Knowledge: Google I/O 2026 AI Recap, Post-Sora Video AI Landscape 2026, Anthropic Model Spec 2.0, A2A Protocol Adoption Tracker, OpenAI Codex Agent Changelog
+  - Bleeding edge: Gemini 3.2 Ultra (2M token context, Planner mode), Project Astra GA (real-time universal assistant)
+
+### Changed
+
+- Sora entry: updated to reflect completed app shutdown (April 26, 2026); freq changed to "Discontinued"; URL redirected to migration help page
+
 - April 21, 2026 content refresh:
   - Knowledge: Sora Wind-down Migration Resources (5 days to shutdown), Claude Code Hooks Documentation, DeepSeek V4 Model Card, Qwen 3 Documentation
   - Bleeding edge: DeepSeek V4 (Live) — 1T param MoE, native multimodal, Apache 2.0
