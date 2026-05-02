@@ -9,12 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- May 2, 2026 content refresh:
+- May 2, 2026 content refresh (wave 2 — latest AI knowledge):
+  - Tools: Android AI Mode, Google Flow (cinematic AI filmmaking), Mistral Large 3
+  - Knowledge: Gemini 3.2 API Documentation, LMSYS Chatbot Arena May 2026 Leaderboard, Mistral Large 3 Release Blog, Google Flow Documentation
+  - Bleeding edge: OpenAI o4 mini (fast reasoning at 5× lower cost than o3)
+
+- May 2, 2026 content refresh (wave 1):
   - Knowledge: Google I/O 2026 AI Recap, Post-Sora Video AI Landscape 2026, Anthropic Model Spec 2.0, A2A Protocol Adoption Tracker, OpenAI Codex Agent Changelog
   - Bleeding edge: Gemini 3.2 Ultra (2M token context, Planner mode), Project Astra GA (real-time universal assistant)
 
 ### Changed
 
+- Gemini entry: updated to Gemini 3.2 Ultra, noting 2M context, Planner mode, and Project Astra integration
+- NotebookLM entry: updated to note new Teams tier and Gemini 3.2 Ultra backend
 - Sora entry: updated to reflect completed app shutdown (April 26, 2026); freq changed to "Discontinued"; URL redirected to migration help page
 
 - April 21, 2026 content refresh:
