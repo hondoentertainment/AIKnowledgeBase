@@ -90,9 +90,9 @@
     const activeEl = filterBar.querySelector("#af-active");
 
     toggleBtn.addEventListener("click", () => {
-      const expanded = panel.style.display !== "none";
+      const expanded = toggleBtn.getAttribute("aria-expanded") === "true";
       panel.style.display = expanded ? "none" : "block";
-      toggleBtn.setAttribute("aria-expanded", !expanded);
+      toggleBtn.setAttribute("aria-expanded", expanded ? "false" : "true");
     });
 
     clearBtn.addEventListener("click", () => {

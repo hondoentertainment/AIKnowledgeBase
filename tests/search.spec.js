@@ -9,6 +9,13 @@ async function waitForSearchReady(page) {
   }, { timeout: 15000 });
 }
 
+async function waitForSearchCards(page) {
+  await waitForSearchReady(page);
+  await page.waitForFunction(() => document.querySelectorAll('#search-grouped .card').length > 0, {
+    timeout: 15000,
+  });
+}
+
 test.describe('Search', () => {
   test.describe('Search results page', () => {
     test('search page loads', async ({ page }) => {
@@ -68,8 +75,7 @@ test.describe('Search', () => {
 
     test('search results include niche AI items', async ({ page }) => {
       await page.goto('/search.html?q=chat');
-      await waitForSearchReady(page);
-      await expect(page.locator('#search-grouped .card').first()).toBeVisible({ timeout: 10000 });
+      await waitForSearchCards(page);
       const cardCount = await page.locator('#search-grouped .card').count();
       expect(cardCount).toBeGreaterThan(0);
     });
@@ -90,7 +96,7 @@ test.describe('Search', () => {
   test.describe('Search card interactions', () => {
     test('stack toggle persists after reload', async ({ page }) => {
       await page.goto('/search.html?q=chat');
-      await waitForSearchReady(page);
+      await waitForSearchCards(page);
 
       const firstCard = page.locator('#search-grouped .card').first();
 
@@ -115,7 +121,7 @@ test.describe('Search', () => {
 
     test('star rating persists after reload', async ({ page }) => {
       await page.goto('/search.html?q=chat');
-      await waitForSearchReady(page);
+      await waitForSearchCards(page);
 
       const firstCard = page.locator('#search-grouped .card').first();
 

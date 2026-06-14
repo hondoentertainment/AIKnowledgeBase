@@ -78,9 +78,11 @@ test.describe('Category Page Filters', () => {
   async function waitForFilters(page) {
     await page.waitForFunction(() => {
       const hasData = (window.siteData?.tools?.length ?? 0) > 0;
-      const hasToggle = !!document.querySelector('.af-toggle');
-      return hasData && hasToggle;
+      const toggle = document.querySelector('.af-toggle');
+      const panel = document.querySelector('.af-panel');
+      return hasData && toggle && panel;
     }, { timeout: 15000 });
+    await page.waitForTimeout(700);
   }
 
   test('tools page has filter toggle button', async ({ page }) => {
@@ -93,7 +95,8 @@ test.describe('Category Page Filters', () => {
     await page.goto('/tools.html');
     await waitForFilters(page);
     const filterBtn = page.locator('.af-toggle');
-    await filterBtn.click({ force: true });
+    await filterBtn.click();
+    await expect(filterBtn).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('.af-panel')).toBeVisible();
   });
 
