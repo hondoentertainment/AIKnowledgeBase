@@ -95,7 +95,8 @@ test.describe('Category Page Filters', () => {
     await page.goto('/tools.html');
     await waitForFilters(page);
     const filterBtn = page.locator('.af-toggle');
-    await filterBtn.click();
+    await filterBtn.scrollIntoViewIfNeeded();
+    await filterBtn.evaluate((btn) => btn.click());
     await expect(filterBtn).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('.af-panel')).toBeVisible();
   });

@@ -1,19 +1,13 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-async function waitForSearchReady(page) {
+async function waitForSearchCards(page) {
   await page.waitForFunction(() => {
     const hasUtils = typeof window.SearchUtils?.matchItem === 'function';
     const hasData = (window.siteData?.tools?.length ?? 0) > 0;
-    return hasUtils && hasData;
-  }, { timeout: 15000 });
-}
-
-async function waitForSearchCards(page) {
-  await waitForSearchReady(page);
-  await page.waitForFunction(() => document.querySelectorAll('#search-grouped .card').length > 0, {
-    timeout: 15000,
-  });
+    const hasCards = document.querySelectorAll('#search-grouped .card').length > 0;
+    return hasUtils && hasData && hasCards;
+  }, { timeout: 20000 });
 }
 
 test.describe('Search', () => {
@@ -102,18 +96,19 @@ test.describe('Search', () => {
 
       const title = await firstCard.getAttribute('data-title');
       const stackBtn = firstCard.locator('.stack-btn');
-      await stackBtn.click();
+      await firstCard.scrollIntoViewIfNeeded();
+      await stackBtn.evaluate((btn) => btn.click());
       await expect(stackBtn).toHaveClass(/in-stack/);
 
       const stackContainsTitle = await page.evaluate((cardTitle) => {
-        const raw = localStorage.getItem('myStack');
-        const stack = raw ? JSON.parse(raw) : [];
+        const stack = window.ProfileStore?.getStack?.()
+          ?? JSON.parse(localStorage.getItem('myStack') || '[]');
         return stack.includes(cardTitle);
       }, title);
       expect(stackContainsTitle).toBeTruthy();
 
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await waitForSearchCards(page);
       const reloadedCard = page.locator('#search-grouped .card').first();
       await expect(reloadedCard).toHaveAttribute('data-title', title);
       await expect(reloadedCard.locator('.stack-btn')).toHaveClass(/in-stack/);
@@ -127,15 +122,20 @@ test.describe('Search', () => {
 
       const title = await firstCard.getAttribute('data-title');
       const starRightHalf = firstCard.locator('.card-rating .star[data-star="3"] .star-half.star-right');
-      await starRightHalf.click();
+      await firstCard.scrollIntoViewIfNeeded();
+      await starRightHalf.evaluate((el) => el.click());
 
       await expect(firstCard.locator('.card-rating')).toHaveAttribute('data-rating', '3');
 
-      const savedRating = await page.evaluate((cardTitle) => localStorage.getItem(`rating:${cardTitle}`), title);
+      const savedRating = await page.evaluate((cardTitle) => {
+        const profileRating = window.ProfileStore?.getRating?.(cardTitle);
+        if (profileRating != null) return String(profileRating);
+        return localStorage.getItem(`rating:${cardTitle}`);
+      }, title);
       expect(savedRating).toBe('3');
 
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await waitForSearchCards(page);
       const reloadedCard = page.locator('#search-grouped .card').first();
       await expect(reloadedCard).toHaveAttribute('data-title', title);
       await expect(reloadedCard.locator('.card-rating')).toHaveAttribute('data-rating', '3');

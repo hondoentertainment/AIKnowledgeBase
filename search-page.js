@@ -81,6 +81,36 @@
     return window.CardBuilder.buildCard(item, cat);
   }
 
+  function catalogReady() {
+    const data =
+      (typeof siteData !== "undefined" && siteData) ||
+      window.siteData ||
+      null;
+    return (
+      data &&
+      Array.isArray(data.tools) &&
+      data.tools.length > 0 &&
+      window.SearchUtils &&
+      typeof window.SearchUtils.matchItem === "function" &&
+      window.CardBuilder &&
+      typeof window.CardBuilder.buildCard === "function"
+    );
+  }
+
+  function whenCatalogReady(callback) {
+    if (catalogReady()) {
+      callback();
+      return;
+    }
+    const deadline = Date.now() + 10000;
+    const timer = setInterval(() => {
+      if (catalogReady() || Date.now() > deadline) {
+        clearInterval(timer);
+        callback();
+      }
+    }, 50);
+  }
+
   function renderResults(query) {
     const container = document.getElementById("search-results-container");
     const emptyEl = document.getElementById("search-empty");
@@ -169,7 +199,7 @@
       if (emptyEl) emptyEl.textContent = "";
     }
 
-    runSearch();
+    whenCatalogReady(runSearch);
 
     if (searchEl) {
       let debounceTimer;
