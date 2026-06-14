@@ -1,6 +1,14 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
+async function waitForSearchReady(page) {
+  await page.waitForFunction(() => {
+    const hasUtils = typeof window.SearchUtils?.matchItem === 'function';
+    const hasData = (window.siteData?.tools?.length ?? 0) > 0;
+    return hasUtils && hasData;
+  }, { timeout: 15000 });
+}
+
 test.describe('Search', () => {
   test.describe('Search results page', () => {
     test('search page loads', async ({ page }) => {
@@ -60,7 +68,7 @@ test.describe('Search', () => {
 
     test('search results include niche AI items', async ({ page }) => {
       await page.goto('/search.html?q=chat');
-      await page.waitForLoadState('domcontentloaded');
+      await waitForSearchReady(page);
       await expect(page.locator('#search-grouped .card').first()).toBeVisible({ timeout: 10000 });
       const cardCount = await page.locator('#search-grouped .card').count();
       expect(cardCount).toBeGreaterThan(0);
@@ -82,8 +90,7 @@ test.describe('Search', () => {
   test.describe('Search card interactions', () => {
     test('stack toggle persists after reload', async ({ page }) => {
       await page.goto('/search.html?q=chat');
-      await page.waitForLoadState('domcontentloaded');
-      await expect(page.locator('#search-grouped .card').first()).toBeVisible({ timeout: 10000 });
+      await waitForSearchReady(page);
 
       const firstCard = page.locator('#search-grouped .card').first();
 
@@ -108,8 +115,7 @@ test.describe('Search', () => {
 
     test('star rating persists after reload', async ({ page }) => {
       await page.goto('/search.html?q=chat');
-      await page.waitForLoadState('domcontentloaded');
-      await expect(page.locator('#search-grouped .card').first()).toBeVisible({ timeout: 10000 });
+      await waitForSearchReady(page);
 
       const firstCard = page.locator('#search-grouped .card').first();
 

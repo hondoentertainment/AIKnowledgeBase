@@ -36,8 +36,14 @@
 
   function getAllItems() {
     const custom = getCustomTools();
-    const data = typeof siteData === "object" && siteData ? siteData : {};
-    const niche = typeof nicheData === "object" && nicheData ? nicheData : {};
+    const data =
+      (typeof siteData !== "undefined" && siteData) ||
+      window.siteData ||
+      {};
+    const niche =
+      (typeof nicheData !== "undefined" && nicheData) ||
+      window.nicheData ||
+      {};
     const items = [];
     CATEGORY_CONFIG.forEach((cfg) => {
       const key = DATA_KEY_MAP[cfg.id] || cfg.id;
