@@ -77,17 +77,16 @@ test.describe('UX Features', () => {
 test.describe('Category Page Filters', () => {
   test('tools page has filter toggle button', async ({ page }) => {
     await page.goto('/tools.html');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(600);
-    const filterBtn = page.locator('.af-toggle');
-    await expect(filterBtn).toBeVisible();
+    await page.waitForLoadState('domcontentloaded');
+    await expect(page.locator('.af-toggle')).toBeVisible({ timeout: 10000 });
   });
 
   test('filter panel opens when toggle clicked', async ({ page }) => {
     await page.goto('/tools.html');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(600);
-    await page.locator('.af-toggle').click();
+    await page.waitForLoadState('domcontentloaded');
+    const filterBtn = page.locator('.af-toggle');
+    await expect(filterBtn).toBeVisible({ timeout: 10000 });
+    await filterBtn.click();
     await expect(page.locator('.af-panel')).toBeVisible();
   });
 

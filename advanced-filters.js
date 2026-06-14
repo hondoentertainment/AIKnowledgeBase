@@ -5,12 +5,13 @@
 (function () {
   function init() {
     const pageCategory = document.body.dataset.category;
-    if (!pageCategory || !window.siteData) return;
+    const data = window.siteData || (typeof siteData !== "undefined" ? siteData : null);
+    if (!pageCategory || !data) return;
 
     const section = document.querySelector(".section-header");
     if (!section) return;
 
-    const items = window.siteData[pageCategory] || [];
+    const items = data[pageCategory] || [];
     if (items.length === 0) return;
 
     // Collect all unique tags

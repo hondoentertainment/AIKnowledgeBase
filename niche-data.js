@@ -167,3 +167,5 @@ const nicheData = {
     { title: "Google Project Green Light", description: "AI optimizes traffic light timing at intersections to reduce emissions and fuel consumption.", url: "https://sustainability.google/green-light/", tags: ["Traffic", "Emissions", "Google"], icon: "\u{1F6A6}", color: ["#4285f4", "#34a853"], level: 2, dateAdded: "2026-03-28", lastVerified: "2026-04-04" },
   ],
 };
+
+window.nicheData = nicheData;

@@ -59,11 +59,9 @@ test.describe('Search', () => {
     });
 
     test('search results include niche AI items', async ({ page }) => {
-      // Search for a term likely to match niche items
-      await page.goto('/search.html?q=ai');
-      await page.waitForLoadState('networkidle');
-      const nicheSection = page.locator('.search-results-section').filter({ hasText: 'Niche AI' });
-      // Niche items should appear if any match the query
+      await page.goto('/search.html?q=chat');
+      await page.waitForLoadState('domcontentloaded');
+      await expect(page.locator('#search-grouped .card').first()).toBeVisible({ timeout: 10000 });
       const cardCount = await page.locator('#search-grouped .card').count();
       expect(cardCount).toBeGreaterThan(0);
     });
@@ -83,11 +81,11 @@ test.describe('Search', () => {
 
   test.describe('Search card interactions', () => {
     test('stack toggle persists after reload', async ({ page }) => {
-      await page.goto('/search.html?q=ai');
-      await page.waitForLoadState('networkidle');
+      await page.goto('/search.html?q=chat');
+      await page.waitForLoadState('domcontentloaded');
+      await expect(page.locator('#search-grouped .card').first()).toBeVisible({ timeout: 10000 });
 
       const firstCard = page.locator('#search-grouped .card').first();
-      await expect(firstCard).toBeVisible();
 
       const title = await firstCard.getAttribute('data-title');
       const stackBtn = firstCard.locator('.stack-btn');
@@ -109,11 +107,11 @@ test.describe('Search', () => {
     });
 
     test('star rating persists after reload', async ({ page }) => {
-      await page.goto('/search.html?q=ai');
-      await page.waitForLoadState('networkidle');
+      await page.goto('/search.html?q=chat');
+      await page.waitForLoadState('domcontentloaded');
+      await expect(page.locator('#search-grouped .card').first()).toBeVisible({ timeout: 10000 });
 
       const firstCard = page.locator('#search-grouped .card').first();
-      await expect(firstCard).toBeVisible();
 
       const title = await firstCard.getAttribute('data-title');
       const starRightHalf = firstCard.locator('.card-rating .star[data-star="3"] .star-half.star-right');

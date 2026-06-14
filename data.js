@@ -815,3 +815,5 @@ const siteData = {
   ],
 
 };
+
+window.siteData = siteData;

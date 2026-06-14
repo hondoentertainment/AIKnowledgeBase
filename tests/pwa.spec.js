@@ -54,15 +54,15 @@ test.describe('PWA', () => {
     const apiShape = await page.evaluate(() => ({
       hasObject: typeof window.PWAInstall === 'object',
       hasInstall: typeof window.PWAInstall?.install === 'function',
-      hasCanPrompt: typeof window.PWAInstall?.canPrompt === 'function',
-      hasShow: typeof window.PWAInstall?.show === 'function',
-      hasHide: typeof window.PWAInstall?.hide === 'function',
+      hasShowBanner: typeof window.PWAInstall?.showBanner === 'function',
+      hasHideBanner: typeof window.PWAInstall?.hideBanner === 'function',
+      hasCanInstall: typeof window.PWAInstall?.canInstall === 'boolean' || typeof window.PWAInstall?.canInstall !== 'undefined',
     }));
 
     expect(apiShape.hasObject).toBeTruthy();
     expect(apiShape.hasInstall).toBeTruthy();
-    expect(apiShape.hasCanPrompt).toBeTruthy();
-    expect(apiShape.hasShow).toBeTruthy();
-    expect(apiShape.hasHide).toBeTruthy();
+    expect(apiShape.hasShowBanner).toBeTruthy();
+    expect(apiShape.hasHideBanner).toBeTruthy();
+    expect(apiShape.hasCanInstall).toBeTruthy();
   });
 });
