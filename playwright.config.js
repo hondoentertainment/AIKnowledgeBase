@@ -16,7 +16,8 @@ module.exports = defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: process.env.PLAYWRIGHT_BASE_URL ? undefined : {
-    command: 'npx serve -l 3847',
+    // http-server preserves .html paths and query strings; `serve` strips both on redirect.
+    command: 'npx http-server . -p 3847 -c-1 --silent',
     url: 'http://127.0.0.1:3847',
     cwd: process.cwd(),
     reuseExistingServer: !process.env.CI,
