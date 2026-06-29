@@ -34,14 +34,16 @@ const REPORT_DIR = path.join(__dirname, "update-reports");
 
 function loadSiteData() {
   const content = fs.readFileSync(DATA_FILE, "utf-8");
-  const fn = new Function(`${content}\nreturn siteData;`);
-  return fn();
+  const window = {};
+  const fn = new Function("window", `${content}\nreturn siteData;`);
+  return fn(window);
 }
 
 function loadNicheData() {
   const content = fs.readFileSync(NICHE_FILE, "utf-8");
-  const fn = new Function(`${content}\nreturn nicheData;`);
-  return fn();
+  const window = {};
+  const fn = new Function("window", `${content}\nreturn nicheData;`);
+  return fn(window);
 }
 
 function loadSources() {
