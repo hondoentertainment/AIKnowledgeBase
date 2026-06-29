@@ -86,8 +86,9 @@ function runFreshnessAgent() {
     // Extract data by evaluating in a sandboxed scope
     let data;
     try {
-      const fn = new Function(`${content}\nreturn ${df.varName};`);
-      data = fn();
+      const window = {};
+      const fn = new Function("window", `${content}\nreturn ${df.varName};`);
+      data = fn(window);
     } catch (e) {
       fail(`Could not parse ${df.name}: ${e.message}`);
       issues++;
