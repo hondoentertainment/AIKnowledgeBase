@@ -9,12 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- July 8, 2026 content refresh:
+  - Bleeding edge: Claude Sonnet 5 (most agentic Sonnet, near-Opus 4.8, default on free/Pro), Gemini 3.5 Flash (I/O 2026 GA), Grok 4.5 (xAI V9, 1.5T params, private beta), ZCode/GLM-5.2 (Z.ai open-weight agentic coding)
 - May 2, 2026 content refresh:
   - Knowledge: Google I/O 2026 AI Recap, Post-Sora Video AI Landscape 2026, Anthropic Model Spec 2.0, A2A Protocol Adoption Tracker, OpenAI Codex Agent Changelog
   - Bleeding edge: Gemini 3.2 Ultra (2M token context, Planner mode), Project Astra GA (real-time universal assistant)
 
 ### Changed
 
+- Claude entry: updated to reflect Claude Opus 4.8 and the new Sonnet 5 (June 2026), plus gated Fable 5 tier; lastVerified bumped to July 8, 2026
+- Gemini entry: updated to the Gemini 3.5 series (Flash GA at I/O 2026, Pro rolling out); lastVerified bumped to July 8, 2026
 - Sora entry: updated to reflect completed app shutdown (April 26, 2026); freq changed to "Discontinued"; URL redirected to migration help page
 
 - April 21, 2026 content refresh:
