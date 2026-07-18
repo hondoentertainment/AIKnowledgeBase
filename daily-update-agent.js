@@ -315,7 +315,10 @@ function cmdAdd(filePath) {
       const match = updatedContent.match(re);
       if (match) {
         const insertPoint = match.index + match[1].length;
-        const before = updatedContent.slice(0, insertPoint).trimEnd();
+        let before = updatedContent.slice(0, insertPoint).trimEnd();
+        // Strip an existing trailing comma so we don't emit a double comma
+        // (which would create a sparse/undefined hole in the array).
+        if (before.endsWith(",")) before = before.slice(0, -1);
         const after = updatedContent.slice(insertPoint);
         updatedContent = before + ",\n" + insertLines + after;
         totalAdded += validated.length;
