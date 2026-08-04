@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- August 4, 2026 content refresh:
+  - Bleeding edge: FLUX 3 (Black Forest Labs multimodal image/video/audio/action, July 23), Laguna S 2.1 (poolside open-weight coding model, July 21), Ling-3.0-flash (Ant Group 124B/5.1B-active efficiency MoE, July 27)
 - July 18, 2026 content refresh:
   - Bleeding edge: Kimi K3 (Moonshot AI open 2.8T-param MoE, July 16)
   - Tools: Gemini Enterprise (Google Cloud agent platform)
@@ -20,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Gemini entry: refreshed to Gemini 3.6 Flash (July 21, 2026, shipped alongside 3.5 Flash Lite); lastVerified bumped to August 4, 2026
+- Flux entry: noted succession by the multimodal FLUX 3, with open-weight FLUX 3 Dev planned for later in 2026
+- DeepSeek V4 entry: noted the faster V4-Flash-0731 variant (July 31, 2026)
 - ChatGPT / OpenAI entries: updated to the GPT-5.6 family (Sol, Terra, Luna) — default in ChatGPT since July 9, 2026; lastVerified bumped to July 18, 2026
 - Content Update Agent (`daily-update-agent.js`): `add` command now strips an existing trailing comma before inserting, preventing a double comma that created a sparse/undefined hole in the array
 - Claude entry: updated to reflect Claude Opus 4.8 and the new Sonnet 5 (June 2026), plus gated Fable 5 tier; lastVerified bumped to July 8, 2026
