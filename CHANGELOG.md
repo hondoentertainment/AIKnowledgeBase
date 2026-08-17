@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Asset budgets (`ux-agents.js`): raised `data.js` from 300KB to 350KB and combined data payloads from 350KB to 400KB. The per-file cap was 92% consumed (276.0KB); both moved together because `jsData` also covers `niche-data.js` and `data.example.js`, so a `dataJs` raise alone would have left the combined budget binding first
 - Claude entry: updated to Claude Opus 5 as flagship (July 24, 2026), Sonnet 5 still default on free/Pro; lastVerified bumped to August 17, 2026
 - Gemini entry: refreshed to Gemini 3.7 Flash (August 13, 2026); noted Gemini 3.5 Pro still delayed
 - Qwen entry: noted the open-weight Qwen3.8-27B shipping August 14, 2026 (previously listed as promised)

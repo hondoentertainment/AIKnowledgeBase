@@ -279,11 +279,14 @@ function runPerformanceAgent() {
     "data.example.js",
   ]);
 
+  // jsData covers data.js + niche-data.js + data.example.js, so it must stay
+  // above dataJs by at least the size of those siblings (~37KB) — otherwise the
+  // combined budget binds first and the per-file dataJs limit is unreachable.
   const budgets = {
     jsCode: { limit: 400 * 1024, label: "Shipped JS (code)" },
-    jsData: { limit: 350 * 1024, label: "Data payloads" },
+    jsData: { limit: 400 * 1024, label: "Data payloads" },
     css: { limit: 150 * 1024, label: "Total CSS" },
-    dataJs: { limit: 300 * 1024, label: "data.js" },
+    dataJs: { limit: 350 * 1024, label: "data.js" },
   };
 
   // Measure JS files
