@@ -2,7 +2,7 @@
 
 **Product:** AI Knowledge Hub  
 **Version:** 1.1  
-**Last updated:** Aug 6, 2026
+**Last updated:** Aug 17, 2026
 
 ---
 
