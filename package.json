@@ -12,6 +12,11 @@
   "devDependencies": {
     "@playwright/test": "^1.49.0",
     "http-server": "^14.1.1",
-    "serve": "^14.2.4"
+    "serve": "^14.2.6"
+  },
+  "overrides": {
+    "serve": {
+      "compression": "1.8.2"
+    }
   }
 }
